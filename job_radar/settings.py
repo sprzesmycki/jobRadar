@@ -11,6 +11,7 @@ SECRET_KEY = os.environ.get(
 )
 
 DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 _fly_app = os.environ.get("FLY_APP_NAME")
