@@ -38,3 +38,6 @@ Thumbs.db
 
 # Fly.io
 .fly/
+
+# Local brainstorming artifacts
+.superpowers/
