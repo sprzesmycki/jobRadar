@@ -1,8 +1,8 @@
-# 10x Astro Starter
+# JobRadar
 
 ![](./public/template.png)
 
-A modern, opinionated starter template for building fast, accessible web applications.
+An Astro + Supabase application for aggregating remote developer job offers, scoring CV fit, and generating personalized cover letters.
 
 ## Tech Stack
 
@@ -20,28 +20,21 @@ A modern, opinionated starter template for building fast, accessible web applica
 
 ## Getting Started
 
-1. Clone the repository:
-
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
-
-2. Install dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Set up Supabase and configure environment variables — see [Supabase Configuration](#supabase-configuration) below.
+2. Set up Supabase and configure environment variables — see [Supabase Configuration](#supabase-configuration) below.
 
-4. Create a `.dev.vars` file for local Cloudflare dev secrets:
+3. Create a `.dev.vars` file for local Cloudflare dev secrets:
 
 ```bash
 cp .env.example .dev.vars
 ```
 
-5. Run the development server:
+4. Run the development server:
 
 ```bash
 npm run dev
@@ -168,7 +161,7 @@ Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or
 
 ## CI
 
-GitHub Actions runs lint + build on every push and PR to `master`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
+GitHub Actions runs lint + build on every push and PR to `main`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
 
 ## License
 

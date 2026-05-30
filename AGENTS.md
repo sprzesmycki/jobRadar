@@ -32,7 +32,7 @@ Use TypeScript, ESM, Astro components for server-rendered pages/layout, and Reac
 
 ## Testing And CI
 
-There is no dedicated test runner yet. Until one is added, `npm run lint` plus `npm run build` is the baseline gate. GitHub Actions currently runs on `master`; update `.github/workflows/ci.yml` if the canonical branch is `main`. CI needs `SUPABASE_URL` and `SUPABASE_KEY` secrets for builds.
+There is no dedicated test runner yet. Until one is added, `npm run lint` plus `npm run build` is the baseline gate. GitHub Actions runs on the canonical `main` branch. CI needs `SUPABASE_URL` and `SUPABASE_KEY` secrets for builds.
 
 ## Commits And PRs
 

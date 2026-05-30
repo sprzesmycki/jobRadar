@@ -5,7 +5,7 @@ project_name: job-radar
 hints:
   language_family: js
   team_size: solo
-  deployment_target: cloudflare-pages
+  deployment_target: cloudflare-workers
   ci_provider: github-actions
   ci_default_flow: auto-deploy-on-merge
   bootstrapper_confidence: first-class
@@ -26,4 +26,4 @@ hints:
 
 ## Why this stack
 
-JobRadar should be a product UI, not a Django-template app: the MVP needs a polished authenticated workflow, CV upload, preference management, job dashboards, async AI/CV processing states, and a frontend that can evolve quickly. The revised stack is Astro + React islands + TypeScript on Cloudflare Pages for the user-facing app, Supabase for Auth/Postgres/Storage, and a separate FastAPI backend in a Docker container on the owner's existing VPS for Python-heavy CV parsing, matching, and AI orchestration. This keeps the frontend agent-friendly and Cloudflare-cheap while avoiding Python-on-edge package risk; Supabase supplies mature auth, relational data, and file storage without building those primitives from scratch.
+JobRadar should be a product UI, not a Django-template app: the MVP needs a polished authenticated workflow, CV upload, preference management, job dashboards, async AI/CV processing states, and a frontend that can evolve quickly. The revised stack is Astro + React islands + TypeScript deployed to Cloudflare Workers through the Astro Cloudflare adapter, Supabase for Auth/Postgres/Storage, and a separate FastAPI backend in a Docker container on the owner's existing VPS for Python-heavy CV parsing, matching, and AI orchestration. This keeps the frontend agent-friendly and Cloudflare-cheap while avoiding Python-on-edge package risk; Supabase supplies mature auth, relational data, and file storage without building those primitives from scratch.
