@@ -1,24 +1,29 @@
 ---
-starter_id: django
-package_manager: uv
+starter_id: 10x-astro-starter
+package_manager: npm
 project_name: job-radar
 hints:
-  language_family: python
+  language_family: js
   team_size: solo
-  deployment_target: fly
+  deployment_target: cloudflare-workers
   ci_provider: github-actions
   ci_default_flow: auto-deploy-on-merge
-  bootstrapper_confidence: verified
-  path_taken: standard
+  bootstrapper_confidence: first-class
+  path_taken: custom
   quality_override: false
-  self_check_answers: null
+  self_check_answers:
+    typed: true
+    from_official_starter: true
+    conventions: true
+    docs_current: true
+    can_judge_agent: true
   has_auth: true
   has_payments: false
   has_realtime: false
   has_ai: true
-  has_background_jobs: false
+  has_background_jobs: true
 ---
 
 ## Why this stack
 
-A solo developer shipping a job aggregation and CV matching web app in 3 weeks needs a batteries-included Python starter that handles auth, ORM, and migrations from day 1. Django is the recommended default for `(web-app, python)` and clears all four agent-friendly gates; bootstrapper confidence is verified, so scaffolding will be smooth. Auth is critical per PRD (FR-001, FR-002) — Django's built-in auth system eliminates significant setup friction. The `has_ai` flag is true (CV-to-job matching and cover letter generation per FR-006–FR-008), but the PRD explicitly scopes this to external AI APIs rather than own model training, which the Python ecosystem handles cleanly. Deployment targets Fly.io — the Django card's first deployment default — with GitHub Actions and auto-deploy on merge to main.
+JobRadar should be a product UI, not a Django-template app: the MVP needs a polished authenticated workflow, CV upload, preference management, job dashboards, async AI/CV processing states, and a frontend that can evolve quickly. The revised stack is Astro + React islands + TypeScript deployed to Cloudflare Workers through the Astro Cloudflare adapter, Supabase for Auth/Postgres/Storage, and a separate FastAPI backend in a Docker container on the owner's existing VPS for Python-heavy CV parsing, matching, and AI orchestration. This keeps the frontend agent-friendly and Cloudflare-cheap while avoiding Python-on-edge package risk; Supabase supplies mature auth, relational data, and file storage without building those primitives from scratch.
