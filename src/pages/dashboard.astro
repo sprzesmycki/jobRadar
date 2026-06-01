@@ -24,6 +24,7 @@ const statusLabels = {
   applied: "Applied",
   rejected: "Rejected",
 };
+const currencyOptions = ["EUR", "USD", "PLN"];
 ---
 
 <Layout title="JobRadar Dashboard">
@@ -103,7 +104,7 @@ const statusLabels = {
               />
             </label>
 
-            <div class="grid grid-cols-[1fr_96px] gap-3">
+            <div class="grid gap-3 sm:grid-cols-[1fr_168px]">
               <label class="block">
                 <span class="mb-1 block text-sm font-medium text-slate-300">Min salary</span>
                 <input
@@ -115,21 +116,25 @@ const statusLabels = {
                   class="h-10 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-cyan-400"
                 />
               </label>
-              <label class="block">
-                <span class="mb-1 block text-sm font-medium text-slate-300">Currency</span>
-                <select
-                  name="salary_currency"
-                  class="h-10 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-cyan-400"
-                >
+              <fieldset>
+                <legend class="mb-1 block text-sm font-medium text-slate-300">Currency</legend>
+                <div class="grid grid-cols-3 gap-2">
                   {
-                    ["EUR", "USD", "PLN"].map((currency) => (
-                      <option value={currency} selected={(preferences?.salary_currency ?? "EUR") === currency}>
-                        {currency}
-                      </option>
+                    currencyOptions.map((currency) => (
+                      <label class="relative flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-950 text-sm font-medium text-slate-200 has-checked:border-cyan-400 has-checked:bg-cyan-400 has-checked:text-slate-950">
+                        <input
+                          type="radio"
+                          name="salary_currency"
+                          value={currency}
+                          checked={(preferences?.salary_currency ?? "EUR") === currency}
+                          class="sr-only"
+                        />
+                        <span>{currency}</span>
+                      </label>
                     ))
                   }
-                </select>
-              </label>
+                </div>
+              </fieldset>
             </div>
 
             <fieldset>
@@ -237,28 +242,37 @@ const statusLabels = {
                         )}
                       </div>
 
-                      <form method="POST" action="/api/saved-jobs" class="w-full shrink-0 space-y-2 lg:w-44">
+                      <form method="POST" action="/api/saved-jobs" class="w-full shrink-0 space-y-2 lg:w-56">
                         <input type="hidden" name="external_id" value={job.id} />
                         <input type="hidden" name="source" value={job.source} />
                         <input type="hidden" name="title" value={job.title} />
                         <input type="hidden" name="company" value={job.company} />
                         <input type="hidden" name="url" value={job.url} />
-                        <select
-                          name="status"
-                          class="h-10 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-cyan-400"
-                        >
-                          {Object.entries(statusLabels).map(([value, label]) => (
-                            <option value={value} selected={(savedJob?.status ?? "interested") === value}>
-                              {label}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          type="submit"
-                          class="h-10 w-full rounded-md border border-slate-700 px-4 text-sm font-semibold text-slate-100 hover:border-cyan-400 hover:text-cyan-200"
-                        >
-                          Save job
-                        </button>
+                        <fieldset>
+                          <legend class="mb-2 text-xs font-medium text-slate-400">Status</legend>
+                          <div class="grid grid-cols-3 gap-2">
+                            {Object.entries(statusLabels).map(([value, label]) => {
+                              const activeStatus = savedJob?.status ?? "interested";
+                              const isActive = activeStatus === value;
+
+                              return (
+                                <button
+                                  type="submit"
+                                  name="status"
+                                  value={value}
+                                  class:list={[
+                                    "h-10 min-w-0 rounded-md border px-2 text-xs font-semibold",
+                                    isActive
+                                      ? "border-cyan-400 bg-cyan-400 text-slate-950"
+                                      : "border-slate-700 text-slate-200 hover:border-cyan-400 hover:text-cyan-200",
+                                  ]}
+                                >
+                                  {label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </fieldset>
                       </form>
                     </div>
                   </article>
