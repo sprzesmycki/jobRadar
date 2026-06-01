@@ -229,8 +229,8 @@ Existing `saved_jobs` can store live Remotive jobs through the existing generic 
 
 #### Manual
 
-- [ ] 1.5 A logged-in user sees Remotive-sourced live jobs on `/dashboard`
-- [ ] 1.6 Remotive jobs display source attribution and link back to Remotive job URLs
+- [x] 1.5 A logged-in user sees Remotive-sourced live jobs on `/dashboard` — 5a1207a
+- [x] 1.6 Remotive jobs display source attribution and link back to Remotive job URLs — 5a1207a
 - [ ] 1.7 If Remotive fetch fails, the dashboard still renders a clear fallback state
 
 ### Phase 2: Dashboard Live Job Loop
@@ -240,12 +240,12 @@ Existing `saved_jobs` can store live Remotive jobs through the existing generic 
 - [x] 2.1 `npm run lint` passes — 482961d
 - [x] 2.2 `npm run build` passes — 482961d
 - [x] 2.3 Runtime smoke check: `/dashboard` redirects unauthenticated requests to `/auth/signin` — 4ceeee0
-- [ ] 2.4 Hosted Supabase migration for `include_unknown_salary` is applied
+- [x] 2.4 Hosted Supabase migration for `include_unknown_salary` is applied — 93ad990
 
 #### Manual
 
-- [ ] 2.5 A logged-in user sees at least one Remotive job on `/dashboard` with realistic title/company/location
-- [ ] 2.6 Preferences can reduce the live list or show the existing empty-state message
-- [ ] 2.7 Salary filters respect min amount, currency conversion, and the unknown-salary checkbox
+- [x] 2.5 A logged-in user sees at least one Remotive job on `/dashboard` with realistic title/company/location — 5a1207a
+- [x] 2.6 Preferences can reduce the live list or show the existing empty-state message — 48f833b
+- [x] 2.7 Salary filters respect min amount, currency conversion, and the unknown-salary checkbox — 7652344
 - [ ] 2.8 Saving a live job status persists after redirect/refresh
-- [ ] 2.9 The dashboard remains usable on desktop and mobile widths after live data loads
+- [x] 2.9 The dashboard remains usable on desktop and mobile widths after live data loads — 5a1207a
