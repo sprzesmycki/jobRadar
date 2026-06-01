@@ -126,7 +126,7 @@ Wire the live source into the authenticated dashboard and verify that existing p
 
 **Intent**: Reuse current role, salary, work-mode, and technology matching against normalized Remotive jobs.
 
-**Contract**: Empty preferences should show jobs. Work mode should treat Remotive jobs as remote. Technology preferences should narrow the live list. Salary filtering should respect both minimum amount and currency for parseable salaries, and the user can decide whether unparseable salaries remain visible.
+**Contract**: Empty preferences should show jobs. Work mode should treat Remotive jobs as remote. Technology preferences should narrow the live list. Salary filtering should compare parseable salaries across supported currencies using an explicit MVP conversion table, and the user can decide whether unparseable salaries remain visible.
 
 #### 3. Unknown salary preference
 
@@ -246,6 +246,6 @@ Existing `saved_jobs` can store live Remotive jobs through the existing generic 
 
 - [ ] 2.5 A logged-in user sees at least one Remotive job on `/dashboard` with realistic title/company/location
 - [ ] 2.6 Preferences can reduce the live list or show the existing empty-state message
-- [ ] 2.7 Salary filters respect min amount, currency, and the unknown-salary checkbox
+- [ ] 2.7 Salary filters respect min amount, currency conversion, and the unknown-salary checkbox
 - [ ] 2.8 Saving a live job status persists after redirect/refresh
 - [ ] 2.9 The dashboard remains usable on desktop and mobile widths after live data loads

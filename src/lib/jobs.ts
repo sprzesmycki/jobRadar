@@ -64,6 +64,12 @@ const SOFTWARE_SIGNALS = [
   "platform",
   "devops",
 ];
+// MVP approximation only. Replace with a live exchange-rate source before relying on exact salary comparisons.
+const SALARY_TO_USD = {
+  EUR: 1.08,
+  PLN: 0.25,
+  USD: 1,
+} satisfies Record<DemoJob["salaryCurrency"], number>;
 
 let remotiveCache: RemotiveCache | null = null;
 
@@ -225,8 +231,11 @@ function roleMatches(preferences: JobPreferences | null, job: DemoJob): boolean 
 function salaryMatches(preferences: JobPreferences | null, job: DemoJob): boolean {
   if (!preferences?.min_salary_amount) return true;
   if (job.salaryMin === null) return preferences.include_unknown_salary;
-  if (preferences.salary_currency !== job.salaryCurrency) return false;
-  return job.salaryMin >= preferences.min_salary_amount;
+
+  const expectedSalaryUsd = preferences.min_salary_amount * SALARY_TO_USD[preferences.salary_currency];
+  const jobSalaryUsd = job.salaryMin * SALARY_TO_USD[job.salaryCurrency];
+
+  return jobSalaryUsd >= expectedSalaryUsd;
 }
 
 function workModeMatches(preferences: JobPreferences | null, job: DemoJob): boolean {
