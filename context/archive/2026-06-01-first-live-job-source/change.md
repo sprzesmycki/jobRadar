@@ -1,10 +1,10 @@
 ---
 change_id: first-live-job-source
 title: First live job source
-status: implemented
+status: archived
 created: 2026-06-01
 updated: 2026-06-01
-archived_at: null
+archived_at: 2026-06-01T20:29:08Z
 ---
 
 ## Notes
