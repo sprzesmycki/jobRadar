@@ -195,9 +195,9 @@ npx supabase db push
 
 #### Manual
 
-- [x] 1.4 Hosted Supabase migrations are applied with `npx supabase db push`
-- [ ] 1.5 A logged-in user can save preferences without an RLS error
-- [ ] 1.6 A logged-in user can save a job status without an RLS error
+- [x] 1.4 Hosted Supabase migrations are applied with `npx supabase db push` — c5ce52d
+- [x] 1.5 A logged-in user can save preferences without an RLS error
+- [x] 1.6 A logged-in user can save a job status without an RLS error
 
 ### Phase 2: Dashboard Vertical Loop
 
@@ -210,7 +210,7 @@ npx supabase db push
 
 #### Manual
 
-- [ ] 2.5 A logged-in user sees the dashboard after sign-in
-- [ ] 2.6 Preferences saved in the form are visible after redirect/refresh
-- [ ] 2.7 Job status saved in the list is visible after redirect/refresh
+- [x] 2.5 A logged-in user sees the dashboard after sign-in
+- [x] 2.6 Preferences saved in the form are visible after redirect/refresh
+- [x] 2.7 Job status saved in the list is visible after redirect/refresh
 - [ ] 2.8 The dashboard remains usable on a mobile-width viewport
