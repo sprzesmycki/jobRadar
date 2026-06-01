@@ -234,6 +234,16 @@ function workModeMatches(preferences: JobPreferences | null, job: DemoJob): bool
   return modes.length === 0 || modes.includes(job.workMode);
 }
 
+function technologyMatches(preferences: JobPreferences | null, job: DemoJob): boolean {
+  const preferredTech = preferences?.technologies.map(normalize) ?? [];
+  if (preferredTech.length === 0) return true;
+
+  const jobTech = job.technologies.map(normalize);
+  return preferredTech.some((technology) =>
+    jobTech.some((jobTechnology) => jobTechnology.includes(technology) || technology.includes(jobTechnology)),
+  );
+}
+
 export function matchJobs(preferences: JobPreferences | null, availableJobs: DemoJob[] = demoJobs): MatchedJob[] {
   const preferredTech = preferences?.technologies.map(normalize) ?? [];
 
@@ -241,9 +251,15 @@ export function matchJobs(preferences: JobPreferences | null, availableJobs: Dem
     .filter((job) => roleMatches(preferences, job))
     .filter((job) => salaryMatches(preferences, job))
     .filter((job) => workModeMatches(preferences, job))
+    .filter((job) => technologyMatches(preferences, job))
     .map((job) => {
-      const matchedSkills = job.technologies.filter((tech) => preferredTech.includes(normalize(tech)));
-      const missingSkills = job.technologies.filter((tech) => !preferredTech.includes(normalize(tech)));
+      const matchedSkills = job.technologies.filter((tech) => {
+        const normalizedTech = normalize(tech);
+        return preferredTech.some(
+          (technology) => normalizedTech.includes(technology) || technology.includes(normalizedTech),
+        );
+      });
+      const missingSkills = job.technologies.filter((tech) => !matchedSkills.includes(tech));
       const techScore =
         preferredTech.length === 0 ? 35 : Math.round((matchedSkills.length / job.technologies.length) * 65);
       const roleScore = roleMatches(preferences, job) ? 20 : 0;
