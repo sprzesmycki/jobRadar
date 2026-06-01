@@ -43,6 +43,7 @@ Thumbs.db
 .superpowers/
 
 .agents/
+.claude/
 
 # from 10x-astro-starter
 # build output
