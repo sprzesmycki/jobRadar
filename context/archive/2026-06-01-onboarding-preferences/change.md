@@ -1,10 +1,10 @@
 ---
 change_id: onboarding-preferences
 title: Onboarding preferences vertical slice
-status: implemented
+status: archived
 created: 2026-06-01
 updated: 2026-06-01
-archived_at: null
+archived_at: 2026-06-01T12:24:28Z
 ---
 
 ## Notes

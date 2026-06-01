@@ -28,7 +28,7 @@ JobRadar helps an employed mid/senior developer avoid manually scanning many job
 | ID | Change ID | Outcome (user can ...) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
 | F-01 | python-cv-ai-service-foundation | (foundation) FastAPI service contract and deployment path exists for CV parsing, scoring, and AI orchestration | — | FR-003, FR-006, FR-007, FR-008, NFR-privacy, NFR-latency | proposed |
-| S-01 | onboarding-preferences | User can register, sign in, save preferences, see demo matches, and save a job status | — | FR-001, FR-002, FR-004, FR-009 | in-progress |
+| S-01 | onboarding-preferences | User can register, sign in, save preferences, see demo matches, and save a job status | — | FR-001, FR-002, FR-004, FR-009 | done |
 | S-02 | first-live-job-source | User can see live offers from one source filtered by saved preferences | S-01 | US-01, FR-005 | proposed |
 | S-03 | three-source-job-aggregation | User can see aggregated offers from JustJoinIT, Remotive, and Adzuna with source labels and deduplication | S-02 | US-01, FR-005 | blocked |
 | S-04 | cv-upload-and-extraction | User can upload a PDF CV and see extracted profile data saved privately | S-01, F-01 | FR-003, NFR-privacy | proposed |
@@ -86,9 +86,9 @@ Foundations below assume these are present and do not re-scaffold them.
 - **Parallel with:** F-01
 - **Blockers:** —
 - **Unknowns:**
-  - Mobile viewport manual verification is still pending in `context/changes/onboarding-preferences/plan.md`. — Owner: user/team. Block: no.
+  - Mobile viewport verification is recorded in `context/archive/2026-06-01-onboarding-preferences/plan.md`. — Owner: team. Block: no.
 - **Risk:** This slice was implemented before the roadmap existed; keep it visible so later slices do not re-build auth, preferences, or saved status.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-02: First Live Job Source
 
@@ -184,7 +184,7 @@ Foundations below assume these are present and do not re-scaffold them.
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| S-01 | onboarding-preferences | Complete onboarding preferences vertical slice | no | Active change already exists; finish mobile verification, merge, then archive. |
+| S-01 | onboarding-preferences | Complete onboarding preferences vertical slice | no | Archived after implementation and manual verification. |
 | S-02 | first-live-job-source | Add the first live job source to the dashboard | no | Ready immediately after S-01 is merged or intentionally continued as a stacked branch. |
 | S-03 | three-source-job-aggregation | Aggregate JustJoinIT, Remotive, and Adzuna offers | no | Blocked until current source API/access constraints are researched. |
 | F-01 | python-cv-ai-service-foundation | Establish FastAPI service foundation for CV and AI work | yes | Can run in parallel with offer-feed work if the branch strategy is clear. |
@@ -209,4 +209,4 @@ Foundations below assume these are present and do not re-scaffold them.
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends an entry here and flips matching item status when an archived change matches the Roadmap Change ID.)
+- **S-01: User can register, sign in, save job preferences, see demo matched jobs, and save a job status.** — Archived 2026-06-01 → `context/archive/2026-06-01-onboarding-preferences/`. Lesson: —.
