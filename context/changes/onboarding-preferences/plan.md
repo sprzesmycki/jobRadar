@@ -213,4 +213,4 @@ npx supabase db push
 - [x] 2.5 A logged-in user sees the dashboard after sign-in — cfe423c
 - [x] 2.6 Preferences saved in the form are visible after redirect/refresh — cfe423c
 - [x] 2.7 Job status saved in the list is visible after redirect/refresh — cfe423c
-- [x] 2.8 The dashboard remains usable on a mobile-width viewport
+- [x] 2.8 The dashboard remains usable on a mobile-width viewport — a99407c
