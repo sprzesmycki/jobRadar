@@ -126,9 +126,22 @@ Wire the live source into the authenticated dashboard and verify that existing p
 
 **Intent**: Reuse current role, salary, work-mode, and technology matching against normalized Remotive jobs.
 
-**Contract**: Empty preferences should show jobs. Work mode should treat Remotive jobs as remote. Salary filtering should not hide jobs with unknown/unparseable salary.
+**Contract**: Empty preferences should show jobs. Work mode should treat Remotive jobs as remote. Technology preferences should narrow the live list. Salary filtering should respect both minimum amount and currency for parseable salaries, and the user can decide whether unparseable salaries remain visible.
 
-#### 3. Saved status compatibility
+#### 3. Unknown salary preference
+
+**Files**:
+
+- `supabase/migrations/20260601103000_add_unknown_salary_preference.sql`
+- `src/lib/preferences.ts`
+- `src/pages/api/preferences.ts`
+- `src/pages/dashboard.astro`
+
+**Intent**: Avoid hardcoding whether jobs without listed salary survive the salary filter.
+
+**Contract**: Preferences include an `include_unknown_salary` checkbox, defaulting to checked for existing users. When unchecked and min salary is set, jobs without parseable salary are hidden.
+
+#### 4. Saved status compatibility
 
 **Files**:
 
@@ -182,7 +195,17 @@ Do not poll Remotive aggressively. This first slice may trigger loading from the
 
 ## Migration Notes
 
-No Supabase schema migration is expected. Existing `saved_jobs` can store live Remotive jobs through the existing generic job fields.
+This slice adds one preference column:
+
+```bash
+npx supabase db push
+```
+
+Migration:
+
+- `supabase/migrations/20260601103000_add_unknown_salary_preference.sql`
+
+Existing `saved_jobs` can store live Remotive jobs through the existing generic job fields.
 
 ## References
 
@@ -217,10 +240,12 @@ No Supabase schema migration is expected. Existing `saved_jobs` can store live R
 - [x] 2.1 `npm run lint` passes — 5e8c9fe
 - [x] 2.2 `npm run build` passes — 5e8c9fe
 - [x] 2.3 Runtime smoke check: `/dashboard` redirects unauthenticated requests to `/auth/signin` — 4ceeee0
+- [ ] 2.4 Hosted Supabase migration for `include_unknown_salary` is applied
 
 #### Manual
 
-- [ ] 2.4 A logged-in user sees at least one Remotive job on `/dashboard` with realistic title/company/location
-- [ ] 2.5 Preferences can reduce the live list or show the existing empty-state message
-- [ ] 2.6 Saving a live job status persists after redirect/refresh
-- [ ] 2.7 The dashboard remains usable on desktop and mobile widths after live data loads
+- [ ] 2.5 A logged-in user sees at least one Remotive job on `/dashboard` with realistic title/company/location
+- [ ] 2.6 Preferences can reduce the live list or show the existing empty-state message
+- [ ] 2.7 Salary filters respect min amount, currency, and the unknown-salary checkbox
+- [ ] 2.8 Saving a live job status persists after redirect/refresh
+- [ ] 2.9 The dashboard remains usable on desktop and mobile widths after live data loads

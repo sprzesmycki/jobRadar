@@ -224,8 +224,8 @@ function roleMatches(preferences: JobPreferences | null, job: DemoJob): boolean 
 
 function salaryMatches(preferences: JobPreferences | null, job: DemoJob): boolean {
   if (!preferences?.min_salary_amount) return true;
-  if (job.salaryMin === null) return true;
-  if (preferences.salary_currency !== job.salaryCurrency) return true;
+  if (job.salaryMin === null) return preferences.include_unknown_salary;
+  if (preferences.salary_currency !== job.salaryCurrency) return false;
   return job.salaryMin >= preferences.min_salary_amount;
 }
 

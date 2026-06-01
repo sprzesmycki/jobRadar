@@ -144,6 +144,26 @@ const currencyOptions = ["EUR", "USD", "PLN"];
               </fieldset>
             </div>
 
+            <div
+              class="flex items-start gap-3 rounded-md border border-slate-700 bg-slate-950 p-3 text-sm text-slate-200"
+            >
+              <input
+                id="include_unknown_salary"
+                type="checkbox"
+                name="include_unknown_salary"
+                checked={preferences?.include_unknown_salary ?? true}
+                class="mt-0.5 size-4 shrink-0 accent-cyan-400"
+              />
+              <span>
+                <label for="include_unknown_salary" class="block font-medium text-slate-100">
+                  Include jobs without listed salary
+                </label>
+                <span class="mt-1 block text-xs text-slate-400">
+                  When unchecked, min salary filters out offers where Remotive does not provide a parseable salary.
+                </span>
+              </span>
+            </div>
+
             <fieldset>
               <legend class="mb-2 text-sm font-medium text-slate-300">Work mode</legend>
               <div class="grid grid-cols-3 gap-2">

@@ -5,6 +5,7 @@ export interface JobPreferences {
   technologies: string[];
   min_salary_amount: number | null;
   salary_currency: "EUR" | "USD" | "PLN";
+  include_unknown_salary: boolean;
   work_modes: string[];
   locations: string | null;
   updated_at: string;
@@ -18,7 +19,9 @@ export interface PreferencesResult {
 export async function getJobPreferences(supabase: SupabaseClient, userId: string): Promise<PreferencesResult> {
   const { data, error } = await supabase
     .from("job_preferences")
-    .select("target_roles, technologies, min_salary_amount, salary_currency, work_modes, locations, updated_at")
+    .select(
+      "target_roles, technologies, min_salary_amount, salary_currency, include_unknown_salary, work_modes, locations, updated_at",
+    )
     .eq("user_id", userId)
     .maybeSingle();
 
