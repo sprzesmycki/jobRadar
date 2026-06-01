@@ -199,8 +199,8 @@ No Supabase schema migration is expected. Existing `saved_jobs` can store live R
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes — 4ceeee0
-- [x] 1.2 `npm run build` passes — 4ceeee0
+- [x] 1.1 `npm run lint` passes — 5e8c9fe
+- [x] 1.2 `npm run build` passes — 5e8c9fe
 - [x] 1.3 Fetcher can map a representative Remotive payload without throwing — 4ceeee0
 - [x] 1.4 Remotive fetch path uses a server-side cache/TTL rather than refetching on every dashboard render — 4ceeee0
 
@@ -214,8 +214,8 @@ No Supabase schema migration is expected. Existing `saved_jobs` can store live R
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes — 4ceeee0
-- [x] 2.2 `npm run build` passes — 4ceeee0
+- [x] 2.1 `npm run lint` passes — 5e8c9fe
+- [x] 2.2 `npm run build` passes — 5e8c9fe
 - [x] 2.3 Runtime smoke check: `/dashboard` redirects unauthenticated requests to `/auth/signin` — 4ceeee0
 
 #### Manual
