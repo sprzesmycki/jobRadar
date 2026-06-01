@@ -1,7 +1,7 @@
 ---
 change_id: first-live-job-source
 title: First live job source
-status: plan_reviewed
+status: implementing
 created: 2026-06-01
 updated: 2026-06-01
 archived_at: null
