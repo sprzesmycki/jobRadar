@@ -195,7 +195,7 @@ npx supabase db push
 
 #### Manual
 
-- [ ] 1.4 Hosted Supabase migrations are applied with `npx supabase db push`
+- [x] 1.4 Hosted Supabase migrations are applied with `npx supabase db push`
 - [ ] 1.5 A logged-in user can save preferences without an RLS error
 - [ ] 1.6 A logged-in user can save a job status without an RLS error
 
