@@ -250,7 +250,7 @@ const currencyOptions = ["EUR", "USD", "PLN"];
                         <input type="hidden" name="url" value={job.url} />
                         <fieldset>
                           <legend class="mb-2 text-xs font-medium text-slate-400">Status</legend>
-                          <div class="grid grid-cols-3 gap-2">
+                          <div class="grid grid-cols-3 gap-2 lg:grid-cols-1">
                             {Object.entries(statusLabels).map(([value, label]) => {
                               const activeStatus = savedJob?.status ?? "interested";
                               const isActive = activeStatus === value;
@@ -261,7 +261,7 @@ const currencyOptions = ["EUR", "USD", "PLN"];
                                   name="status"
                                   value={value}
                                   class:list={[
-                                    "h-10 min-w-0 rounded-md border px-2 text-xs font-semibold",
+                                    "h-10 min-w-0 rounded-md border px-2 text-xs font-semibold sm:text-sm",
                                     isActive
                                       ? "border-cyan-400 bg-cyan-400 text-slate-950"
                                       : "border-slate-700 text-slate-200 hover:border-cyan-400 hover:text-cyan-200",
