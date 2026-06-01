@@ -104,7 +104,21 @@ npx supabase stop
 
 The local Studio UI is available at `http://localhost:54323`.
 
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
+## Database Migrations
+
+Product features use SQL migrations in `supabase/migrations/`.
+
+Apply them to the linked Supabase project before deploying features that write user data:
+
+```bash
+npx supabase link --project-ref <project-ref>
+npx supabase db push
+```
+
+Current migrations create:
+
+- `job_preferences` — per-user role, technology, salary, work-mode, and location filters.
+- `saved_jobs` — per-user saved offer status tracking.
 
 ### Using a cloud Supabase project instead
 
