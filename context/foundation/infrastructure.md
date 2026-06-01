@@ -1,136 +1,140 @@
 ---
 project: job-radar
-researched_at: 2026-05-25T21:53:21Z
-recommended_platform: Fly.io
-runner_up: Railway
+researched_at: 2026-05-30T00:00:00+02:00
+recommended_platform: Cloudflare Workers + Supabase + self-hosted VPS
+runner_up: Cloudflare Workers + Supabase + Railway backend
 context_type: mvp
 tech_stack:
-  language: python
-  framework: django
-  runtime: python-wsgi-gunicorn
-  package_manager: uv
+  language: TypeScript frontend, Python backend
+  framework: Astro 6 + React 19, FastAPI
+  runtime: Cloudflare Workers workerd, Docker on VPS
+  database: Supabase Postgres
+  auth: Supabase Auth
+  storage: Supabase Storage
+  branch: main
 ---
 
 ## Recommendation
 
-**Deploy on Fly.io.**
+**Deploy JobRadar on Cloudflare Workers for the Astro app, Supabase for Auth/Postgres/Storage, and the owner's VPS for the Python FastAPI backend.**
 
-Fly.io is the recommended platform for this Django 6.0.5 + uv stack. It supports full WSGI persistent processes (no cold-start problem), provides a comprehensive CLI (`flyctl`) for all operational tasks, has a documented Django guide, and supports multi-region deployment — directly addressing the "global users" requirement from the interview. The main setup friction is that `fly launch` does not yet detect uv projects, requiring a custom Dockerfile upfront. This is a one-time 30–60 minute cost, after which the full CLI-driven deployment loop is smooth. Cost floor for a solo MVP without managed Postgres: ~$2–6/month.
+This is the best fit for the current codebase because `astro.config.mjs` uses `output: "server"` with `@astrojs/cloudflare`, and the current `wrangler.jsonc` points at the Astro 6 Cloudflare adapter entrypoint. Cloudflare's current Astro guidance says this setup server-renders pages in a Worker, while `astro dev` and `astro preview` use the `workerd` runtime, so local and production behavior stay close. Supabase covers product primitives without building auth, database, and private CV storage from scratch; the VPS keeps Python PDF/CV parsing and AI orchestration in a conventional Docker environment instead of forcing heavy Python dependencies onto an edge runtime.
 
----
+Interview assumptions recorded for this decision:
+- No user-facing WebSocket requirement in the MVP.
+- Background jobs are needed, but they can run in the Python backend container or cron-like backend process on the VPS.
+- Cost minimization matters; the existing VPS should be used before adding a paid backend PaaS.
+- External managed services are acceptable; co-location under one vendor is not required.
+- Global frontend latency is useful, but the first real user base can tolerate a single backend region.
 
 ## Platform Comparison
 
-| Platform | CLI-first | Managed | Agent docs | Deploy API | MCP | **Score** | Django fit |
-|---|---|---|---|---|---|---|---|
-| **Fly.io** | Pass | Pass | Partial | Pass | Partial | **8/10** | ✓ Full WSGI, multi-region |
-| **Railway** | Pass | Pass | Pass | Pass | Partial | **9/10** | ✓ Native uv, auto-detect |
-| **Render** | Partial | Pass | Pass | Partial | Partial | **7/10** | ✓ Native uv GA, simpler |
-| Vercel | Pass | Pass | Pass | Pass | Partial | 9/10* | ✗ Serverless-only, cold starts |
-| Cloudflare Workers | — | — | — | — | — | dropped | ✗ No TCP, no transactions |
-| Netlify | — | — | — | — | — | dropped | ✗ No Python runtime |
+| Platform shape | CLI-first | Managed / serverless | Agent-readable docs | Stable deploy API | MCP / integration | Fit |
+|---|---|---|---|---|---|---|
+| Cloudflare Workers + Supabase + VPS FastAPI | Pass | Partial | Pass | Pass | Pass | Recommended |
+| Cloudflare Workers + Supabase + Railway backend | Pass | Pass | Pass | Pass | Partial | Runner-up |
+| Cloudflare Workers + Supabase + Render backend | Partial | Pass | Partial | Pass | Partial | Third |
+| Vercel + Supabase + VPS FastAPI | Pass | Pass | Pass | Pass | Pass, beta | Viable but less aligned |
+| Netlify + Supabase + VPS FastAPI | Pass | Pass | Partial | Pass | Pass | Viable for static/JAMstack, weaker for this Astro Workers starter |
+| Fly.io full backend/frontend | Pass | Partial | Pass | Pass | Partial | Rejected; previous Fly apps were intentionally destroyed |
 
-*Vercel scores 9 on agent-friendly criteria but is incompatible with a conventional Django monolith: serverless-only, 3–7s cold starts, no `manage.py` on platform, WebSockets blocked.
+Cloudflare wins because the scaffold already targets Workers with Astro 6, Wrangler is first-class, Cloudflare publishes agent-readable docs including `llms.txt`, and Cloudflare has an official MCP server. The tradeoff is that Cloudflare only manages the frontend runtime here; the Python backend still needs VPS discipline.
 
-**Dropped platforms:**
-- **Cloudflare Workers** — Python support is open beta; Django requires a community adapter (`django-cf`); TCP socket is blocked (no PostgreSQL via psycopg2/asyncpg); transactions are disabled in D1 (breaks Django's `atomic()`, the test runner, and `select_for_update`). Architectural mismatch, not a scoring matter.
-- **Netlify** — No Python function runtime; cannot run Django WSGI. The platform is static + JavaScript/Go serverless only. Hard incompatibility.
+Railway is the cleanest fallback for the Python backend if the VPS becomes a maintenance problem. Current Railway docs support `railway up`, project tokens for CI, JSON logs, deployment listing, and rollback/redeploy concepts. It adds at least a small monthly platform cost once the app moves beyond free experimentation, but removes most VPS operations.
 
----
+Render is a reasonable third option for FastAPI because it supports Python web services, API-triggered deploys, rollbacks, and a CLI. Its free web service tier is explicitly not for production applications, so it is a fallback for preview or hobby use, not the preferred MVP production backend.
 
-### Shortlisted Platforms
+Vercel is strong operationally and has an official MCP server in beta, but the current Astro starter is tuned for Cloudflare Workers, not Vercel. Moving would be a frontend platform change with little upside for this project.
 
-#### 1. Fly.io (Recommended)
+Netlify has good previews, CLI deploys, and an official MCP server, but its current credit-based pricing and Astro Workers mismatch make it less attractive than Cloudflare for this stack.
 
-Fly.io runs Django in a Docker container on persistent VMs ("Machines"). `flyctl` covers the full operational loop: `fly deploy` (build + push + deploy), `fly logs` (live log tailing), `fly ssh console` (management commands like `migrate`), `fly scale` (vertical + horizontal), and `fly releases` + `fly deploy --image` for rollbacks. Always-on by default (`auto_stop_machines = "off"` in `fly.toml`) with opt-in scale-to-zero. Multi-region support via `fly regions add` aligns with the global-reach preference from the interview. The main gap is uv: `fly launch` does not detect uv projects (as of 2026-05-25), requiring a custom Dockerfile. Docs are available per-page as markdown via GitHub but there is no `llms.txt` index (404). The `fly mcp server` command exists but is marked `[experimental]`.
+Fly.io remains a technically good container platform, but it was already rejected for this project after the Django/Fly direction was abandoned. Reintroducing it would add cost and contradict the cleanup decision unless the VPS path fails.
 
-**Why it won over Railway:** the multi-region capability is genuinely relevant for a job aggregation app targeting global remote developers. Railway is single-region per service at MVP. The tech-stack hand-off also selected `deployment_target: fly`, confirming alignment with the earlier stack decision.
+## Shortlisted Platforms
 
-#### 2. Railway
+### 1. Cloudflare Workers + Supabase + VPS FastAPI (Recommended)
 
-Railway is the highest-scoring platform on the agent-friendly criteria matrix. Railpack (Railway's build system) natively detects `uv.lock` and handles Python + Django auto-detection without a custom Dockerfile — the smoothest onboarding path for this stack. Always-on persistent processes. `railway.com/llms.txt` is available. The official MCP server (`@railway/mcp-server`, beta as of August 2025) enables Claude Code to deploy, view logs, and manage env vars. Fell to runner-up because: single-region per service (no native multi-region), MCP server is self-described "work in progress", no CLI rollback command, and no automatic PostgreSQL backups on the Hobby plan.
+Best match for the checked-in stack: Astro 6 SSR on Workers, Supabase for managed data/auth/storage, and existing VPS capacity for Python. Keeps frontend deploys CLI-first with Wrangler and avoids new backend hosting costs.
 
-#### 3. Render
+### 2. Cloudflare Workers + Supabase + Railway Backend
 
-Render is the simplest path to production for this specific stack: native Python runtime with uv support (GA June 2025), zero-config `uv sync` for builds, `llms.txt` + `llms-full.txt` for agent-readable docs, and a GA MCP server (`mcp.render.com`). Fell to third because: CLI rollback is not implemented (API/dashboard only, which limits agent-driven rollback), free tier has 15-minute sleep and 1-minute cold starts (requiring the $7/month Starter plan for any real usage), and the Render MCP server cannot trigger deploys — it is read-heavy and cannot complete the full operational loop from an agent session.
+Best fallback if the VPS becomes too manual. It keeps the Cloudflare/Supabase frontend and data decision intact while moving the FastAPI container to a PaaS with a strong CLI and logs.
 
----
+### 3. Cloudflare Workers + Supabase + Render Backend
 
-## Anti-Bias Cross-Check: Fly.io
+Acceptable fallback for a small Python service, especially if Render's service model is preferred. Lower rank because production use likely needs a paid instance and the free tier is not positioned as production-ready.
 
-### Devil's Advocate — Weaknesses
+## Anti-Bias Cross-Check: Cloudflare Workers + Supabase + VPS FastAPI
 
-1. **No uv support in `fly launch`** — `fly launch` fails to detect uv projects and falls back to Poetry assumptions. A custom Dockerfile is required on day 1, pulling the uv binary from `ghcr.io/astral-sh/uv`. This is 30–60 minutes of setup friction before writing any product code.
-2. **Managed Postgres pricing cliff** — Fly's Managed Postgres (MPG) starts at $38/month. The practical alternative (self-managed Fly Postgres VM at ~$2–5/month) requires manual backup configuration that most solo developers skip until something goes wrong.
-3. **No `llms.txt` or dedicated LLM manifest** — `fly.io/llms.txt` returns 404. Agents need per-page GitHub fetching for Fly docs, increasing the risk of stale or incorrect CLI invocations.
-4. **MCP server is experimental** — `fly mcp server` is marked `[experimental]`; the GitHub repo had 31 stars at research time. Agent-driven Fly.io operations will rely on CLI parsing, not structured MCP tool calls.
-5. **Rollback has no dedicated single command** — Rollback requires: `fly releases` → identify image tag → `fly deploy --image registry.fly.io/appname:<tag>`. A 3-step process with failure surface at each step.
+### Devil's Advocate - Weaknesses
 
-### Pre-Mortem — How This Could Fail
+1. The frontend is managed, but the backend is not. A VPS can become an undocumented single-server dependency unless deployment, env vars, logs, backups, and OS patching are written down early.
+2. Astro 6 + Cloudflare Workers is current and aligned, but it is still stricter than Node. Dependencies that assume Node APIs, CommonJS, or filesystem behavior may fail in `workerd`.
+3. Supabase Auth plus a separate FastAPI backend creates a JWT validation and CORS boundary. If this is casual, the backend can accidentally trust unauthenticated requests or reject legitimate Cloudflare preview domains.
+4. CV privacy crosses three systems: Supabase Storage, Cloudflare Worker, and VPS. A single mistaken public bucket, signed URL TTL, or backend log can leak sensitive CV text.
+5. Manual direct deploys are good for first production, but without a small runbook they become invisible state: nobody knows which Worker version, Docker image, or migration is live.
 
-The developer spends the first two hours of week 1 fighting the custom Dockerfile. `fly launch` generates a broken Dockerfile assuming Poetry; they copy a community uv template, push, and deploy successfully. Weeks 1–3 proceed well. At week 3, they add `SECRET_KEY` as a Fly secret but `collectstatic` in the Dockerfile still needs it at build time — it's not available as a build arg. They add a dummy key to the Dockerfile, forget to rotate it, and ship with a hardcoded dummy `SECRET_KEY` in the image. Meanwhile, CV uploads (PDFs) are written to the container filesystem because the developer missed the ephemeral-filesystem note in the docs. On the first redeploy, all uploaded CVs are wiped. The feature that drives the whole product — CV-to-job matching — stops working. The debug session eats the rest of week 3 and the developer ships late or not at all.
+### Pre-Mortem - How This Could Fail
+
+Six months after launch, the decision failed because the team treated "free VPS" as "no operations." The Astro frontend deployed cleanly to Cloudflare, but the FastAPI container was updated by hand over SSH with no tagged images, no rollback command, and secrets edited directly on the server. A Supabase RLS policy was added for the frontend, but the backend kept using a service-role key for convenience and logged parsed CV fragments during debugging. Cloudflare preview URLs were not added to the allowed CORS list, so authentication appeared flaky in review builds and fixes were tested directly in production. Meanwhile, a Python PDF parsing dependency started leaking memory on the VPS. Because the process manager and logs were not documented, the app silently failed during long CV parsing runs and users saw stale match scores. The architecture was still basically sound, but the missing runbook, secret boundaries, and backend observability turned a cheap MVP setup into a fragile one-person production system.
 
 ### Unknown Unknowns
 
-- **`SECRET_KEY` at Docker build time** — `collectstatic` runs during `RUN` (build), but Fly secrets are runtime-only. The fix (`ENV SECRET_KEY=dummy-build-only` in the Dockerfile) is non-obvious and doesn't appear in the official Django guide; it surfaces only in community threads.
-- **Tigris object storage is beta** — CV uploads (PDF, FR-003) need external object storage since container filesystems are ephemeral. Tigris is Fly's native storage option, but it carries a beta status as of 2026-05-25. Using a beta service for the product's core user data (CVs) is a risk to name and plan around.
-- **Inter-region private network bandwidth became paid (February 2026)** — if the app and Managed Postgres land in different regions (even accidentally), there is now a bandwidth charge. The pricing page fine print is the only place this is documented.
-- **`fly launch` does not add `release_command` for migrations** — without `release_command = "python manage.py migrate --noinput"` in `fly.toml`, DB schema and app code diverge silently after the first migration-bearing deploy.
-- **Django 6.0 is stricter on `ALLOWED_HOSTS`** — the correct Fly config (`['<appname>.fly.dev']`) is not in the official guide; the naive fix (`ALLOWED_HOSTS = ['*']`) in production is a security issue that passes local testing silently.
-
----
+- Astro 6's Cloudflare adapter changed the Wrangler entrypoint to `@astrojs/cloudflare/entrypoints/server`; older Cloudflare/Astro tutorials that point at `dist/_worker.js/index.js` are stale for this project.
+- In Astro 6, `astro dev` and `astro preview` run closer to `workerd`; this is good, but it means local failures may come from runtime compatibility rather than normal Node dev-server behavior.
+- Cloudflare Pages commands and Workers commands are not interchangeable. This repo's `wrangler.jsonc` is a Workers-style deploy target, so the first deploy should use `npx wrangler deploy`, not `wrangler pages deploy`.
+- Supabase's free tier is attractive for MVP, but free projects can be paused after inactivity and have small DB/storage limits; production beta should have an explicit paid-plan trigger.
+- The VPS backend needs a domain and TLS story. If Cloudflare proxies that domain, request headers, body size limits, and CORS behavior should be tested with a real CV upload before public beta.
 
 ## Operational Story
 
-- **Preview deploys**: Fly.io does not have automatic branch/PR preview deployments in the same way as Vercel/Netlify. Use `fly deploy --app <preview-app-name>` to manually push to a separate app named e.g. `job-radar-preview`. Preview apps are not automatically protected; add Fly access tokens or external auth if needed.
-- **Secrets**: All env vars and tokens live in Fly secrets (`fly secrets set KEY=value`). Secrets are encrypted at rest and injected at runtime. They are not visible after setting — `fly secrets list` shows key names only. Rotation: `fly secrets set KEY=newvalue` with no downtime. Never stored in `fly.toml` (that file is committed to the repo).
-- **Rollback**: `fly releases --app job-radar` to list past releases with image tags → `fly deploy --image registry.fly.io/job-radar:<tag> --strategy immediate` to revert. Typical time-to-revert: ~30 seconds (no rebuild — image already in registry). DB migrations applied in the forward direction do not auto-roll back; handle via Django migration reversals before rolling back app code.
-- **Approval**: Migrations (`fly ssh console --pty -C "python manage.py migrate"`), adding/removing regions (`fly regions add/remove`), scaling beyond a single machine (`fly scale count N`) — these require human decision. `fly deploy` from CI may run unattended; destructive operations (DB drop, secret rotation) are human-only.
-- **Logs**: `fly logs --app job-radar` tails live logs. Filter by instance: `fly logs -i <instance-id>`. Filter by region: `fly logs -r lax`. Logs are not persisted beyond a short rolling window by default; for structured log querying, pipe to a log sink (Papertrail, Logtail, or Fly's Prometheus integration).
-
----
+- **Preview deploys**: For the first deploy, use manual branch-local verification: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` if available for the installed Wrangler. Full PR previews can come later through Cloudflare/Git integration or CI, but are not required for first production.
+- **Production deploy**: Frontend deploys from the local or CI checkout with `npx wrangler deploy` after the branch is merged to `main`. The Worker name is `job-radar`.
+- **Backend deploy**: FastAPI deploys to the VPS as a Docker Compose service behind a reverse proxy. First version can be `docker compose up -d --build`; before public beta this should become a tagged image plus a small deploy script.
+- **Secrets**: `SUPABASE_URL` and the Supabase anon key live as Cloudflare Worker secrets or environment variables. Supabase service-role key, AI provider keys, and scraper/API credentials live only on the VPS. No service-role key may be imported by frontend code.
+- **Rollback**: Frontend rollback is Cloudflare deployment rollback from the dashboard or Wrangler/API once deployment IDs are captured. Backend rollback is a previous Docker image tag or previous compose revision. Supabase migrations do not automatically roll back and require manual review.
+- **Approval**: An agent may run lint/build, inspect logs, prepare deploy commands, and deploy preview/non-production. Production deploy, secret rotation, deleting Cloudflare/Supabase resources, and dropping data require human approval.
+- **Logs**: Frontend build/runtime logs through Wrangler/Cloudflare dashboard; backend logs through `docker compose logs --tail=200 backend` on the VPS; Supabase auth/database/storage logs through Supabase dashboard or CLI where available.
 
 ## Risk Register
 
 | Risk | Source | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
-| Custom Dockerfile blocks week-1 setup | Devil's advocate | H | M | Use the community uv+Django Dockerfile template from fly.io/docs/django/ before starting; add to repo on day 1 |
-| `SECRET_KEY` hardcoded in Dockerfile for `collectstatic` | Unknown unknowns | H | H | Add `ENV SECRET_KEY=dummy-build-only-not-production` in Dockerfile; set real key via `fly secrets set SECRET_KEY=<value>` before first deploy |
-| CV uploads (PDFs) wiped on redeploy | Pre-mortem | H | H | Configure Tigris (or S3-compatible) as `DEFAULT_FILE_STORAGE` before accepting any user uploads; never use container local storage for user files |
-| Tigris in beta for core user data | Unknown unknowns | M | H | Monitor Tigris GA announcement; have S3 (AWS) as a fallback config ready; keep a local backup script for early beta users |
-| Managed Postgres $38/month cost floor | Devil's advocate | H | M | Use self-managed Fly Postgres VM ($2–5/month); set up `pg_dump` cron from day 1; document backup procedure in CLAUDE.md |
-| Migrations not running on deploy | Unknown unknowns | H | M | Add `release_command = "python manage.py migrate --noinput"` to `fly.toml` before first real deploy |
-| DB schema / app divergence after failed migration | Pre-mortem | M | H | Test migrations in a staging app (`job-radar-staging`) before deploying to production; keep `--noinput` in release_command |
-| `ALLOWED_HOSTS` misconfiguration | Unknown unknowns | M | L | Set `ALLOWED_HOSTS = [os.environ.get('FLY_APP_NAME', '') + '.fly.dev', 'your-custom-domain.com']` from day 1 |
-| No persistent log archive for debugging | Research finding | M | M | Add a log sink (Logtail free tier or Papertrail) in week 1; configure Django's `logging` to stdout so Fly captures all app logs |
-| Inter-region bandwidth charges (post-Feb 2026) | Unknown unknowns | L | M | Deploy app and Postgres in the same region (`fly.toml` and Postgres cluster: both `fra` or `lax`); verify with `fly regions list` |
-| Emergency rollback is 3-step manual process | Devil's advocate | L | M | Document rollback procedure in CLAUDE.md; keep last 3 release image tags noted after each deploy |
-
----
+| VPS becomes an undocumented production snowflake | Pre-mortem | M | H | Add `backend/README.md`, `docker-compose.yml`, `.env.example`, log command, deploy command, and rollback command before opening beta. |
+| Service-role key leaks into Worker/frontend code | Devil's advocate | M | H | Keep service-role and AI keys only in VPS env; add code-review rule and grep check for service-role variable names in `src/`. |
+| Astro dependency fails under `workerd` | Unknown unknowns | M | M | Keep `npm run build` and `astro preview` in the verification gate; avoid Node-only packages in frontend/server-rendered Astro code. |
+| Wrong Cloudflare deploy command used | Unknown unknowns | M | M | Document this repo as Workers deploy via `npx wrangler deploy`; do not use `wrangler pages deploy` unless the architecture changes. |
+| Supabase free tier pauses or hits limits | Research finding | M | M | Track DB/storage/auth usage; move to Pro before public beta or when CV storage approaches free-tier limits. |
+| CV files or parsed CV text leak through storage/logs | Devil's advocate | M | H | Private Supabase Storage bucket, short-lived signed URLs, no raw CV logs, and backend log redaction around parsing/AI calls. |
+| CORS/JWT mismatch between Worker and FastAPI | Devil's advocate | M | M | Validate Supabase JWTs in FastAPI; explicitly allow production and preview origins; test auth-to-backend flow before deploy signoff. |
+| Direct manual deploy hides what is live | Pre-mortem | M | M | Record Worker deployment ID, git SHA, Docker image tag, and migration status in `context/deployment/deploy-plan.md` after first deploy. |
 
 ## Getting Started
 
-1. **Install flyctl**: `curl -L https://fly.io/install.sh | sh` → `fly auth login`
-2. **Write a uv-aware Dockerfile** — `fly launch` does not detect uv; create `Dockerfile` manually:
-   ```dockerfile
-   FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
-   WORKDIR /app
-   COPY pyproject.toml uv.lock ./
-   ENV SECRET_KEY=dummy-build-only-not-production
-   RUN uv sync --frozen --no-dev
-   COPY . .
-   RUN uv run python manage.py collectstatic --noinput
-   CMD ["uv", "run", "gunicorn", "job_radar.wsgi:application", "--bind", "0.0.0.0:8000"]
-   ```
-3. **Create `fly.toml`** with release command: `fly launch --no-deploy` to scaffold the config, then add `release_command = "python manage.py migrate --noinput"` and set `auto_stop_machines = "off"` under `[machines]`.
-4. **Set secrets before first deploy**: `fly secrets set SECRET_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(50))")` and `fly secrets set DATABASE_URL=<your-postgres-url>`.
-5. **Deploy**: `fly deploy` — Fly builds the image remotely, pushes, runs the release command (`migrate`), then starts the machine. Verify with `fly logs` and `fly open`.
+1. Keep this branch on `reset-stack-astro-supabase`, finish verification, then merge to `main`.
+2. Create a Cloudflare API token scoped to Workers for the `job-radar` Worker; do not grant DNS or billing permissions to the token.
+3. Configure Cloudflare secrets for the Worker: `SUPABASE_URL` and `SUPABASE_KEY` using the hosted Supabase anon key.
+4. Run `npm run lint`, `npm run build`, then deploy the frontend with `npx wrangler deploy`.
+5. Before implementing the Python backend, add `backend/` with FastAPI, Docker Compose, `.env.example`, health endpoint, and explicit deploy/rollback commands for the VPS.
 
----
+## Evidence Links
+
+- Cloudflare Astro Workers guide: https://developers.cloudflare.com/workers/framework-guides/web-apps/astro/
+- Astro Cloudflare adapter guide: https://docs.astro.build/en/guides/integrations-guide/cloudflare/
+- Cloudflare Wrangler Pages command reference: https://developers.cloudflare.com/workers/wrangler/commands/pages/
+- Cloudflare MCP server: https://github.com/cloudflare/mcp
+- Supabase pricing: https://supabase.com/pricing
+- Railway CLI deploy docs: https://docs.railway.com/cli/deploying
+- Railway pricing docs: https://docs.railway.com/pricing/plans
+- Render CLI docs: https://render.com/docs/cli
+- Render free-tier docs: https://render.com/free
+- Fly.io pricing docs: https://fly.io/docs/about/pricing/
+- Vercel MCP docs: https://vercel.com/docs/agent-resources/vercel-mcp
+- Netlify pricing docs: https://www.netlify.com/pricing/
 
 ## Out of Scope
 
-The following were not evaluated in this research:
-- Docker image optimization (multi-stage builds, layer caching)
-- CI/CD pipeline setup (GitHub Actions auto-deploy on merge — configured separately per `ci_default_flow: auto-deploy-on-merge` in tech-stack.md)
-- Production-scale architecture (multi-region active-active, HA Postgres, DR)
+The following were not implemented by this research:
+- Docker image configuration for the FastAPI backend.
+- CI/CD pipeline setup beyond correcting the `main` branch trigger.
+- Production-scale architecture such as multi-region backend HA, disaster recovery, or formal SLOs.
