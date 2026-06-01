@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { matchJobs } from "@/lib/jobs";
+import { getMatchedJobs } from "@/lib/jobs";
 import { getJobPreferences, joinList } from "@/lib/preferences";
 import { getSavedJobs } from "@/lib/saved-jobs";
 import { createClient } from "@/lib/supabase";
@@ -17,7 +17,7 @@ const routeError = Astro.url.searchParams.get("error");
 const { preferences, errorMessage: preferencesError } = await getJobPreferences(supabase, user.id);
 const { savedJobs, errorMessage: savedJobsError } = await getSavedJobs(supabase, user.id);
 const pageError = routeError ?? preferencesError ?? savedJobsError;
-const jobs = matchJobs(preferences);
+const { jobs, message: jobsMessage, source: jobsSource } = await getMatchedJobs(preferences);
 const hasPreferences = Boolean(preferences);
 const statusLabels = {
   interested: "Interested",
@@ -71,6 +71,13 @@ const currencyOptions = ["EUR", "USD", "PLN"];
           pageError && (
             <div class="rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
               {pageError}
+            </div>
+          )
+        }
+        {
+          jobsMessage && (
+            <div class="rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+              {jobsMessage}
             </div>
           )
         }
@@ -137,6 +144,26 @@ const currencyOptions = ["EUR", "USD", "PLN"];
               </fieldset>
             </div>
 
+            <div
+              class="flex items-start gap-3 rounded-md border border-slate-700 bg-slate-950 p-3 text-sm text-slate-200"
+            >
+              <input
+                id="include_unknown_salary"
+                type="checkbox"
+                name="include_unknown_salary"
+                checked={preferences?.include_unknown_salary ?? true}
+                class="mt-0.5 size-4 shrink-0 accent-cyan-400"
+              />
+              <span>
+                <label for="include_unknown_salary" class="block font-medium text-slate-100">
+                  Show jobs without salary when filtering by pay
+                </label>
+                <span class="mt-1 block text-xs text-slate-400">
+                  Turn this off to require a listed salary that meets your minimum after MVP currency conversion.
+                </span>
+              </span>
+            </div>
+
             <fieldset>
               <legend class="mb-2 text-sm font-medium text-slate-300">Work mode</legend>
               <div class="grid grid-cols-3 gap-2">
@@ -193,7 +220,7 @@ const currencyOptions = ["EUR", "USD", "PLN"];
           </div>
           <div class="rounded-md border border-slate-800 bg-slate-900 p-4">
             <p class="text-sm text-slate-400">Sources</p>
-            <p class="mt-1 text-2xl font-semibold text-white">3</p>
+            <p class="mt-1 text-2xl font-semibold text-white">{jobsSource === "fallback" ? "Demo" : "1"}</p>
           </div>
         </div>
 
@@ -225,9 +252,21 @@ const currencyOptions = ["EUR", "USD", "PLN"];
                             </span>
                           )}
                         </div>
-                        <h2 class="text-lg font-semibold text-white">{job.title}</h2>
+                        <h2 class="text-lg font-semibold text-white">
+                          <a
+                            href={job.url}
+                            class="hover:text-cyan-200 hover:underline"
+                            rel="noreferrer"
+                            target="_blank"
+                          >
+                            {job.title}
+                          </a>
+                        </h2>
                         <p class="mt-1 text-sm text-slate-400">
-                          {job.company} / {job.location} / {job.salaryMin.toLocaleString()} {job.salaryCurrency}
+                          {job.company} / {job.location} /{" "}
+                          {job.salaryMin === null
+                            ? "Salary not listed"
+                            : `${job.salaryMin.toLocaleString()} ${job.salaryCurrency}`}
                         </p>
                         <p class="mt-3 text-sm text-slate-300">{job.matchReason}</p>
                         <div class="mt-3 flex flex-wrap gap-2">

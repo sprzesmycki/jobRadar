@@ -45,6 +45,7 @@ export const POST: APIRoute = async (context) => {
       technologies: readCsv(form, "technologies"),
       min_salary_amount: Number.isFinite(salary) ? salary : null,
       salary_currency: CURRENCIES.has(currency) ? currency : "EUR",
+      include_unknown_salary: form.has("include_unknown_salary"),
       work_modes: workModes,
       locations: readText(form, "locations") || null,
     },
