@@ -156,5 +156,5 @@ Update dashboard source summary:
 
 - [x] 2.5 Dashboard shows more than one successful source when credentials/source access allow it — fe6f969
 - [x] 2.6 Dashboard shows source warnings when a provider is skipped or fails — ad0b1be
-- [x] 2.7 Saving a job status still persists after redirect/refresh for aggregated jobs
-- [x] 2.8 Desktop and mobile layouts remain usable with mixed-source jobs and warnings
+- [x] 2.7 Saving a job status still persists after redirect/refresh for aggregated jobs — 013de42
+- [x] 2.8 Desktop and mobile layouts remain usable with mixed-source jobs and warnings — 013de42
