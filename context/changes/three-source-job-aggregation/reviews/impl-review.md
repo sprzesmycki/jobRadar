@@ -10,7 +10,7 @@ Verdict: APPROVED WITH RESIDUAL MANUAL CHECKS
 
 | Dimension | Verdict | Notes |
 |---|---|---|
-| Plan Adherence | PASS | Provider contract, Remotive adapter, Adzuna skip path, JustJoinIT experimental adapter, dedupe, and dashboard warnings match the plan. |
+| Plan Adherence | PASS | Provider contract, Remotive adapter, Adzuna skip path, JustJoinIT candidate API adapter, dedupe, and dashboard warnings match the plan. |
 | Scope Discipline | PASS | No CV, persistence, or unrelated roadmap work was added. |
 | Safety & Quality | PASS | External calls are server-side, Adzuna credentials are server-only, providers return warnings/failures instead of throwing into the dashboard. |
 | Architecture | PASS | Source fetching moved out of `src/lib/jobs.ts`; matching/scoring remains the public dashboard API. |
@@ -30,12 +30,24 @@ The first implementation used `Promise.all([fetchRemotiveJobs(), fetchAdzunaJobs
 
 Fix applied: wrapped each provider call in `safelyFetchSource()`, returning a source-level warning and failed status when any adapter throws unexpectedly.
 
+### F2 - Initial JustJoinIT adapter used brittle HTML parsing
+
+- Severity: WARNING
+- Impact: LOW
+- Dimension: Plan Adherence
+- Location: `src/lib/job-sources/justjoinit.ts`
+
+The first adapter was based on embedded Next.js page data because initial research missed the current candidate API endpoint. The user provided a working endpoint: `/api/candidate-api/offers`.
+
+Fix applied: replaced HTML parsing with a JSON adapter for the candidate API response shape while keeping the provider experimental and source-level failure tolerant.
+
 ## Verification
 
 - `npm run lint` — PASS
 - `npm run build` — PASS
 - Runtime smoke: unauthenticated `/dashboard` redirects to `/auth/signin` — PASS
 - Runtime smoke: authenticated `/dashboard` rendered HTTP 200 with Remotive jobs — PASS
+- JustJoinIT candidate API smoke: endpoint returned HTTP 200 and JSON `data[]` without user cookies — PASS
 
 ## Residual Manual Checks
 

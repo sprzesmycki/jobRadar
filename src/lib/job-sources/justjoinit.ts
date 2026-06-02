@@ -1,120 +1,76 @@
 import type { JobListing, SourceCache, SourceFetchResult } from "@/lib/job-sources/types";
 import { sourceWarning } from "@/lib/job-sources/types";
 
-interface JustJoinEmbeddedJob {
+interface JustJoinItOffer {
+  guid?: string;
   slug?: string;
   title?: string;
-  companyName?: string;
-  company?: {
-    name?: string;
-  };
-  city?: string;
   workplaceType?: string;
-  workingTime?: string;
-  requiredSkills?: { name?: string; label?: string }[];
-  skills?: { name?: string; label?: string }[];
+  city?: string;
+  companyName?: string;
+  employmentTypes?: {
+    from?: number | null;
+    currency?: string;
+  }[];
+  requiredSkills?: {
+    name?: string;
+  }[];
+  niceToHaveSkills?: {
+    name?: string;
+  }[];
 }
 
-const JUSTJOINIT_URL = "https://justjoin.it/";
+interface JustJoinItResponse {
+  data?: JustJoinItOffer[];
+}
+
+const JUSTJOINIT_URL =
+  "https://justjoin.it/api/candidate-api/offers?from=0&itemsCount=100&categories=mobile&cityRadius=30&currency=pln&orderBy=descending&sortBy=publishedAt&keywordType=any&isPromoted=true";
 const JUSTJOINIT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 let justJoinItCache: SourceCache | null = null;
 
-function decodeNextPayload(value: string): string {
-  return value
-    .replaceAll('\\"', '"')
-    .replaceAll("\\\\", "\\")
-    .replaceAll("\\u0026", "&")
-    .replaceAll("\\u003c", "<")
-    .replaceAll("\\u003e", ">");
+function mapWorkMode(workplaceType: string | undefined): JobListing["workMode"] {
+  const normalized = workplaceType?.trim().toLowerCase() ?? "";
+  if (normalized.includes("remote")) return "remote";
+  if (normalized.includes("hybrid")) return "hybrid";
+  return "onsite";
 }
 
-function parseEmbeddedJobs(html: string): JustJoinEmbeddedJob[] {
-  const decoded = decodeNextPayload(html);
-  const matches = extractJsonObjects(decoded).filter(
-    (candidate) =>
-      candidate.includes('"slug":"') &&
-      candidate.includes('"title":"') &&
-      (candidate.includes('"companyName"') || candidate.includes('"workplaceType"') || candidate.includes('"salary')),
-  );
-
-  return matches
-    .map((match) => {
-      try {
-        return JSON.parse(match) as JustJoinEmbeddedJob;
-      } catch {
-        return null;
-      }
-    })
-    .filter((job): job is JustJoinEmbeddedJob => Boolean(job?.slug && job.title))
-    .slice(0, 30);
+function mapCurrency(currency: string | undefined): JobListing["salaryCurrency"] {
+  const normalized = currency?.trim().toUpperCase();
+  if (normalized === "EUR" || normalized === "USD" || normalized === "PLN") return normalized;
+  return "PLN";
 }
 
-function extractJsonObjects(value: string): string[] {
-  const objects: string[] = [];
-  let start = -1;
-  let depth = 0;
-  let inString = false;
-  let escaped = false;
-
-  for (let index = 0; index < value.length; index += 1) {
-    const char = value[index];
-
-    if (escaped) {
-      escaped = false;
-      continue;
-    }
-
-    if (char === "\\") {
-      escaped = true;
-      continue;
-    }
-
-    if (char === '"') {
-      inString = !inString;
-      continue;
-    }
-
-    if (inString) continue;
-
-    if (char === "{") {
-      if (depth === 0) start = index;
-      depth += 1;
-      continue;
-    }
-
-    if (char === "}" && depth > 0) {
-      depth -= 1;
-
-      if (depth === 0 && start >= 0) {
-        objects.push(value.slice(start, index + 1));
-        start = -1;
-      }
-    }
-  }
-
-  return objects;
-}
-
-function mapJustJoinItJob(job: JustJoinEmbeddedJob): JobListing {
-  const technologies = [...(job.requiredSkills ?? []), ...(job.skills ?? [])]
-    .map((skill) => skill.name ?? skill.label ?? "")
-    .map((skill) => skill.trim())
-    .filter(Boolean)
-    .slice(0, 10);
-  const workplace = `${job.workplaceType ?? ""} ${job.workingTime ?? ""}`.toLowerCase();
+function selectSalary(offer: JustJoinItOffer): Pick<JobListing, "salaryMin" | "salaryCurrency"> {
+  const salary = offer.employmentTypes?.find((employment) => typeof employment.from === "number");
 
   return {
-    id: `justjoinit-${job.slug}`,
+    salaryMin: salary?.from ? Math.round(salary.from) : null,
+    salaryCurrency: mapCurrency(salary?.currency),
+  };
+}
+
+function mapJustJoinItOffer(offer: JustJoinItOffer): JobListing {
+  const salary = selectSalary(offer);
+  const slug = offer.slug ?? offer.guid ?? `${offer.companyName ?? "company"}-${offer.title ?? "job"}`;
+  const technologies = [...(offer.requiredSkills ?? []), ...(offer.niceToHaveSkills ?? [])]
+    .map((skill) => skill.name?.trim() ?? "")
+    .filter(Boolean)
+    .slice(0, 10);
+
+  return {
+    id: `justjoinit-${offer.guid ?? slug}`,
     source: "JustJoinIT",
-    title: job.title?.trim() ?? "Untitled JustJoinIT job",
-    company: job.companyName?.trim() ?? job.company?.name?.trim() ?? "Company not listed",
-    location: job.city?.trim() ?? "Location not listed",
-    workMode: workplace.includes("remote") ? "remote" : workplace.includes("hybrid") ? "hybrid" : "onsite",
-    salaryMin: null,
-    salaryCurrency: "PLN",
+    title: offer.title?.trim() ?? "Untitled JustJoinIT job",
+    company: offer.companyName?.trim() ?? "Company not listed",
+    location: offer.city?.trim() ?? "Location not listed",
+    workMode: mapWorkMode(offer.workplaceType),
+    salaryMin: salary.salaryMin,
+    salaryCurrency: salary.salaryCurrency,
     technologies,
-    url: `https://justjoin.it/job-offer/${job.slug}`,
+    url: `https://justjoin.it/job-offer/${slug}`,
   };
 }
 
@@ -131,18 +87,24 @@ export async function fetchJustJoinItJobs(): Promise<SourceFetchResult> {
   }
 
   try {
-    const response = await fetch(JUSTJOINIT_URL);
+    const response = await fetch(JUSTJOINIT_URL, {
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        Referer: "https://justjoin.it/job-offers/all-locations/mobile",
+      },
+    });
     if (!response.ok) {
       throw new Error(`JustJoinIT returned ${response.status}`);
     }
 
-    const html = await response.text();
-    const jobs = parseEmbeddedJobs(html)
-      .map(mapJustJoinItJob)
-      .filter((job) => job.title && job.company && job.url);
+    const payload = (await response.json()) as JustJoinItResponse;
+    const jobs = (payload.data ?? [])
+      .map(mapJustJoinItOffer)
+      .filter((job) => job.title && job.company && job.url)
+      .slice(0, 100);
 
     if (jobs.length === 0) {
-      throw new Error("embedded job payload was not recognized");
+      throw new Error("candidate API returned no usable offers");
     }
 
     justJoinItCache = {
@@ -156,7 +118,7 @@ export async function fetchJustJoinItJobs(): Promise<SourceFetchResult> {
       warnings: [
         sourceWarning(
           "JustJoinIT",
-          "JustJoinIT uses an experimental adapter based on public page data and may stop working if the site changes.",
+          "JustJoinIT uses an experimental adapter based on an undocumented candidate API endpoint.",
         ),
       ],
       status: "live",

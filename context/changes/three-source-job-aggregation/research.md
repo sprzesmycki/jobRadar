@@ -49,14 +49,17 @@ Sources:
 
 - The public website currently renders live IT job listings at `https://justjoin.it/` and identifies itself as a job board for the tech industry in Europe.
 - The HTML includes `preconnect` hints for `https://api.justjoin.it` and `https://public.justjoin.it`.
-- The HTML also embeds large Next.js/React flight data containing categories, skill dictionaries, flags, and offer-list state.
-- I did not find official public API documentation for third-party consumption during this pass.
+- Initial research missed the current candidate API endpoint and incorrectly focused on the old `/api/offers` path plus embedded Next.js payloads.
+- User provided a working browser-observed endpoint on 2026-06-02: `https://justjoin.it/api/candidate-api/offers`.
+- The endpoint returned HTTP 200 without user cookies when called with query parameters such as `from=0`, `itemsCount=20`, `categories=mobile`, `currency=pln`, and sorting by `publishedAt`.
+- Response shape includes `data[]` offers with `guid`, `slug`, `title`, `workplaceType`, `companyName`, `city`, `employmentTypes`, `requiredSkills`, and `niceToHaveSkills`.
 
-Implication: treating JustJoinIT as a stable API provider is risky until we either find an official endpoint contract or explicitly accept a brittle adapter. The MVP plan should isolate it behind a provider interface and degrade cleanly when it is unavailable.
+Implication: JustJoinIT can use a much cleaner JSON adapter than the HTML parser, but the endpoint still appears undocumented, so the provider should remain isolated, cache-backed, and allowed to fail without breaking the dashboard.
 
 Sources:
 
 - https://justjoin.it/
+- https://justjoin.it/api/candidate-api/offers
 
 ## Architecture Implications
 
@@ -69,5 +72,5 @@ Sources:
 ## Open Decisions
 
 1. Adzuna credentials: implementation can be written to skip Adzuna when `ADZUNA_APP_ID` or `ADZUNA_APP_KEY` is absent, but full S-03 verification needs real keys. User confirmed on 2026-06-02 that keys are not available yet and credentials-gated implementation may proceed.
-2. JustJoinIT policy: user accepted an experimental adapter on 2026-06-02, provided it is isolated and can fail without breaking the dashboard.
+2. JustJoinIT policy: user accepted an experimental adapter on 2026-06-02, provided it is isolated and can fail without breaking the dashboard. User then provided the current candidate API endpoint, replacing the brittle HTML parsing approach.
 3. Source count semantics: count configured sources, successfully fetched sources, or visible sources after filtering. Recommended: successfully fetched sources.
