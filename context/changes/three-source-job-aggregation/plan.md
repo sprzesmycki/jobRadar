@@ -134,8 +134,8 @@ Update dashboard source summary:
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes — ad0b1be
-- [x] 1.2 `npm run build` passes — ad0b1be
+- [x] 1.1 `npm run lint` passes — ddbe7c1
+- [x] 1.2 `npm run build` passes — ddbe7c1
 - [x] 1.3 Provider contract compiles with Remotive moved behind an adapter — ad0b1be
 
 #### Manual
@@ -148,7 +148,7 @@ Update dashboard source summary:
 #### Automated
 
 - [x] 2.1 Aggregator returns Remotive jobs when Remotive succeeds — ad0b1be
-- [x] 2.2 Aggregator keeps working jobs when one provider fails — ad0b1be
+- [x] 2.2 Aggregator keeps working jobs when one provider fails — ddbe7c1
 - [x] 2.3 Dedupe removes duplicate normalized title/company pairs deterministically — ad0b1be
 - [x] 2.4 Preference filters run after aggregation and dedupe — ad0b1be
 

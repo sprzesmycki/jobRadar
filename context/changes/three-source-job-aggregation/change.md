@@ -1,7 +1,7 @@
 ---
 change_id: three-source-job-aggregation
 title: Three-source job aggregation
-status: implementing
+status: impl_reviewed
 created: 2026-06-01
 updated: 2026-06-01
 archived_at: null
