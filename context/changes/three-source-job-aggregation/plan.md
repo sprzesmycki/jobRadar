@@ -134,27 +134,27 @@ Update dashboard source summary:
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes
-- [x] 1.2 `npm run build` passes
-- [x] 1.3 Provider contract compiles with Remotive moved behind an adapter
+- [x] 1.1 `npm run lint` passes — ad0b1be
+- [x] 1.2 `npm run build` passes — ad0b1be
+- [x] 1.3 Provider contract compiles with Remotive moved behind an adapter — ad0b1be
 
 #### Manual
 
-- [x] 1.4 Team decides whether JustJoinIT may use an experimental undocumented adapter
-- [x] 1.5 Team provides Adzuna credentials or accepts Adzuna-skip verification for this branch
+- [x] 1.4 Team decides whether JustJoinIT may use an experimental undocumented adapter — ad0b1be
+- [x] 1.5 Team provides Adzuna credentials or accepts Adzuna-skip verification for this branch — ad0b1be
 
 ### Phase 2: Aggregation Runtime
 
 #### Automated
 
-- [x] 2.1 Aggregator returns Remotive jobs when Remotive succeeds
-- [x] 2.2 Aggregator keeps working jobs when one provider fails
-- [x] 2.3 Dedupe removes duplicate normalized title/company pairs deterministically
-- [x] 2.4 Preference filters run after aggregation and dedupe
+- [x] 2.1 Aggregator returns Remotive jobs when Remotive succeeds — ad0b1be
+- [x] 2.2 Aggregator keeps working jobs when one provider fails — ad0b1be
+- [x] 2.3 Dedupe removes duplicate normalized title/company pairs deterministically — ad0b1be
+- [x] 2.4 Preference filters run after aggregation and dedupe — ad0b1be
 
 #### Manual
 
 - [ ] 2.5 Dashboard shows more than one successful source when credentials/source access allow it
-- [x] 2.6 Dashboard shows source warnings when a provider is skipped or fails
+- [x] 2.6 Dashboard shows source warnings when a provider is skipped or fails — ad0b1be
 - [ ] 2.7 Saving a job status still persists after redirect/refresh for aggregated jobs
 - [ ] 2.8 Desktop and mobile layouts remain usable with mixed-source jobs and warnings
