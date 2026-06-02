@@ -3,7 +3,7 @@ project: JobRadar
 version: 1
 status: draft
 created: 2026-06-01
-updated: 2026-06-01
+updated: 2026-06-02
 prd_version: 1
 main_goal: market-feedback
 top_blocker: external
@@ -30,7 +30,7 @@ JobRadar helps an employed mid/senior developer avoid manually scanning many job
 | F-01 | python-cv-ai-service-foundation | (foundation) FastAPI service contract and deployment path exists for CV parsing, scoring, and AI orchestration | — | FR-003, FR-006, FR-007, FR-008, NFR-privacy, NFR-latency | proposed |
 | S-01 | onboarding-preferences | User can register, sign in, save preferences, see demo matches, and save a job status | — | FR-001, FR-002, FR-004, FR-009 | done |
 | S-02 | first-live-job-source | User can see live offers from one source filtered by saved preferences | S-01 | US-01, FR-005 | done |
-| S-03 | three-source-job-aggregation | User can see aggregated offers from JustJoinIT, Remotive, and Adzuna with source labels and deduplication | S-02 | US-01, FR-005 | blocked |
+| S-03 | three-source-job-aggregation | User can see aggregated offers from JustJoinIT, Remotive, and Adzuna with source labels and deduplication | S-02 | US-01, FR-005 | done |
 | S-04 | cv-upload-and-extraction | User can upload a PDF CV and see extracted profile data saved privately | S-01, F-01 | FR-003, NFR-privacy | proposed |
 | S-05 | cv-based-job-scoring | User can see CV-to-job match percentages, explanations, and missing skills on real offers | S-03, S-04 | US-01, FR-006, FR-007 | proposed |
 | S-06 | cover-letter-generation | User can generate a personalized cover letter for a real offer using CV data and job requirements | S-05 | US-02, FR-008, NFR-latency, NFR-privacy | blocked |
@@ -114,7 +114,7 @@ Foundations below assume these are present and do not re-scaffold them.
 - **Unknowns:**
   - What are the current API, rate-limit, and usage constraints for JustJoinIT, Remotive, and Adzuna? — Owner: team. Block: yes.
 - **Risk:** This is the real aggregation promise; it follows S-02 so source-specific failures are isolated before all three providers are wired.
-- **Status:** blocked
+- **Status:** done
 
 ### S-04: CV Upload and Extraction
 
@@ -211,3 +211,4 @@ Foundations below assume these are present and do not re-scaffold them.
 
 - **S-01: User can register, sign in, save job preferences, see demo matched jobs, and save a job status.** — Archived 2026-06-01 → `context/archive/2026-06-01-onboarding-preferences/`. Lesson: —.
 - **S-02: User can see live offers from one real source filtered by saved preferences.** — Archived 2026-06-01 → `context/archive/2026-06-01-first-live-job-source/`. Lesson: —.
+- **S-03: User can see aggregated offers from JustJoinIT, Remotive, and Adzuna with source labels, deduplication, and preference filtering.** — Archived 2026-06-02 → `context/archive/2026-06-01-three-source-job-aggregation/`. Lesson: —.
