@@ -1,6 +1,7 @@
 import { fetchAdzunaJobs } from "@/lib/job-sources/adzuna";
 import { fetchJustJoinItJobs } from "@/lib/job-sources/justjoinit";
 import { fetchRemotiveJobs } from "@/lib/job-sources/remotive";
+import { sourceWarning } from "@/lib/job-sources/types";
 import type { JobListing, SourceFetchResult, SourceWarning } from "@/lib/job-sources/types";
 
 export interface AggregatedJobsResult {
@@ -37,8 +38,31 @@ export function dedupeJobs(jobs: JobListing[]): JobListing[] {
   return [...deduped.values()];
 }
 
+async function safelyFetchSource(
+  source: SourceFetchResult["source"],
+  fetchJobs: () => Promise<SourceFetchResult>,
+): Promise<SourceFetchResult> {
+  try {
+    return await fetchJobs();
+  } catch (error) {
+    const message =
+      error instanceof Error ? `${source} failed unexpectedly. (${error.message})` : `${source} failed unexpectedly.`;
+
+    return {
+      source,
+      jobs: [],
+      warnings: [sourceWarning(source, message)],
+      status: "failed",
+    };
+  }
+}
+
 export async function loadAggregatedJobs(): Promise<AggregatedJobsResult> {
-  const sourceResults = await Promise.all([fetchRemotiveJobs(), fetchAdzunaJobs(), fetchJustJoinItJobs()]);
+  const sourceResults = await Promise.all([
+    safelyFetchSource("Remotive", fetchRemotiveJobs),
+    safelyFetchSource("Adzuna", fetchAdzunaJobs),
+    safelyFetchSource("JustJoinIT", fetchJustJoinItJobs),
+  ]);
   const jobs = dedupeJobs(sourceResults.flatMap((result) => result.jobs));
   const warnings = sourceResults.flatMap((result) => result.warnings);
   const successfulSources = sourceResults.filter((result) => result.jobs.length > 0).length;
