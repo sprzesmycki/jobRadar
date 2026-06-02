@@ -1,0 +1,27 @@
+[
+  {
+    "id": "deploy-jobradar",
+    "execute-command": "/opt/jobradar/infra/webhook/deploy.sh",
+    "command-working-directory": "/opt/jobradar",
+    "response-message": "deploy queued",
+    "http-methods": ["POST"],
+    "trigger-rule": {
+      "and": [
+        {
+          "match": {
+            "type": "payload-hmac-sha256",
+            "secret": "{{ getenv `GITHUB_WEBHOOK_SECRET` }}",
+            "parameter": { "source": "header", "name": "X-Hub-Signature-256" }
+          }
+        },
+        {
+          "match": {
+            "type": "value",
+            "value": "refs/heads/main",
+            "parameter": { "source": "payload", "name": "ref" }
+          }
+        }
+      ]
+    }
+  }
+]

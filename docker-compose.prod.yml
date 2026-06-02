@@ -1,0 +1,41 @@
+name: jobradar
+
+networks:
+  default:
+    name: sprzesmycki_default
+    external: true
+
+services:
+  jobradar-api:
+    build:
+      context: ./backend
+    env_file:
+      - .env.prod
+    expose:
+      - "8000"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).read()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  jobradar-webhook:
+    build:
+      context: ./infra/webhook
+    expose:
+      - "9000"
+    env_file:
+      - .env.prod
+    volumes:
+      - /opt/jobradar:/opt/jobradar
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.ssh:/root/.ssh:ro
+    restart: unless-stopped

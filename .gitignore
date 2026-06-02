@@ -21,12 +21,14 @@ staticfiles/
 .env
 .env.*
 !.env.example
+!.env.prod.example
 
 # Testing
 .coverage
 .coverage.*
 htmlcov/
 .pytest_cache/
+.ruff_cache/
 
 # IDEs
 .idea/

@@ -1,0 +1,28 @@
+[project]
+name = "jobradar-backend"
+version = "0.1.0"
+description = "FastAPI backend foundation for JobRadar CV and AI workflows."
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi>=0.125.0,<0.126.0",
+  "httpx>=0.28.0,<0.29.0",
+  "pydantic-settings>=2.12.0,<3.0.0",
+  "uvicorn[standard]>=0.38.0,<0.39.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=9.0.0,<10.0.0",
+  "ruff>=0.14.0,<0.15.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -1,0 +1,6 @@
+services:
+  backend:
+    restart: unless-stopped
+    ports: !override
+      - "127.0.0.1:${BACKEND_HOST_PORT:-8000}:8000"
+    volumes: !reset []
