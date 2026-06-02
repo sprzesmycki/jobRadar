@@ -62,6 +62,36 @@ function readStoragePath(value: unknown): string | null {
   return typeof storagePath === "string" ? storagePath : null;
 }
 
+function readBackendErrorCode(value: unknown): string | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const detail = (value as Record<string, unknown>).detail;
+  if (detail && typeof detail === "object") {
+    const code = (detail as Record<string, unknown>).code;
+    return typeof code === "string" ? code : null;
+  }
+
+  return null;
+}
+
+function getExtractionErrorMessage(status: number, backendErrorCode: string | null): string {
+  if (status === 422) {
+    return "Could not extract text from this PDF. Try a text-based CV PDF.";
+  }
+
+  if (backendErrorCode === "storage_credentials_invalid") {
+    return "CV extraction service cannot access private CV storage.";
+  }
+
+  if (backendErrorCode === "cv_file_not_found") {
+    return "Uploaded CV was not found in private storage.";
+  }
+
+  return "CV extraction service is unavailable.";
+}
+
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
@@ -104,48 +134,70 @@ export const POST: APIRoute = async (context) => {
   }
 
   const storagePath = `${user.id}/${Date.now()}-${safeFileName(cvFile.name)}`;
-  const { data: currentProfileData } = await supabase
+  const { data: currentProfileData, error: currentProfileError } = await supabase
     .from("cv_profiles")
     .select("storage_path")
     .eq("user_id", user.id)
     .maybeSingle();
-  const currentStoragePath = readStoragePath(currentProfileData);
 
-  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(storagePath, cvFile, {
-    contentType: "application/pdf",
-    upsert: false,
-  });
-
-  if (uploadError) {
-    return redirectError(context, uploadError.message);
+  if (currentProfileError) {
+    return redirectError(context, currentProfileError.message);
   }
 
-  const backendApiUrl = String(BACKEND_API_URL);
-  const extractionResponse = await fetch(`${backendApiUrl.replace(/\/$/, "")}/v1/cv/extract`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      cv: {
-        bucket: BUCKET,
-        path: storagePath,
-        content_type: "application/pdf",
+  const currentStoragePath = readStoragePath(currentProfileData);
+
+  let uploadErrorMessage: string | null = null;
+  try {
+    const { error } = await supabase.storage.from(BUCKET).upload(storagePath, cvFile, {
+      contentType: "application/pdf",
+      upsert: false,
+    });
+    uploadErrorMessage = error?.message ?? null;
+  } catch (error) {
+    uploadErrorMessage = error instanceof Error ? error.message : "CV upload failed.";
+  }
+
+  if (uploadErrorMessage) {
+    return redirectError(context, uploadErrorMessage);
+  }
+
+  const backendApiUrl = BACKEND_API_URL;
+  let extractionResponse: Response;
+  try {
+    extractionResponse = await fetch(`${backendApiUrl.replace(/\/$/, "")}/v1/cv/extract`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
       },
-    }),
-  });
+      body: JSON.stringify({
+        cv: {
+          bucket: BUCKET,
+          path: storagePath,
+          content_type: "application/pdf",
+        },
+      }),
+    });
+  } catch {
+    await supabase.storage.from(BUCKET).remove([storagePath]);
+    return redirectError(context, "CV extraction service is unavailable.");
+  }
 
   if (!extractionResponse.ok) {
     await supabase.storage.from(BUCKET).remove([storagePath]);
-    const message =
-      extractionResponse.status === 422
-        ? "Could not extract text from this PDF. Try a text-based CV PDF."
-        : "CV extraction service is unavailable.";
+    const backendError: unknown = await extractionResponse.json().catch(() => null);
+    const backendErrorCode = readBackendErrorCode(backendError);
+    const message = getExtractionErrorMessage(extractionResponse.status, backendErrorCode);
     return redirectError(context, message);
   }
 
-  const profile = normalizeProfile(await extractionResponse.json());
+  let profile: ExtractedProfile;
+  try {
+    profile = normalizeProfile(await extractionResponse.json());
+  } catch {
+    await supabase.storage.from(BUCKET).remove([storagePath]);
+    return redirectError(context, "CV extraction service returned an invalid response.");
+  }
   const { error: profileError } = await supabase.from("cv_profiles").upsert(
     {
       user_id: user.id,

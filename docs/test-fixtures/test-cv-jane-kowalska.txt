@@ -1,0 +1,34 @@
+Jane Kowalska
+Senior Fullstack Developer
+
+Email: jane.kowalska@example.test
+Phone: +48 501 234 567
+GitHub: https://github.com/jane-kowalska
+Portfolio: https://jane-kowalska.example.test
+
+Profile
+Senior software engineer with 8 years of experience building remote-first SaaS products.
+Focused on TypeScript, React, Python, FastAPI, PostgreSQL, Supabase, Docker, and AWS.
+
+Experience
+Senior Fullstack Developer, Remote SaaS Platform, 2021-2026
+- Built a React and TypeScript dashboard used by product and operations teams.
+- Designed FastAPI services for profile enrichment, reporting, and background workflows.
+- Implemented PostgreSQL schemas, Supabase Auth integration, and private file storage.
+- Optimized API latency and maintained Docker-based deployments on cloud infrastructure.
+
+Backend Developer, Analytics Startup, 2018-2021
+- Developed Python and REST APIs for data ingestion and customer-facing integrations.
+- Migrated legacy SQL reports into PostgreSQL views and scheduled processing jobs.
+- Led a small project team delivering role-based access control and audit logging.
+
+Frontend Developer, Product Studio, 2016-2018
+- Built responsive React interfaces for B2B web applications.
+- Maintained JavaScript components, Git workflows, and release checklists.
+
+Skills
+TypeScript, JavaScript, React, Node.js, Python, FastAPI, REST, SQL, PostgreSQL,
+Supabase, Docker, AWS, Git
+
+Education
+MSc Computer Science, Warsaw University of Technology

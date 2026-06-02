@@ -1,7 +1,7 @@
 ---
 change_id: cv-upload-and-extraction
 title: CV upload and private extraction
-status: implementing
+status: implemented
 created: 2026-06-02
 updated: 2026-06-02
 archived_at: null

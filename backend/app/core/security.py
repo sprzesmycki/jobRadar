@@ -37,7 +37,16 @@ async def get_current_user(
             },
         )
 
-    user = await validate_supabase_token(credentials.credentials, settings)
+    try:
+        user = await validate_supabase_token(credentials.credentials, settings)
+    except httpx.HTTPError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "auth_unavailable",
+                "message": "Supabase auth validation is unavailable.",
+            },
+        ) from exc
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

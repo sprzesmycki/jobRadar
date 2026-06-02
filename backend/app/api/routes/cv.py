@@ -45,11 +45,24 @@ async def extract_cv(
             detail={"code": "storage_not_configured", "message": str(exc)},
         ) from exc
     except httpx.HTTPError as exc:
+        status_code = status.HTTP_502_BAD_GATEWAY
+        detail_code = "storage_download_failed"
+        detail_message = "Could not download CV from private storage."
+        response = getattr(exc, "response", None)
+        if response is not None and response.status_code in {400, 401, 403}:
+            status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+            detail_code = "storage_credentials_invalid"
+            detail_message = "Supabase storage credentials cannot download CV files."
+        elif response is not None and response.status_code == 404:
+            status_code = status.HTTP_404_NOT_FOUND
+            detail_code = "cv_file_not_found"
+            detail_message = "CV file was not found in private storage."
+
         raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
+            status_code=status_code,
             detail={
-                "code": "storage_download_failed",
-                "message": "Could not download CV from private storage.",
+                "code": detail_code,
+                "message": detail_message,
             },
         ) from exc
 

@@ -225,8 +225,8 @@ Backend deployment gates after merge:
 
 #### Manual
 
-- [ ] 1.4 Owner runs `npx supabase db push`
-- [ ] 1.5 Supabase dashboard confirms bucket is private
+- [x] 1.4 Owner runs `npx supabase db push`
+- [x] 1.5 Supabase dashboard confirms bucket is private
 
 ### Phase 2: Backend Extraction Endpoint
 
@@ -241,7 +241,7 @@ Backend deployment gates after merge:
 
 #### Manual
 
-- [ ] 2.7 Backend logs checked for absence of raw CV text
+- [x] 2.7 Backend logs checked for absence of raw CV text
 
 ### Phase 3: Astro Upload And Dashboard UI
 
@@ -256,8 +256,8 @@ Backend deployment gates after merge:
 
 #### Manual
 
-- [ ] 3.7 Local dashboard upload with text-based PDF succeeds
-- [ ] 3.8 Mobile and desktop dashboard layout remain acceptable
+- [x] 3.7 Local dashboard upload with text-based PDF succeeds
+- [x] 3.8 Mobile and desktop dashboard layout remain acceptable
 
 ### Phase 4: Production Rollout
 

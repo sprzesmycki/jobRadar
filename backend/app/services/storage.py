@@ -21,7 +21,7 @@ async def download_storage_object(settings: Settings, bucket: str, path: str) ->
 
     if response.status_code != 200:
         raise httpx.HTTPStatusError(
-            "Supabase storage download failed.",
+            f"Supabase storage download failed with status {response.status_code}.",
             request=response.request,
             response=response,
         )

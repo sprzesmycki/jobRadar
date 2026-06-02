@@ -1,5 +1,6 @@
 from collections.abc import Iterator
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
@@ -49,7 +50,12 @@ def test_readyz_does_not_expose_secret_values(client: TestClient) -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] in {"ok", "degraded"}
-    assert set(payload["checks"]) == {"supabase_url", "supabase_anon_key", "allowed_origins"}
+    assert set(payload["checks"]) == {
+        "supabase_url",
+        "supabase_anon_key",
+        "supabase_service_role_key",
+        "allowed_origins",
+    }
     assert all(isinstance(value, bool) for value in payload["checks"].values())
 
 
@@ -60,7 +66,7 @@ def test_readyz_with_configured_secrets_still_returns_only_booleans(
     settings = Settings(
         SUPABASE_URL="https://example.supabase.co",
         SUPABASE_ANON_KEY="anon-secret",
-        SUPABASE_SERVICE_ROLE_KEY="service-role-secret",
+        SUPABASE_SERVICE_ROLE_KEY="eyJ.header.payload",
         ALLOWED_ORIGINS="https://job-radar.example.com",
     )
 
@@ -74,11 +80,49 @@ def test_readyz_with_configured_secrets_still_returns_only_booleans(
         "checks": {
             "supabase_url": True,
             "supabase_anon_key": True,
+            "supabase_service_role_key": True,
             "allowed_origins": True,
         },
     }
     assert "anon-secret" not in response.text
-    assert "service-role-secret" not in response.text
+    assert "eyJ.header.payload" not in response.text
+
+
+def test_readyz_flags_placeholder_supabase_url(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = Settings(
+        SUPABASE_URL="https://your-project.supabase.co",
+        SUPABASE_ANON_KEY="anon-secret",
+    )
+
+    monkeypatch.setattr("app.api.routes.health.get_settings", lambda: settings)
+
+    response = client.get("/readyz")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "degraded"
+    assert response.json()["checks"]["supabase_url"] is False
+
+
+def test_readyz_flags_non_jwt_service_role_key(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = Settings(
+        SUPABASE_URL="https://example.supabase.co",
+        SUPABASE_ANON_KEY="anon-secret",
+        SUPABASE_SERVICE_ROLE_KEY="sb_secret_new_key_format",
+    )
+
+    monkeypatch.setattr("app.api.routes.health.get_settings", lambda: settings)
+
+    response = client.get("/readyz")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "degraded"
+    assert response.json()["checks"]["supabase_service_role_key"] is False
 
 
 def test_me_rejects_missing_token(client: TestClient) -> None:
@@ -108,6 +152,28 @@ def test_me_rejects_invalid_token(
 
     assert response.status_code == 401
     assert response.json()["detail"]["code"] == "invalid_bearer_token"
+
+
+def test_me_returns_503_when_auth_provider_is_unavailable(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fake_validate_supabase_token(
+        _token: str,
+        _settings: Settings,
+    ) -> AuthenticatedUser | None:
+        raise httpx.ConnectError("auth unavailable")
+
+    app.dependency_overrides[security.get_settings] = lambda: Settings(
+        SUPABASE_URL="https://example.supabase.co",
+        SUPABASE_ANON_KEY="anon-secret",
+    )
+    monkeypatch.setattr(security, "validate_supabase_token", fake_validate_supabase_token)
+
+    response = client.get("/v1/me", headers={"Authorization": "Bearer token"})
+
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "auth_unavailable"
 
 
 def test_cors_allows_local_astro_origin(client: TestClient) -> None:
