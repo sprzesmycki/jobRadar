@@ -158,14 +158,14 @@ If `uv`, Docker, or local Python tooling is unavailable, record the skipped comm
 
 #### Automated
 
-- [x] 1.1 FastAPI app starts with `/healthz` and `/readyz`
-- [x] 1.2 Pydantic schemas exist for CV extraction, job scoring, and cover-letter requests/responses
-- [x] 1.3 Placeholder product endpoints return explicit `501 not_implemented`
-- [x] 1.4 Backend tests pass for health, readiness, auth failure, and placeholder routes
+- [x] 1.1 FastAPI app starts with `/healthz` and `/readyz` — b43e6a2
+- [x] 1.2 Pydantic schemas exist for CV extraction, job scoring, and cover-letter requests/responses — b43e6a2
+- [x] 1.3 Placeholder product endpoints return explicit `501 not_implemented` — b43e6a2
+- [x] 1.4 Backend tests pass for health, readiness, auth failure, and placeholder routes — b43e6a2
 
 #### Manual
 
-- [x] 1.5 Team confirms placeholder endpoints are acceptable for F-01 and do not imply S-04/S-05/S-06 completion
+- [x] 1.5 Team confirms placeholder endpoints are acceptable for F-01 and do not imply S-04/S-05/S-06 completion — b43e6a2
 
 ### Phase 2: Auth, Secrets, And CORS Boundary
 
