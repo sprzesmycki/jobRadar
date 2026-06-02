@@ -185,10 +185,10 @@ If `uv`, Docker, or local Python tooling is unavailable, record the skipped comm
 
 #### Automated
 
-- [x] 3.1 Backend Docker image builds
-- [x] 3.2 Compose service responds on `/healthz`
-- [x] 3.3 Production Compose override includes restart policy and no source-code bind mount
-- [x] 3.4 Backend README documents local run, VPS deploy, logs, restart, rollback, CORS, TLS, and secrets
+- [x] 3.1 Backend Docker image builds — e1cdafc
+- [x] 3.2 Compose service responds on `/healthz` — e1cdafc
+- [x] 3.3 Production Compose override includes restart policy and no source-code bind mount — e1cdafc
+- [x] 3.4 Backend README documents local run, VPS deploy, logs, restart, rollback, CORS, TLS, and secrets — e1cdafc
 
 #### Manual
 
