@@ -171,15 +171,15 @@ If `uv`, Docker, or local Python tooling is unavailable, record the skipped comm
 
 #### Automated
 
-- [ ] 2.1 `/v1/me` rejects missing/invalid bearer tokens
-- [ ] 2.2 Backend config validates required Supabase and CORS env without printing secret values
-- [ ] 2.3 Grep check confirms service-role key is absent from frontend code and frontend env schema
-- [ ] 2.4 Root `npm run lint` passes
-- [ ] 2.5 Root `npm run build` passes
+- [x] 2.1 `/v1/me` rejects missing/invalid bearer tokens
+- [x] 2.2 Backend config validates required Supabase and CORS env without printing secret values
+- [x] 2.3 Grep check confirms service-role key is absent from frontend code and frontend env schema
+- [x] 2.4 Root `npm run lint` passes
+- [x] 2.5 Root `npm run build` passes
 
 #### Manual
 
-- [ ] 2.6 Team confirms service-role and AI provider keys remain backend-only
+- [x] 2.6 Team confirms service-role and AI provider keys remain backend-only
 
 ### Phase 3: Docker And VPS Runbook
 

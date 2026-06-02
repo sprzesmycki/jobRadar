@@ -3,6 +3,8 @@ from collections.abc import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
+from app.core import security
+from app.core.config import Settings
 from app.core.security import AuthenticatedUser, get_current_user
 from app.main import app
 
@@ -49,11 +51,74 @@ def test_readyz_does_not_expose_secret_values(client: TestClient) -> None:
     assert all(isinstance(value, bool) for value in payload["checks"].values())
 
 
+def test_readyz_with_configured_secrets_still_returns_only_booleans(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = Settings(
+        SUPABASE_URL="https://example.supabase.co",
+        SUPABASE_ANON_KEY="anon-secret",
+        SUPABASE_SERVICE_ROLE_KEY="service-role-secret",
+        ALLOWED_ORIGINS="https://job-radar.example.com",
+    )
+
+    monkeypatch.setattr("app.api.routes.health.get_settings", lambda: settings)
+
+    response = client.get("/readyz")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "ok",
+        "checks": {
+            "supabase_url": True,
+            "supabase_anon_key": True,
+            "allowed_origins": True,
+        },
+    }
+    assert "anon-secret" not in response.text
+    assert "service-role-secret" not in response.text
+
+
 def test_me_rejects_missing_token(client: TestClient) -> None:
     response = client.get("/v1/me")
 
     assert response.status_code == 401
     assert response.json()["detail"]["code"] == "missing_bearer_token"
+
+
+def test_me_rejects_invalid_token(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fake_validate_supabase_token(
+        _token: str,
+        _settings: Settings,
+    ) -> AuthenticatedUser | None:
+        return None
+
+    app.dependency_overrides[security.get_settings] = lambda: Settings(
+        SUPABASE_URL="https://example.supabase.co",
+        SUPABASE_ANON_KEY="anon-secret",
+    )
+    monkeypatch.setattr(security, "validate_supabase_token", fake_validate_supabase_token)
+
+    response = client.get("/v1/me", headers={"Authorization": "Bearer invalid"})
+
+    assert response.status_code == 401
+    assert response.json()["detail"]["code"] == "invalid_bearer_token"
+
+
+def test_cors_allows_local_astro_origin(client: TestClient) -> None:
+    response = client.options(
+        "/healthz",
+        headers={
+            "Origin": "http://localhost:4321",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:4321"
 
 
 def test_cv_extract_placeholder_returns_501(authed_client: TestClient) -> None:
