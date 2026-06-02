@@ -17,7 +17,7 @@ This is a vertical slice because the user-visible result is a richer live offer 
 
 - Remotive has a public endpoint, attribution requirement, backlink requirement, and low polling guidance.
 - Adzuna requires `app_id` and `app_key`; these must be server-only environment variables.
-- JustJoinIT has public listings and signs of `api.justjoin.it`, but no official public API contract was found in this pass.
+- JustJoinIT has a browser-observed candidate API endpoint that returns offer JSON, but no official third-party API contract was found in this pass.
 
 ## Design
 
@@ -65,7 +65,7 @@ Default implementation should be conservative:
 
 - implement the adapter interface,
 - include source warning when no stable contract is available,
-- only fetch live JustJoinIT jobs if a stable, documented or explicitly accepted endpoint is identified before implementation.
+- fetch live JustJoinIT jobs through the explicitly accepted candidate API endpoint.
 
 If we accept an experimental adapter, keep it small, cached, and easy to disable with an env flag.
 
@@ -121,7 +121,7 @@ Update dashboard source summary:
 
 ## Risks
 
-- JustJoinIT may not be appropriate to integrate without explicit permission or stable API docs.
+- JustJoinIT may change or block the undocumented candidate API endpoint.
 - Adzuna verification needs user-provided API credentials.
 - Aggregated source volume can make dashboard slower if provider cache boundaries are not kept.
 - Salary and currency normalization will remain approximate until a real exchange-rate source exists.

@@ -51,6 +51,6 @@ Fix applied: replaced HTML parsing with a JSON adapter for the candidate API res
 
 ## Residual Manual Checks
 
-- `2.5` Dashboard shows more than one successful source when credentials/source access allow it — pending until Adzuna keys or working JustJoinIT extraction produce a second source.
+- `2.5` Dashboard shows more than one successful source when credentials/source access allow it — completed through Remotive plus JustJoinIT candidate API verification.
 - `2.7` Saving a job status still persists after redirect/refresh for aggregated jobs — pending manual browser check.
 - `2.8` Desktop and mobile layouts remain usable with mixed-source jobs and warnings — pending visual browser check.

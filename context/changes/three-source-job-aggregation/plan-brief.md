@@ -8,7 +8,7 @@ Turn the one-source Remotive feed into a provider-based aggregated feed that can
 
 - Keep Remotive as the proven source.
 - Add Adzuna behind server-only credentials and skip it with a visible warning when credentials are missing.
-- Add a JustJoinIT adapter only after a stable source contract is confirmed; otherwise ship a source warning and keep the provider boundary ready.
+- Add a JustJoinIT adapter through the browser-observed candidate API endpoint, keeping it isolated and warning-backed because it is undocumented.
 - Deduplicate after normalization, then reuse existing preference filtering and scoring.
 
 ## Non-goals
@@ -19,4 +19,4 @@ Turn the one-source Remotive feed into a provider-based aggregated feed that can
 
 ## Main Risk
 
-JustJoinIT does not currently have an identified official public API contract. S-03 should not make the app depend on a brittle undocumented endpoint without isolating that risk.
+JustJoinIT has a working candidate API endpoint, but it still does not appear to be officially documented for third-party use. S-03 should keep the adapter isolated and allowed to fail without breaking the feed.
