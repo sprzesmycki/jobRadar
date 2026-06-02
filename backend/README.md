@@ -18,7 +18,7 @@ curl http://127.0.0.1:8000/healthz
 curl http://127.0.0.1:8000/readyz
 ```
 
-## Docker
+## Local Docker
 
 Local Compose:
 
@@ -35,51 +35,53 @@ Compose uses the explicit project name `jobradar-backend` so it does not collide
 Stop local service:
 
 ```bash
-docker compose down
+docker compose stop backend
 ```
 
-## VPS Deployment
+## VPS Deployment On `sprzesmycki.dev`
 
-Assumptions:
+Production follows the `sprzesmycki-dev` sibling-app convention:
 
-- The VPS has Docker Engine and Docker Compose v2.
-- A reverse proxy such as Caddy, Nginx, or Traefik terminates TLS and forwards to `127.0.0.1:8000`.
-- The public backend origin is added to Cloudflare/frontend configuration only after HTTPS works.
-- Cloudflare Worker origins and local dev origins are listed in `ALLOWED_ORIGINS`.
+- Checkout path: `/opt/jobradar`.
+- Central Caddy from `/opt/sprzesmycki-dev` owns ports 80/443.
+- This repo does not ship or run a Caddy service.
+- Production Compose is the root `docker-compose.prod.yml`.
+- Services are prefixed as `jobradar-api` and `jobradar-webhook`.
+- The stack joins the external Docker network `sprzesmycki_default`.
+- Production services use `expose`, not host `ports`.
 
 First deploy on the VPS:
 
 ```bash
+cd /opt/jobradar
 git pull --ff-only
-cd backend
-cp .env.example .env
-# edit .env on the VPS; set BACKEND_HOST_PORT=8000 unless your reverse proxy uses another loopback port
-docker compose -f compose.yaml -f compose.production.yaml build backend
-docker compose -f compose.yaml -f compose.production.yaml up -d backend
-docker compose -f compose.yaml -f compose.production.yaml logs --tail=100 backend
-curl http://127.0.0.1:8000/healthz
+cp .env.prod.example .env.prod
+# edit .env.prod on the VPS; never commit it
+docker compose -f docker-compose.prod.yml --env-file .env.prod build jobradar-api jobradar-webhook
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d jobradar-api jobradar-webhook
+docker compose -f docker-compose.prod.yml --env-file .env.prod logs --tail=100 jobradar-api
 ```
 
 Redeploy after code changes:
 
 ```bash
-cd backend
-docker compose -f compose.yaml -f compose.production.yaml build backend
-docker compose -f compose.yaml -f compose.production.yaml up --no-deps -d backend
+cd /opt/jobradar
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
 ```
 
 Restart:
 
 ```bash
-cd backend
-docker compose -f compose.yaml -f compose.production.yaml restart backend
+cd /opt/jobradar
+docker compose -f docker-compose.prod.yml --env-file .env.prod restart jobradar-api
 ```
 
 Logs:
 
 ```bash
-cd backend
-docker compose -f compose.yaml -f compose.production.yaml logs --tail=200 backend
+cd /opt/jobradar
+docker compose -f docker-compose.prod.yml --env-file .env.prod logs --tail=200 jobradar-api
+tail -f /opt/jobradar/deploy.log
 ```
 
 Rollback for the first MVP version is git-based:
@@ -89,22 +91,48 @@ git log --oneline -5
 git switch main
 git pull --ff-only
 # or check out the last known-good commit if needed
-cd backend
-docker compose -f compose.yaml -f compose.production.yaml build backend
-docker compose -f compose.yaml -f compose.production.yaml up --no-deps -d backend
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
 ```
 
 Before public beta, replace this with tagged Docker images and record the deployed image tag plus git SHA in `context/deployment/deploy-plan.md`.
 
+### Caddy Route In `sprzesmycki-dev`
+
+Add these blocks to `/opt/sprzesmycki-dev/Caddyfile`, before the apex catch-all:
+
+```caddy
+    handle /jobradar/api/* {
+        uri strip_prefix /jobradar/api
+        reverse_proxy jobradar-api:8000
+    }
+
+    handle /hooks/deploy-jobradar {
+        reverse_proxy jobradar-webhook:9000
+    }
+```
+
+After the `sprzesmycki-dev` Caddyfile change is merged and deployed, reload Caddy:
+
+```bash
+ssh hetzner 'docker exec sprzesmycki-dev-caddy-1 caddy reload --config /etc/caddy/Caddyfile'
+```
+
+Smoke test:
+
+```bash
+curl https://sprzesmycki.dev/jobradar/api/healthz
+curl https://sprzesmycki.dev/jobradar/api/readyz
+```
+
 ## Secrets
 
-Backend-only secrets live in `backend/.env` on the VPS:
+Backend-only secrets live in `/opt/jobradar/.env.prod` on the VPS:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `AI_PROVIDER_API_KEY`
 - future provider keys for parsing/scoring/generation
 
-`BACKEND_HOST_PORT` defaults to `18080` for local development to avoid collisions with other services. On the VPS, set `BACKEND_HOST_PORT=8000` or whichever loopback port your reverse proxy forwards to.
+`BACKEND_HOST_PORT` defaults to `18080` for local development only. Production does not use host port bindings because Caddy reaches `jobradar-api:8000` through `sprzesmycki_default`.
 
 Frontend/Cloudflare code must not import backend-only secrets. The Astro app may use only Supabase anon/public credentials.
 
