@@ -68,6 +68,6 @@ Sources:
 
 ## Open Decisions
 
-1. Adzuna credentials: implementation can be written to skip Adzuna when `ADZUNA_APP_ID` or `ADZUNA_APP_KEY` is absent, but full S-03 verification needs real keys.
-2. JustJoinIT policy: decide whether to implement only if an official/stable endpoint is identified, or allow an experimental adapter with a clear fallback.
+1. Adzuna credentials: implementation can be written to skip Adzuna when `ADZUNA_APP_ID` or `ADZUNA_APP_KEY` is absent, but full S-03 verification needs real keys. User confirmed on 2026-06-02 that keys are not available yet and credentials-gated implementation may proceed.
+2. JustJoinIT policy: user accepted an experimental adapter on 2026-06-02, provided it is isolated and can fail without breaking the dashboard.
 3. Source count semantics: count configured sources, successfully fetched sources, or visible sources after filtering. Recommended: successfully fetched sources.

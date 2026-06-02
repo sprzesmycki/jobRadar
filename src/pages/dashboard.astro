@@ -17,7 +17,13 @@ const routeError = Astro.url.searchParams.get("error");
 const { preferences, errorMessage: preferencesError } = await getJobPreferences(supabase, user.id);
 const { savedJobs, errorMessage: savedJobsError } = await getSavedJobs(supabase, user.id);
 const pageError = routeError ?? preferencesError ?? savedJobsError;
-const { jobs, message: jobsMessage, source: jobsSource } = await getMatchedJobs(preferences);
+const {
+  jobs,
+  message: jobsMessage,
+  source: jobsSource,
+  warnings: jobSourceWarnings,
+  successfulSources,
+} = await getMatchedJobs(preferences);
 const hasPreferences = Boolean(preferences);
 const statusLabels = {
   interested: "Interested",
@@ -80,6 +86,13 @@ const currencyOptions = ["EUR", "USD", "PLN"];
               {jobsMessage}
             </div>
           )
+        }
+        {
+          jobSourceWarnings.map((warning) => (
+            <div class="rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+              <span class="font-medium">{warning.source}:</span> {warning.message}
+            </div>
+          ))
         }
 
         <section class="rounded-md border border-slate-800 bg-slate-900 p-4">
@@ -220,7 +233,9 @@ const currencyOptions = ["EUR", "USD", "PLN"];
           </div>
           <div class="rounded-md border border-slate-800 bg-slate-900 p-4">
             <p class="text-sm text-slate-400">Sources</p>
-            <p class="mt-1 text-2xl font-semibold text-white">{jobsSource === "fallback" ? "Demo" : "1"}</p>
+            <p class="mt-1 text-2xl font-semibold text-white">
+              {jobsSource === "fallback" ? "Demo" : successfulSources}
+            </p>
           </div>
         </div>
 
