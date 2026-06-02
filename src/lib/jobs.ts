@@ -1,17 +1,9 @@
 import type { JobPreferences } from "@/lib/preferences";
+import { loadAggregatedJobs } from "@/lib/job-sources/aggregate";
+import { SALARY_TO_USD } from "@/lib/job-sources/salary";
+import type { JobListing, SourceFetchResult, SourceWarning } from "@/lib/job-sources/types";
 
-export interface DemoJob {
-  id: string;
-  source: "JustJoinIT" | "Remotive" | "Adzuna";
-  title: string;
-  company: string;
-  location: string;
-  workMode: "remote" | "hybrid" | "onsite";
-  salaryMin: number | null;
-  salaryCurrency: "EUR" | "USD" | "PLN";
-  technologies: string[];
-  url: string;
-}
+export type DemoJob = JobListing;
 
 export interface MatchedJob extends DemoJob {
   matchScore: number;
@@ -22,56 +14,12 @@ export interface MatchedJob extends DemoJob {
 
 export interface MatchedJobsResult {
   jobs: MatchedJob[];
-  source: "live" | "stale" | "fallback";
+  source: "live" | "fallback";
   message: string | null;
+  warnings: SourceWarning[];
+  sourceResults: SourceFetchResult[];
+  successfulSources: number;
 }
-
-interface RemotiveJob {
-  id: number;
-  url: string;
-  title: string;
-  company_name: string;
-  category?: string;
-  tags?: string[];
-  candidate_required_location?: string;
-  salary?: string;
-}
-
-interface RemotiveResponse {
-  jobs?: RemotiveJob[];
-}
-
-interface RemotiveCache {
-  jobs: DemoJob[];
-  fetchedAt: number;
-}
-
-const REMOTIVE_URL = "https://remotive.com/api/remote-jobs?category=software-development&limit=30";
-const REMOTIVE_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-const SOFTWARE_SIGNALS = [
-  "software",
-  "developer",
-  "engineer",
-  "frontend",
-  "backend",
-  "fullstack",
-  "typescript",
-  "javascript",
-  "python",
-  "react",
-  "node",
-  "api",
-  "platform",
-  "devops",
-];
-// MVP approximation only. Replace with a live exchange-rate source before relying on exact salary comparisons.
-const SALARY_TO_USD = {
-  EUR: 1.08,
-  PLN: 0.25,
-  USD: 1,
-} satisfies Record<DemoJob["salaryCurrency"], number>;
-
-let remotiveCache: RemotiveCache | null = null;
 
 export const demoJobs: DemoJob[] = [
   {
@@ -114,111 +62,6 @@ export const demoJobs: DemoJob[] = [
 
 function normalize(value: string): string {
   return value.trim().toLowerCase();
-}
-
-function parseSalary(salary: string | undefined): Pick<DemoJob, "salaryMin" | "salaryCurrency"> {
-  const normalized = salary?.replaceAll(",", "").trim() ?? "";
-  const currency = normalized.includes("€") || /\bEUR\b/i.test(normalized) ? "EUR" : "USD";
-  const compactAmountMatch = /(\d+(?:\.\d+)?)\s?k/i.exec(normalized);
-  const fullAmountMatch = /(\d{4,6})/.exec(normalized);
-  const match = compactAmountMatch ?? fullAmountMatch;
-
-  if (!match) {
-    return {
-      salaryMin: null,
-      salaryCurrency: currency,
-    };
-  }
-
-  const rawAmount = Number.parseFloat(match[1]);
-  const amount = match[0].toLowerCase().includes("k") ? rawAmount * 1000 : rawAmount;
-
-  return {
-    salaryMin: Number.isFinite(amount) ? Math.round(amount) : null,
-    salaryCurrency: currency,
-  };
-}
-
-export function mapRemotiveJob(job: RemotiveJob): DemoJob {
-  const salary = parseSalary(job.salary);
-
-  return {
-    id: `remotive-${job.id}`,
-    source: "Remotive",
-    title: job.title,
-    company: job.company_name.trim(),
-    location: job.candidate_required_location?.trim() ?? "Remote",
-    workMode: "remote",
-    salaryMin: salary.salaryMin,
-    salaryCurrency: salary.salaryCurrency,
-    technologies: (job.tags ?? [])
-      .map((tag) => tag.trim())
-      .filter(Boolean)
-      .slice(0, 10),
-    url: job.url,
-  };
-}
-
-function isSoftwareJob(job: RemotiveJob): boolean {
-  if (normalize(job.category ?? "") === "software development") return true;
-
-  const haystack = [job.title, ...(job.tags ?? [])].map(normalize).join(" ");
-  return SOFTWARE_SIGNALS.some((signal) => haystack.includes(signal));
-}
-
-async function fetchRemotiveJobs(): Promise<DemoJob[]> {
-  const now = Date.now();
-
-  if (remotiveCache && now - remotiveCache.fetchedAt < REMOTIVE_CACHE_TTL_MS) {
-    return remotiveCache.jobs;
-  }
-
-  const response = await fetch(REMOTIVE_URL);
-  if (!response.ok) {
-    throw new Error(`Remotive returned ${response.status}`);
-  }
-
-  const payload = (await response.json()) as RemotiveResponse;
-  const jobs = (payload.jobs ?? [])
-    .filter(isSoftwareJob)
-    .map(mapRemotiveJob)
-    .filter((job) => job.title && job.company && job.url);
-
-  remotiveCache = {
-    jobs,
-    fetchedAt: now,
-  };
-
-  return jobs;
-}
-
-async function loadLiveJobs(): Promise<Omit<MatchedJobsResult, "jobs"> & { rawJobs: DemoJob[] }> {
-  try {
-    const jobs = await fetchRemotiveJobs();
-
-    return {
-      rawJobs: jobs,
-      source: "live",
-      message: null,
-    };
-  } catch (error) {
-    if (remotiveCache) {
-      return {
-        rawJobs: remotiveCache.jobs,
-        source: "stale",
-        message: "Remotive is temporarily unavailable. Showing the latest cached jobs.",
-      };
-    }
-
-    return {
-      rawJobs: demoJobs,
-      source: "fallback",
-      message:
-        error instanceof Error
-          ? `Remotive is temporarily unavailable. Showing demo jobs instead. (${error.message})`
-          : "Remotive is temporarily unavailable. Showing demo jobs instead.",
-    };
-  }
 }
 
 function roleMatches(preferences: JobPreferences | null, job: DemoJob): boolean {
@@ -291,11 +134,16 @@ export function matchJobs(preferences: JobPreferences | null, availableJobs: Dem
 }
 
 export async function getMatchedJobs(preferences: JobPreferences | null): Promise<MatchedJobsResult> {
-  const result = await loadLiveJobs();
+  const result = await loadAggregatedJobs();
+  const rawJobs = result.jobs.length > 0 ? result.jobs : demoJobs;
+  const isFallback = result.jobs.length === 0;
 
   return {
-    jobs: matchJobs(preferences, result.rawJobs),
-    source: result.source,
-    message: result.message,
+    jobs: matchJobs(preferences, rawJobs),
+    source: isFallback ? "fallback" : "live",
+    message: isFallback ? "Live job sources are temporarily unavailable. Showing demo jobs instead." : null,
+    warnings: result.warnings,
+    sourceResults: result.sourceResults,
+    successfulSources: result.successfulSources,
   };
 }
