@@ -1,0 +1,27 @@
+name: jobradar-backend
+
+services:
+  backend:
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      JOBRADAR_ENV: ${JOBRADAR_ENV:-local}
+      JOBRADAR_VERSION: ${JOBRADAR_VERSION:-0.1.0}
+    ports:
+      - "127.0.0.1:${BACKEND_HOST_PORT:-18080}:8000"
+    volumes:
+      - ./app:/app/app:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).read()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
