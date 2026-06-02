@@ -189,7 +189,7 @@ If `uv`, Docker, or local Python tooling is unavailable, record the skipped comm
 - [x] 3.2 Compose service responds on `/healthz` — e1cdafc
 - [x] 3.3 Production Compose override includes restart policy and no source-code bind mount — e1cdafc
 - [x] 3.4 Backend README documents local run, VPS deploy, logs, restart, rollback, CORS, TLS, and secrets — e1cdafc
-- [x] 3.7 Production config follows `sprzesmycki.dev` sibling-app conventions
+- [x] 3.7 Production config follows `sprzesmycki.dev` sibling-app conventions — 21ab2cb
 
 #### Manual
 
