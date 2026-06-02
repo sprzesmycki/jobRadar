@@ -1,10 +1,10 @@
 ---
 change_id: three-source-job-aggregation
 title: Three-source job aggregation
-status: implemented
+status: archived
 created: 2026-06-01
 updated: 2026-06-02
-archived_at: null
+archived_at: 2026-06-02T08:26:45Z
 ---
 
 ## Notes
