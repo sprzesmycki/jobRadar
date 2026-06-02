@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { getCvProfile } from "@/lib/cv-profile";
 import { getMatchedJobs } from "@/lib/jobs";
 import { getJobPreferences, joinList } from "@/lib/preferences";
 import { getSavedJobs } from "@/lib/saved-jobs";
@@ -16,7 +17,8 @@ const saved = Astro.url.searchParams.get("saved");
 const routeError = Astro.url.searchParams.get("error");
 const { preferences, errorMessage: preferencesError } = await getJobPreferences(supabase, user.id);
 const { savedJobs, errorMessage: savedJobsError } = await getSavedJobs(supabase, user.id);
-const pageError = routeError ?? preferencesError ?? savedJobsError;
+const { profile: cvProfile, errorMessage: cvProfileError } = await getCvProfile(supabase, user.id);
+const pageError = routeError ?? preferencesError ?? savedJobsError ?? cvProfileError;
 const {
   jobs,
   message: jobsMessage,
@@ -31,6 +33,14 @@ const statusLabels = {
   rejected: "Rejected",
 };
 const currencyOptions = ["EUR", "USD", "PLN"];
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  }
+
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
 ---
 
 <Layout title="JobRadar Dashboard">
@@ -74,6 +84,13 @@ const currencyOptions = ["EUR", "USD", "PLN"];
           )
         }
         {
+          saved === "cv" && (
+            <div class="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+              CV profile extracted.
+            </div>
+          )
+        }
+        {
           pageError && (
             <div class="rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
               {pageError}
@@ -94,6 +111,74 @@ const currencyOptions = ["EUR", "USD", "PLN"];
             </div>
           ))
         }
+
+        <section class="rounded-md border border-slate-800 bg-slate-900 p-4">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <h2 class="text-base font-semibold text-white">CV profile</h2>
+            <span class="rounded-md bg-slate-800 px-2 py-1 text-xs text-slate-300">
+              {cvProfile ? "Extracted" : "Empty"}
+            </span>
+          </div>
+
+          <form method="POST" action="/api/cv/upload" enctype="multipart/form-data" class="space-y-3">
+            <label class="block">
+              <span class="mb-1 block text-sm font-medium text-slate-300">PDF CV</span>
+              <input
+                name="cv"
+                type="file"
+                accept="application/pdf,.pdf"
+                class="block w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200 file:mr-3 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-slate-100 hover:file:bg-slate-700"
+              />
+            </label>
+            <button
+              type="submit"
+              class="h-10 w-full rounded-md bg-cyan-400 px-4 text-sm font-semibold text-slate-950 hover:bg-cyan-300"
+            >
+              Upload and extract
+            </button>
+          </form>
+
+          {
+            cvProfile ? (
+              <div class="mt-4 space-y-3 border-t border-slate-800 pt-4">
+                <div>
+                  <p class="text-sm font-medium text-white">{cvProfile.full_name ?? "Name not detected"}</p>
+                  <p class="mt-1 text-xs text-slate-400">
+                    {cvProfile.file_name} / {formatBytes(cvProfile.file_size)}
+                  </p>
+                </div>
+                {(cvProfile.email ?? cvProfile.phone) && (
+                  <p class="text-xs text-slate-400">{[cvProfile.email, cvProfile.phone].filter(Boolean).join(" / ")}</p>
+                )}
+                {cvProfile.role_hints.length > 0 && (
+                  <div class="flex flex-wrap gap-2">
+                    {cvProfile.role_hints.slice(0, 3).map((role) => (
+                      <span class="rounded-md bg-cyan-400/10 px-2 py-1 text-xs font-medium text-cyan-200">{role}</span>
+                    ))}
+                  </div>
+                )}
+                {cvProfile.skills.length > 0 && (
+                  <div class="flex flex-wrap gap-2">
+                    {cvProfile.skills.slice(0, 10).map((skill) => (
+                      <span class="rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300">{skill}</span>
+                    ))}
+                  </div>
+                )}
+                {cvProfile.experience_highlights.length > 0 && (
+                  <ul class="space-y-2 text-xs text-slate-400">
+                    {cvProfile.experience_highlights.slice(0, 2).map((highlight) => (
+                      <li>{highlight}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              <p class="mt-4 border-t border-slate-800 pt-4 text-sm text-slate-400">
+                Upload a text-based PDF CV to unlock CV-based matching in the next slice.
+              </p>
+            )
+          }
+        </section>
 
         <section class="rounded-md border border-slate-800 bg-slate-900 p-4">
           <div class="mb-4 flex items-center justify-between gap-3">

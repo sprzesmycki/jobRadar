@@ -1,12 +1,15 @@
 from collections.abc import Iterator
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
+from app.api.routes import cv as cv_route
 from app.core import security
 from app.core.config import Settings
 from app.core.security import AuthenticatedUser, get_current_user
 from app.main import app
+from app.schemas.cv import CvExtractionResponse
 
 
 @pytest.fixture
@@ -47,7 +50,12 @@ def test_readyz_does_not_expose_secret_values(client: TestClient) -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] in {"ok", "degraded"}
-    assert set(payload["checks"]) == {"supabase_url", "supabase_anon_key", "allowed_origins"}
+    assert set(payload["checks"]) == {
+        "supabase_url",
+        "supabase_anon_key",
+        "supabase_service_role_key",
+        "allowed_origins",
+    }
     assert all(isinstance(value, bool) for value in payload["checks"].values())
 
 
@@ -58,7 +66,7 @@ def test_readyz_with_configured_secrets_still_returns_only_booleans(
     settings = Settings(
         SUPABASE_URL="https://example.supabase.co",
         SUPABASE_ANON_KEY="anon-secret",
-        SUPABASE_SERVICE_ROLE_KEY="service-role-secret",
+        SUPABASE_SERVICE_ROLE_KEY="eyJ.header.payload",
         ALLOWED_ORIGINS="https://job-radar.example.com",
     )
 
@@ -72,11 +80,49 @@ def test_readyz_with_configured_secrets_still_returns_only_booleans(
         "checks": {
             "supabase_url": True,
             "supabase_anon_key": True,
+            "supabase_service_role_key": True,
             "allowed_origins": True,
         },
     }
     assert "anon-secret" not in response.text
-    assert "service-role-secret" not in response.text
+    assert "eyJ.header.payload" not in response.text
+
+
+def test_readyz_flags_placeholder_supabase_url(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = Settings(
+        SUPABASE_URL="https://your-project.supabase.co",
+        SUPABASE_ANON_KEY="anon-secret",
+    )
+
+    monkeypatch.setattr("app.api.routes.health.get_settings", lambda: settings)
+
+    response = client.get("/readyz")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "degraded"
+    assert response.json()["checks"]["supabase_url"] is False
+
+
+def test_readyz_flags_non_jwt_service_role_key(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = Settings(
+        SUPABASE_URL="https://example.supabase.co",
+        SUPABASE_ANON_KEY="anon-secret",
+        SUPABASE_SERVICE_ROLE_KEY="sb_secret_new_key_format",
+    )
+
+    monkeypatch.setattr("app.api.routes.health.get_settings", lambda: settings)
+
+    response = client.get("/readyz")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "degraded"
+    assert response.json()["checks"]["supabase_service_role_key"] is False
 
 
 def test_me_rejects_missing_token(client: TestClient) -> None:
@@ -108,6 +154,28 @@ def test_me_rejects_invalid_token(
     assert response.json()["detail"]["code"] == "invalid_bearer_token"
 
 
+def test_me_returns_503_when_auth_provider_is_unavailable(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fake_validate_supabase_token(
+        _token: str,
+        _settings: Settings,
+    ) -> AuthenticatedUser | None:
+        raise httpx.ConnectError("auth unavailable")
+
+    app.dependency_overrides[security.get_settings] = lambda: Settings(
+        SUPABASE_URL="https://example.supabase.co",
+        SUPABASE_ANON_KEY="anon-secret",
+    )
+    monkeypatch.setattr(security, "validate_supabase_token", fake_validate_supabase_token)
+
+    response = client.get("/v1/me", headers={"Authorization": "Bearer token"})
+
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "auth_unavailable"
+
+
 def test_cors_allows_local_astro_origin(client: TestClient) -> None:
     response = client.options(
         "/healthz",
@@ -121,15 +189,104 @@ def test_cors_allows_local_astro_origin(client: TestClient) -> None:
     assert response.headers["access-control-allow-origin"] == "http://localhost:4321"
 
 
-def test_cv_extract_placeholder_returns_501(authed_client: TestClient) -> None:
+def test_cv_extract_requires_allowed_bucket(authed_client: TestClient) -> None:
     response = authed_client.post(
         "/v1/cv/extract",
         json={"cv": {"bucket": "private-cvs", "path": "user-123/cv.pdf"}},
     )
 
-    assert response.status_code == 501
-    assert response.json()["code"] == "not_implemented"
-    assert response.json()["feature"] == "cv_extraction"
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "invalid_cv_bucket"
+
+
+def test_cv_extract_requires_pdf_content_type(authed_client: TestClient) -> None:
+    response = authed_client.post(
+        "/v1/cv/extract",
+        json={
+            "cv": {
+                "bucket": "cvs",
+                "path": "user-123/cv.txt",
+                "content_type": "text/plain",
+            },
+        },
+    )
+
+    assert response.status_code == 415
+    assert response.json()["detail"]["code"] == "unsupported_cv_type"
+
+
+def test_cv_extract_rejects_foreign_storage_path(authed_client: TestClient) -> None:
+    response = authed_client.post(
+        "/v1/cv/extract",
+        json={"cv": {"bucket": "cvs", "path": "other-user/cv.pdf"}},
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "cv_path_forbidden"
+
+
+def test_cv_extract_requires_storage_config(authed_client: TestClient) -> None:
+    app.dependency_overrides[cv_route.get_settings] = lambda: Settings(
+        SUPABASE_URL="",
+        SUPABASE_SERVICE_ROLE_KEY="",
+    )
+
+    response = authed_client.post(
+        "/v1/cv/extract",
+        json={"cv": {"bucket": "cvs", "path": "user-123/cv.pdf"}},
+    )
+
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "storage_not_configured"
+
+
+def test_cv_extract_returns_structured_profile(
+    authed_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fake_download_storage_object(
+        _settings: Settings,
+        bucket: str,
+        path: str,
+    ) -> bytes:
+        assert bucket == "cvs"
+        assert path == "user-123/cv.pdf"
+        return b"%PDF fake bytes"
+
+    def fake_extract_profile_from_pdf_bytes(_pdf_bytes: bytes) -> CvExtractionResponse:
+        return CvExtractionResponse(
+            full_name="Test User",
+            email="test@example.com",
+            phone=None,
+            links=["https://example.com"],
+            skills=["Python", "FastAPI"],
+            role_hints=["Python Developer"],
+            experience_highlights=["Built APIs with Python and FastAPI."],
+            page_count=1,
+            text_character_count=128,
+        )
+
+    app.dependency_overrides[cv_route.get_settings] = lambda: Settings(
+        SUPABASE_URL="https://example.supabase.co",
+        SUPABASE_SERVICE_ROLE_KEY="service-role-secret",
+    )
+    monkeypatch.setattr(cv_route, "download_storage_object", fake_download_storage_object)
+    monkeypatch.setattr(
+        cv_route,
+        "extract_profile_from_pdf_bytes",
+        fake_extract_profile_from_pdf_bytes,
+    )
+
+    response = authed_client.post(
+        "/v1/cv/extract",
+        json={"cv": {"bucket": "cvs", "path": "user-123/cv.pdf"}},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["full_name"] == "Test User"
+    assert payload["skills"] == ["Python", "FastAPI"]
+    assert payload["text_character_count"] == 128
 
 
 def test_job_scoring_placeholder_returns_501(authed_client: TestClient) -> None:

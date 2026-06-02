@@ -219,45 +219,45 @@ Backend deployment gates after merge:
 
 #### Automated
 
-- [ ] 1.1 Migration creates private `cvs` bucket with PDF and size restrictions
-- [ ] 1.2 Migration creates `cv_profiles` with user-owned RLS
-- [ ] 1.3 Migration creates Storage RLS policies scoped to `<auth.uid()>/...`
+- [x] 1.1 Migration creates private `cvs` bucket with PDF and size restrictions
+- [x] 1.2 Migration creates `cv_profiles` with user-owned RLS
+- [x] 1.3 Migration creates Storage RLS policies scoped to `<auth.uid()>/...`
 
 #### Manual
 
-- [ ] 1.4 Owner runs `npx supabase db push`
-- [ ] 1.5 Supabase dashboard confirms bucket is private
+- [x] 1.4 Owner runs `npx supabase db push` — 8822860
+- [x] 1.5 Supabase dashboard confirms bucket is private — 8822860
 
 ### Phase 2: Backend Extraction Endpoint
 
 #### Automated
 
-- [ ] 2.1 `/v1/cv/extract` no longer returns placeholder 501
-- [ ] 2.2 Endpoint rejects missing auth, wrong bucket/content type, and foreign storage paths
-- [ ] 2.3 Endpoint downloads private PDF using backend-only service-role config
-- [ ] 2.4 Endpoint extracts structured profile data with `pypdf`
-- [ ] 2.5 Backend tests pass
-- [ ] 2.6 Ruff check passes
+- [x] 2.1 `/v1/cv/extract` no longer returns placeholder 501
+- [x] 2.2 Endpoint rejects missing auth, wrong bucket/content type, and foreign storage paths
+- [x] 2.3 Endpoint downloads private PDF using backend-only service-role config
+- [x] 2.4 Endpoint extracts structured profile data with `pypdf`
+- [x] 2.5 Backend tests pass
+- [x] 2.6 Ruff check passes
 
 #### Manual
 
-- [ ] 2.7 Backend logs checked for absence of raw CV text
+- [x] 2.7 Backend logs checked for absence of raw CV text — 8822860
 
 ### Phase 3: Astro Upload And Dashboard UI
 
 #### Automated
 
-- [ ] 3.1 `BACKEND_API_URL` server env is configured in Astro
-- [ ] 3.2 `/api/cv/upload` validates file/auth, uploads to Supabase Storage, calls backend, and upserts profile
-- [ ] 3.3 Dashboard renders upload form and extracted profile summary
-- [ ] 3.4 `npm run lint` passes
-- [ ] 3.5 `npm run build` passes
-- [ ] 3.6 Grep check confirms service-role key stays out of frontend
+- [x] 3.1 `BACKEND_API_URL` server env is configured in Astro
+- [x] 3.2 `/api/cv/upload` validates file/auth, uploads to Supabase Storage, calls backend, and upserts profile
+- [x] 3.3 Dashboard renders upload form and extracted profile summary
+- [x] 3.4 `npm run lint` passes
+- [x] 3.5 `npm run build` passes
+- [x] 3.6 Grep check confirms service-role key stays out of frontend
 
 #### Manual
 
-- [ ] 3.7 Local dashboard upload with text-based PDF succeeds
-- [ ] 3.8 Mobile and desktop dashboard layout remain acceptable
+- [x] 3.7 Local dashboard upload with text-based PDF succeeds — 8822860
+- [x] 3.8 Mobile and desktop dashboard layout remain acceptable — 8822860
 
 ### Phase 4: Production Rollout
 

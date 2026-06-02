@@ -18,6 +18,7 @@ export default defineConfig({
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      BACKEND_API_URL: envField.string({ context: "server", access: "secret", optional: true }),
       ADZUNA_APP_ID: envField.string({ context: "server", access: "secret", optional: true }),
       ADZUNA_APP_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       ADZUNA_COUNTRY: envField.string({ context: "server", access: "secret", optional: true }),

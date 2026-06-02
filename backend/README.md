@@ -1,6 +1,6 @@
 # JobRadar Backend
 
-FastAPI service for Python-heavy CV parsing, matching, and AI orchestration. F-01 only establishes the service boundary and deployment path; CV extraction, scoring, and cover-letter generation intentionally return `501 not_implemented` until S-04, S-05, and S-06.
+FastAPI service for Python-heavy CV parsing, matching, and AI orchestration. S-04 implements authenticated PDF CV extraction from private Supabase Storage; scoring and cover-letter generation intentionally return `501 not_implemented` until S-05 and S-06.
 
 ## Local Setup
 
@@ -158,4 +158,4 @@ Authenticated with `Authorization: Bearer <Supabase access token>`:
 - `POST /v1/jobs/score`
 - `POST /v1/cover-letter`
 
-The product endpoints return `501 not_implemented` in F-01 by design.
+`POST /v1/cv/extract` accepts a private storage reference for a PDF in the `cvs` bucket, verifies that the path belongs to the authenticated user, downloads the file with backend-only service-role credentials, and returns structured profile fields. The scoring and cover-letter endpoints still return `501 not_implemented`.

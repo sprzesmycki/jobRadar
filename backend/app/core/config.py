@@ -1,4 +1,5 @@
 from functools import lru_cache
+from urllib.parse import urlparse
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -8,6 +9,21 @@ def parse_origins(value: str | list[str]) -> list[str]:
     if isinstance(value, list):
         return [origin.strip() for origin in value if origin.strip()]
     return [origin.strip() for origin in value.split(",") if origin.strip()]
+
+
+def is_supabase_url_configured(value: str | None) -> bool:
+    parsed = urlparse(value or "")
+    return (
+        parsed.scheme in {"http", "https"}
+        and bool(parsed.hostname)
+        and parsed.hostname != "your-project.supabase.co"
+    )
+
+
+def is_supabase_service_role_key_configured(value: str | None) -> bool:
+    # Supabase Storage validates Authorization as a compact JWT. New sb_secret_* keys are
+    # valid API keys, but they cannot be used as the Bearer token for this Storage path.
+    return bool(value and value.startswith("eyJ") and value.count(".") == 2)
 
 
 class Settings(BaseSettings):
