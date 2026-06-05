@@ -4,6 +4,7 @@ title: Add tests to CI and add at least one user-facing test
 status: implementing
 created: 2026-06-05
 updated: 2026-06-05
+
 archived_at: null
 ---
 

@@ -135,17 +135,17 @@ backend-tests:
 
 #### Automated
 
-- [x] 1.1 `cd backend && uv run pytest tests/test_contracts.py -v` — all PASSED, no FAILED
+- [x] 1.1 `cd backend && uv run pytest tests/test_contracts.py -v` — all PASSED, no FAILED — f0eaf65
 
 #### Manual
 
-- [x] 1.2 Nowy `test_job_scoring_returns_structured_result` widoczny i PASSED w output
+- [x] 1.2 Nowy `test_job_scoring_returns_structured_result` widoczny i PASSED w output — f0eaf65
 
 ### Phase 2: Add backend-tests CI Job
 
 #### Automated
 
-- [ ] 2.1 CI job `backend-tests` przechodzi zielono na PR/push
+- [x] 2.1 CI job `backend-tests` przechodzi zielono na PR/push
 
 #### Manual
 
