@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from unittest.mock import AsyncMock, MagicMock
 
 import httpx
 import pytest
@@ -6,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from app.api.routes import cv as cv_route
 from app.core import security
-from app.core.config import Settings
+from app.core.config import Settings, get_settings
 from app.core.security import AuthenticatedUser, get_current_user
 from app.main import app
 from app.schemas.cv import CvExtractionResponse
@@ -292,10 +293,6 @@ def test_cv_extract_returns_structured_profile(
 def test_job_scoring_returns_structured_result(
     authed_client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from unittest.mock import AsyncMock, MagicMock
-
-    from app.core.config import get_settings
-
     mock_content = (
         '{"score": 75, "explanation": "Good match.",'
         ' "matched_skills": ["Python"], "missing_skills": ["Go"]}'
