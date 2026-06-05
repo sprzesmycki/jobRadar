@@ -1,11 +1,11 @@
 ---
 change_id: ci-test-coverage
 title: Add tests to CI and add at least one user-facing test
-status: impl_reviewed
+status: archived
 created: 2026-06-05
 updated: 2026-06-05
 
-archived_at: null
+archived_at: 2026-06-05T20:36:07Z
 ---
 
 ## Notes
