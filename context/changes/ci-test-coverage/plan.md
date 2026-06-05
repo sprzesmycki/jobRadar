@@ -145,8 +145,8 @@ backend-tests:
 
 #### Automated
 
-- [x] 2.1 CI job `backend-tests` przechodzi zielono na PR/push
+- [x] 2.1 CI job `backend-tests` przechodzi zielono na PR/push — 20e7cb6
 
 #### Manual
 
-- [ ] 2.2 GitHub Actions pokazuje oba joby (ci + backend-tests) zielone
+- [x] 2.2 GitHub Actions pokazuje oba joby (ci + backend-tests) zielone — 20e7cb6
