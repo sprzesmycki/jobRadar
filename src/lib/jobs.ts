@@ -138,8 +138,19 @@ export async function getMatchedJobs(preferences: JobPreferences | null): Promis
   const rawJobs = result.jobs.length > 0 ? result.jobs : demoJobs;
   const isFallback = result.jobs.length === 0;
 
+  // For live jobs, apply preference filters but skip rule-based scoring —
+  // AI scores are computed asynchronously via /api/jobs/score-batch.
+  const jobs = isFallback
+    ? matchJobs(preferences, rawJobs)
+    : rawJobs
+        .filter((job) => roleMatches(preferences, job))
+        .filter((job) => salaryMatches(preferences, job))
+        .filter((job) => workModeMatches(preferences, job))
+        .filter((job) => technologyMatches(preferences, job))
+        .map((job): MatchedJob => ({ ...job, matchScore: 0, matchedSkills: [], missingSkills: [], matchReason: "" }));
+
   return {
-    jobs: matchJobs(preferences, rawJobs),
+    jobs,
     source: isFallback ? "fallback" : "live",
     message: isFallback ? "Live job sources are temporarily unavailable. Showing demo jobs instead." : null,
     warnings: result.warnings,

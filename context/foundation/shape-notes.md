@@ -41,32 +41,38 @@ Mid/senior IT developer, aktualnie zatrudniony (4+ lata doświadczenia). Pasywni
 ## Functional Requirements
 
 ### Autentykacja
+
 - FR-001: User can register via email + password or OAuth. Priority: must-have
   > Socrates: Kontrargument rozważony: "Single-user MVP — hardcoded login wystarczy." Pominięcie: FR-001 zostaje — aplikacja ma być prawdziwym produktem od dnia 1, nawet jeśli użytkownik to tylko właściciel.
 - FR-002: User can log in and log out. Priority: must-have
   > Socrates: Kontrargument rozważony: "logout jest UX-nicety w single-user MVP." Pominięcie: logout zostaje jako baseline bezpieczeństwa — usunięcie go tworzyłoby niekompatybilny dług przy otwieraniu dla innych użytkowników.
 
 ### Profil i preferencje
+
 - FR-003: User can upload their CV as a PDF file. Priority: must-have
   > Socrates: Kontrargument rozważony: "PDF parsing jest kruchy." Pominięcie: PDF to oczekiwany UX — użytkownik nie będzie przepisywał CV ręcznie.
 - FR-004: User can set job preferences: role, technologies, min salary, work mode (remote/hybrid/onsite). Priority: must-have
   > Socrates: Kontrargument rozważony: "match score już filtruje — preferences redundantne." Pominięcie: preferencje są niezbędne do pre-filtrowania przed scoringiem — bez nich API fetches i scoring uruchamiają się dla tysięcy irrelevantnych ofert.
 
 ### Agregacja ofert
+
 - FR-005: User can view an aggregated list of job offers from JustJoinIT, Remotive, and Adzuna filtered by their preferences. Priority: must-have
   > Socrates: Kontrargument rozważony: "jedno źródło to nie agregacja — obietnica produktu niespełniona." Rozwiązanie: FR-005 rozszerzony do 3 źródeł (JustJoinIT + Remotive + Adzuna) zgodnie z doprecyzowaniem użytkownika. Wartość agregacji jest spełniona już w MVP.
 
 ### Matching
+
 - FR-006: User can see a CV-to-job match percentage score for each offer, with a brief explanation of the key matching factors. Priority: must-have
   > Socrates: Kontrargument rozważony: "procentowy wynik bez wyjaśnienia to black box — użytkownik nie ufa." Rozwiązanie: FR-006 zaktualizowany — score musi zawierać zwięzłe wyjaśnienie kluczowych czynników, nie samą liczbę.
 - FR-007: User can see which skills are missing from their CV relative to a job offer's requirements. Priority: must-have
   > Socrates: Kontrargument rozważony: "lista brakujących skillów może być zaszumiona (communication skills, agile jako 'missing')." Pominięcie: FR-007 zostaje — problem szumu jest kwestią jakości implementacji (filtrowanie soft skills), nie zasadności FR.
 
 ### Cover letter
+
 - FR-008: User can generate a personalized cover letter for any offer, referencing both the offer content and their CV. Priority: must-have
   > Socrates: Kontrargument rozważony: "AI cover lettery są coraz częściej rozpoznawane przez rekruterów." Pominięcie: cover letter pozostaje kluczową wartością produktu — wyraźna personalizacja (konkretne punkty z CV + konkretne wymagania oferty) zmniejsza ryzyko generyczności.
 
 ### Śledzenie aplikacji
+
 - FR-009: User can save a job offer with a status label (interested / applied / rejected). Priority: must-have
   > Socrates: Kontrargument rozważony: "browser bookmarks wystarczyłyby dla single-user MVP." Pominięcie: status tracking jest częścią obietnicy produktu — zapisywanie statusów to feature, nie infrastruktura, i powinno być walidowane w MVP.
 - FR-010: User can view their saved offers list. Priority: must-have
@@ -83,6 +89,7 @@ Mid/senior IT developer, aktualnie zatrudniony (4+ lata doświadczenia). Pasywni
 - **Then** widzi listę ofert z JustJoinIT przefiltrowaną po roli, technologiach i min. widełkach — każda z wynikiem % dopasowania CV oraz listą brakujących skills
 
 #### Acceptance Criteria
+
 - Oferty niepassujące do preferencji nie pojawiają się na liście
 - Każda oferta pokazuje wynik dopasowania (0–100%) zanim użytkownik ją otworzy
 - Pusta lista (brak trafień) pokazuje komunikat z sugestią rozluźnienia filtrów — nie pusty ekran
@@ -94,6 +101,7 @@ Mid/senior IT developer, aktualnie zatrudniony (4+ lata doświadczenia). Pasywni
 - **Then** otrzymuje gotowy tekst cover lettera odwołujący się do konkretnych wymagań oferty i konkretnych punktów z jego CV
 
 #### Acceptance Criteria
+
 - Wygenerowany tekst zawiera przynajmniej jedno bezpośrednie odwołanie do wymagań z ogłoszenia
 - Wygenerowany tekst zawiera przynajmniej jedno odwołanie do doświadczenia z CV kandydata
 - Cover letter nie brzmi jak generyczny szablon
@@ -116,15 +124,18 @@ Jak użytkownik to spotyka: po załadowaniu CV i ustawieniu preferencji widzi li
 ## Success Criteria
 
 ### Primary
+
 - Użytkownik wgrywa CV, ustawia preferencje i widzi zagregowaną listę ofert z JustJoinIT przefiltrowaną po roli, technologiach i widełkach.
 - Przy każdej ofercie widzi % dopasowania swojego CV oraz listę brakujących skills.
 - Klika "Generuj cover letter" i dostaje gotowy, spersonalizowany tekst odnoszący się do konkretnej oferty i konkretnych punktów z jego CV.
 - Może zapisać ofertę ze statusem.
 
 ### Secondary
+
 - Historia aplikacji z możliwością dodania notatek do każdej oferty (np. co mówił na rozmowie).
 
 ### Guardrails
+
 - Pełna treść CV użytkownika nigdy nie jest dostępna publicznie ani logowana w serwisach zewnętrznych.
 - Wynik % dopasowania musi być wiarygodny — jeśli scoring jest losowy lub nieistotny, użytkownik przestaje ufać całemu produktowi.
 - Lista ofert ładuje się w akceptowalnym czasie — użytkownik nie czeka 30+ sekund na wyniki.

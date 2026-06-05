@@ -16,22 +16,23 @@ A user with an uploaded CV opens the dashboard, sees all job cards load immediat
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-|---|---|---|---|
-| Scoring engine | AI via z.ai (OpenAI-compatible, GLM models) | Keyword overlap alone can't produce trustworthy explanations | Plan |
-| CV data sent to AI | Extracted fields only (skills, role_hints, experience_highlights) | NFR-privacy forbids sending raw PDF text to external services | Plan |
-| Job description fetch | Include in existing list API call | One fetch, no extra latency — Remotive and Adzuna list endpoints provide descriptions | Plan |
-| Score caching | New `job_scores` table (user_id + external_id unique) | Avoid re-scoring on every page load (cost + latency) | Plan |
-| Cache invalidation | Auto-delete all user scores on CV re-upload | Stale scores against a new CV would silently mislead the user | Plan |
-| Score timing | Async after page load (skeleton → real scores) | Page renders immediately; scoring happens in background | Plan |
-| Score display | % badge on card + full breakdown in inline detail panel | Keeps cards scannable; detail on demand matches US-01 intent | Plan |
-| No-CV state | Show job list with "Upload CV" prompt in place of badges | User still gets value from the job list; clear CTA to unlock scoring | Plan |
-| AI SDK | `openai` Python SDK with `base_url="https://api.z.ai/v1"` | z.ai exposes an OpenAI-compatible API — no proprietary package needed | Plan |
-| Model | Configurable via `AI_MODEL_ID` env var, default `glm-5.1` | Allows tuning without code changes | Plan |
+| Decision              | Choice                                                            | Why (1 sentence)                                                                      | Source |
+| --------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------ |
+| Scoring engine        | AI via z.ai (OpenAI-compatible, GLM models)                       | Keyword overlap alone can't produce trustworthy explanations                          | Plan   |
+| CV data sent to AI    | Extracted fields only (skills, role_hints, experience_highlights) | NFR-privacy forbids sending raw PDF text to external services                         | Plan   |
+| Job description fetch | Include in existing list API call                                 | One fetch, no extra latency — Remotive and Adzuna list endpoints provide descriptions | Plan   |
+| Score caching         | New `job_scores` table (user_id + external_id unique)             | Avoid re-scoring on every page load (cost + latency)                                  | Plan   |
+| Cache invalidation    | Auto-delete all user scores on CV re-upload                       | Stale scores against a new CV would silently mislead the user                         | Plan   |
+| Score timing          | Async after page load (skeleton → real scores)                    | Page renders immediately; scoring happens in background                               | Plan   |
+| Score display         | % badge on card + full breakdown in inline detail panel           | Keeps cards scannable; detail on demand matches US-01 intent                          | Plan   |
+| No-CV state           | Show job list with "Upload CV" prompt in place of badges          | User still gets value from the job list; clear CTA to unlock scoring                  | Plan   |
+| AI SDK                | `openai` Python SDK with `base_url="https://api.z.ai/v1"`         | z.ai exposes an OpenAI-compatible API — no proprietary package needed                 | Plan   |
+| Model                 | Configurable via `AI_MODEL_ID` env var, default `glm-5.1`         | Allows tuning without code changes                                                    | Plan   |
 
 ## Scope
 
 **In scope:**
+
 - Backend scoring service (z.ai call, JSON output, error handling)
 - `job_scores` Supabase cache table + RLS
 - Cache invalidation on CV re-upload
@@ -42,6 +43,7 @@ A user with an uploaded CV opens the dashboard, sees all job cards load immediat
 - No-CV state handling
 
 **Out of scope:**
+
 - Cover letter generation (S-06)
 - Saved offers list page (S-07)
 - Score-based sorting or filtering in the job list
@@ -54,13 +56,13 @@ SSR dashboard fetches jobs AND queries `job_scores` cache. Jobs with cached scor
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
-| 1. Backend scoring service | `POST /v1/jobs/score` returns real AI scores | z.ai JSON output may need prompt tuning to reliably return valid schema |
-| 2. DB cache table | `job_scores` table + cache invalidation on CV re-upload | Migration must apply cleanly to production Supabase |
-| 3. Job source description | `description` field in job listings (Remotive + Adzuna) | JustJoinIT list API has no descriptions — scorer must handle `null` gracefully |
-| 4. Frontend scoring API | Astro batch endpoint with cache + backend calls | Parallel scoring of 20 jobs must not exceed backend or z.ai rate limits |
-| 5. Dashboard UI | Async badges, detail panel, no-CV state | DOM update script must not break save-job form or preferences |
+| Phase                      | What it delivers                                        | Key risk                                                                       |
+| -------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 1. Backend scoring service | `POST /v1/jobs/score` returns real AI scores            | z.ai JSON output may need prompt tuning to reliably return valid schema        |
+| 2. DB cache table          | `job_scores` table + cache invalidation on CV re-upload | Migration must apply cleanly to production Supabase                            |
+| 3. Job source description  | `description` field in job listings (Remotive + Adzuna) | JustJoinIT list API has no descriptions — scorer must handle `null` gracefully |
+| 4. Frontend scoring API    | Astro batch endpoint with cache + backend calls         | Parallel scoring of 20 jobs must not exceed backend or z.ai rate limits        |
+| 5. Dashboard UI            | Async badges, detail panel, no-CV state                 | DOM update script must not break save-job form or preferences                  |
 
 **Prerequisites:** `AI_PROVIDER_API_KEY` set in backend env (z.ai token); Supabase production accessible for migration.
 **Estimated effort:** ~2–3 sessions across 5 phases.

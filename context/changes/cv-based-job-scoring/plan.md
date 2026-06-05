@@ -77,6 +77,7 @@ Add `openai` dependency, wire z.ai credentials to config, implement `ScoringServ
 **Intent**: Expose `AI_PROVIDER_API_KEY` and `AI_MODEL_ID` environment variables through the existing `Settings` class so the scoring service can read them without hardcoding.
 
 **Contract**: Add two fields to `Settings`:
+
 - `ai_provider_api_key: str | None = Field(default=None, validation_alias="AI_PROVIDER_API_KEY")`
 - `ai_model_id: str = Field(default="glm-5.1", validation_alias="AI_MODEL_ID")`
 
@@ -144,6 +145,7 @@ Create the `job_scores` cache table with RLS, and add cache invalidation to the 
 **Intent**: Create `job_scores` table that stores one AI score per user per job, with RLS so each user can only read/write their own scores.
 
 **Contract**:
+
 ```sql
 CREATE TABLE public.job_scores (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -268,6 +270,7 @@ New Astro API endpoint that checks the `job_scores` cache, calls the FastAPI bac
 **Intent**: Accept a POST with an array of job objects, return AI scores for each — from cache where available, from backend for the rest.
 
 **Contract**:
+
 - Method: `POST`, authenticated (redirect to signin if no session).
 - Request body: `{ jobs: Array<{ id: string, source: string, title: string, company: string, description: string | null, technologies: string[] }> }`.
 - Response: `{ scores: Record<string, { score, explanation, matched_skills, missing_skills } | null> }` — `null` for any job that failed scoring.
@@ -320,6 +323,7 @@ Update the dashboard to: (1) pre-load cached scores in SSR, (2) show score skele
 **Intent**: Replace the hard-coded `{job.matchScore}% match` badge with three conditional states: (a) no CV uploaded → "Upload CV" prompt, (b) cached score available → render baked-in score badge, (c) pending → render skeleton badge with `data-score-pending` and `data-job-payload` attributes.
 
 **Contract**:
+
 - When `cvProfile` is `null`: render `<a href="/dashboard#cv-upload" class="...">Upload CV to see match</a>` inline where the badge was.
 - When `cachedScores.has(job.id)`: render `<span class="... score-badge" data-job-id={job.id}>{score}% match</span>`.
 - Otherwise: render `<span class="... score-badge animate-pulse" data-job-id={job.id} data-score-pending="true">Scoring…</span>` and a `<script>`-readable `<template data-job-payload={job.id}>` element with the serialized job data needed for the batch call.
@@ -331,6 +335,7 @@ Update the dashboard to: (1) pre-load cached scores in SSR, (2) show score skele
 **Intent**: Add a "Details" button to each job card that reveals an inline panel with full score breakdown (explanation, matched skills, missing skills). Panel is hidden by default; no modal/dialog needed.
 
 **Contract**:
+
 - Below the `matchReason` paragraph, add a `<button type="button" data-detail-toggle={job.id}>Details</button>`.
 - Add a `<div id={"detail-" + job.id} hidden class="...">` containing: explanation text, matched skills chips, missing skills chips. Placeholders for explanation/skills are rendered from `cachedScores` if available; otherwise show skeleton spans with `data-detail-pending` attributes.
 - JS (inline `<script>` tag): `document.addEventListener('click', e => { if (e.target.dataset.detailToggle) { document.getElementById('detail-' + e.target.dataset.detailToggle).toggleAttribute('hidden') } })`.
@@ -342,6 +347,7 @@ Update the dashboard to: (1) pre-load cached scores in SSR, (2) show score skele
 **Intent**: After page load, collect all pending job payloads, call `/api/jobs/score-batch`, then update DOM score badges and detail panels with returned scores.
 
 **Contract**:
+
 - On `DOMContentLoaded`: collect all elements with `data-score-pending="true"` → build job payload array from adjacent `<template data-job-payload>` elements.
 - If no pending jobs, exit.
 - `fetch('/api/jobs/score-batch', { method: 'POST', body: JSON.stringify({ jobs: pendingJobs }) })`.
@@ -454,31 +460,31 @@ Update the dashboard to: (1) pre-load cached scores in SSR, (2) show score skele
 
 #### Automated
 
-- [x] 4.1 `npm run typecheck` passes
-- [x] 4.2 `npm run lint` exits 0
-- [x] 4.3 POST `/api/jobs/score-batch` returns 200 with scores object
+- [x] 4.1 `npm run typecheck` passes — 003de9d
+- [x] 4.2 `npm run lint` exits 0 — 003de9d
+- [x] 4.3 POST `/api/jobs/score-batch` returns 200 with scores object — 003de9d
 
 #### Manual
 
-- [ ] 4.4 First call scores and caches (new rows in job_scores)
-- [ ] 4.5 Second identical call returns from cache (no new rows)
-- [ ] 4.6 Call with no CV returns `{ scores: {}, noCV: true }`
+- [x] 4.4 First call scores and caches (new rows in job_scores)
+- [x] 4.5 Second identical call returns from cache (no new rows)
+- [x] 4.6 Call with no CV returns `{ scores: {}, noCV: true }`
 
 ### Phase 5: Dashboard UI — Async Score Badges + Detail Panel
 
 #### Automated
 
-- [ ] 5.1 `npm run typecheck` passes
-- [ ] 5.2 `npm run lint` exits 0
-- [ ] 5.3 `npm run build` exits 0
+- [x] 5.1 `npm run typecheck` passes
+- [x] 5.2 `npm run lint` exits 0
+- [x] 5.3 `npm run build` exits 0
 
 #### Manual
 
-- [ ] 5.4 Job cards visible before scores arrive (no blocking spinner)
-- [ ] 5.5 Score badges update from "Scoring…" to real percentages
-- [ ] 5.6 "Details" reveals explanation + matched/missing skills
-- [ ] 5.7 JustJoinIT (no description) still scores and renders explanation
-- [ ] 5.8 No-CV user sees "Upload CV" prompt on all job cards
-- [ ] 5.9 CV re-upload → refresh shows fresh recomputed scores
-- [ ] 5.10 Raw CV text absent from all network request payloads
-- [ ] 5.11 No regression in save-job flow and preferences form
+- [x] 5.4 Job cards visible before scores arrive (no blocking spinner)
+- [x] 5.5 Score badges update from "Scoring…" to real percentages
+- [x] 5.6 "Details" reveals explanation + matched/missing skills
+- [x] 5.7 JustJoinIT (no description) still scores and renders explanation
+- [x] 5.8 No-CV user sees "Upload CV" prompt on all job cards
+- [x] 5.9 CV re-upload → refresh shows fresh recomputed scores
+- [x] 5.10 Raw CV text absent from all network request payloads
+- [x] 5.11 No regression in save-job flow and preferences form

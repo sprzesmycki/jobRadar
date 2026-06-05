@@ -44,6 +44,8 @@ async function scoreOneJob(
 ): Promise<ScoreResult | null> {
   const body = JSON.stringify({
     job: {
+      external_id: job.id,
+      source: job.source,
       title: job.title,
       company: job.company,
       description: job.description,
@@ -51,8 +53,7 @@ async function scoreOneJob(
     },
     profile: {
       skills: cvProfile.skills ?? [],
-      role_hints: cvProfile.role_hints ?? [],
-      experience_highlights: cvProfile.experience_highlights ?? [],
+      experience: cvProfile.experience_highlights ?? [],
     },
   });
 
@@ -77,13 +78,21 @@ async function scoreOneJob(
     }
   }
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    console.error(`[score-batch] backend ${res.status} for job ${job.id}:`, text.slice(0, 200));
+    return null;
+  }
 
   try {
     const data = (await res.json()) as ScoreResult;
-    if (typeof data.score !== "number") return null;
+    if (typeof data.score !== "number") {
+      console.error(`[score-batch] bad shape for job ${job.id}:`, data);
+      return null;
+    }
     return data;
-  } catch {
+  } catch (e) {
+    console.error(`[score-batch] json parse error for job ${job.id}:`, e);
     return null;
   }
 }
@@ -166,17 +175,21 @@ export const POST: APIRoute = async (context) => {
     });
   }
 
-  // 3. Score cache misses in parallel
-  const misses = jobs.filter((j) => !cachedMap.has(j.id));
+  // 3. Score up to 5 cache misses per call (rate-limit guard); client re-fires for the rest
+  const SCORE_CAP = 5;
+  const misses = jobs.filter((j) => !cachedMap.has(j.id)).slice(0, SCORE_CAP);
   const backendUrl = BACKEND_API_URL ?? "";
 
-  const missResults = await Promise.all(
-    misses.map(async (job) => {
-      const result = await scoreOneJob(job, cvProfile, backendUrl, accessToken);
-      const hash = await computeJobHash(job);
-      return { job, result, hash };
-    }),
-  );
+  const missResults: { job: JobPayload; result: ScoreResult | null; hash: string }[] = [];
+  for (let i = 0; i < misses.length; i++) {
+    if (i > 0) await new Promise((r) => setTimeout(r, 1500));
+    const job = misses[i];
+    const [result, hash] = await Promise.all([
+      scoreOneJob(job, cvProfile, backendUrl, accessToken),
+      computeJobHash(job),
+    ]);
+    missResults.push({ job, result, hash });
+  }
 
   // 4. Upsert successful new scores
   const toUpsert = missResults
@@ -196,7 +209,8 @@ export const POST: APIRoute = async (context) => {
     await supabase.from("job_scores").upsert(toUpsert, { onConflict: "user_id,external_id" });
   }
 
-  // 5. Merge and return
+  // 5. Merge — only include jobs that were cached or actively scored this call.
+  //    Jobs beyond SCORE_CAP are omitted so the client re-fires for them.
   const scores: ScoresRecord = {};
   for (const job of jobs) {
     const cached = cachedMap.get(job.id);
@@ -205,7 +219,7 @@ export const POST: APIRoute = async (context) => {
       continue;
     }
     const miss = missResults.find((r) => r.job.id === job.id);
-    scores[job.id] = miss?.result ?? null;
+    if (miss) scores[job.id] = miss.result;
   }
 
   return new Response(JSON.stringify({ scores }), {

@@ -25,27 +25,27 @@ JobRadar helps an employed mid/senior developer avoid manually scanning many job
 
 ## At a glance
 
-| ID | Change ID | Outcome (user can ...) | Prerequisites | PRD refs | Status |
-|---|---|---|---|---|---|
-| F-01 | python-cv-ai-service-foundation | (foundation) FastAPI service contract and deployment path exists for CV parsing, scoring, and AI orchestration | — | FR-003, FR-006, FR-007, FR-008, NFR-privacy, NFR-latency | done |
-| S-01 | onboarding-preferences | User can register, sign in, save preferences, see demo matches, and save a job status | — | FR-001, FR-002, FR-004, FR-009 | done |
-| S-02 | first-live-job-source | User can see live offers from one source filtered by saved preferences | S-01 | US-01, FR-005 | done |
-| S-03 | three-source-job-aggregation | User can see aggregated offers from JustJoinIT, Remotive, and Adzuna with source labels and deduplication | S-02 | US-01, FR-005 | done |
-| S-04 | cv-upload-and-extraction | User can upload a PDF CV and see extracted profile data saved privately | S-01, F-01 | FR-003, NFR-privacy | done |
-| S-05 | cv-based-job-scoring | User can see CV-to-job match percentages, explanations, and missing skills on real offers | S-03, S-04 | US-01, FR-006, FR-007 | proposed |
-| S-06 | cover-letter-generation | User can generate a personalized cover letter for a real offer using CV data and job requirements | S-05 | US-02, FR-008, NFR-latency, NFR-privacy | blocked |
-| S-07 | saved-offers-list | User can view saved offers in one place and return to application status context | S-01, S-03 | FR-010 | proposed |
-| S-08 | saved-offer-notes | User can add notes to a saved offer | S-07 | FR-011 | proposed |
+| ID   | Change ID                       | Outcome (user can ...)                                                                                         | Prerequisites | PRD refs                                                 | Status   |
+| ---- | ------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------- | -------- |
+| F-01 | python-cv-ai-service-foundation | (foundation) FastAPI service contract and deployment path exists for CV parsing, scoring, and AI orchestration | —             | FR-003, FR-006, FR-007, FR-008, NFR-privacy, NFR-latency | done     |
+| S-01 | onboarding-preferences          | User can register, sign in, save preferences, see demo matches, and save a job status                          | —             | FR-001, FR-002, FR-004, FR-009                           | done     |
+| S-02 | first-live-job-source           | User can see live offers from one source filtered by saved preferences                                         | S-01          | US-01, FR-005                                            | done     |
+| S-03 | three-source-job-aggregation    | User can see aggregated offers from JustJoinIT, Remotive, and Adzuna with source labels and deduplication      | S-02          | US-01, FR-005                                            | done     |
+| S-04 | cv-upload-and-extraction        | User can upload a PDF CV and see extracted profile data saved privately                                        | S-01, F-01    | FR-003, NFR-privacy                                      | done     |
+| S-05 | cv-based-job-scoring            | User can see CV-to-job match percentages, explanations, and missing skills on real offers                      | S-03, S-04    | US-01, FR-006, FR-007                                    | proposed |
+| S-06 | cover-letter-generation         | User can generate a personalized cover letter for a real offer using CV data and job requirements              | S-05          | US-02, FR-008, NFR-latency, NFR-privacy                  | blocked  |
+| S-07 | saved-offers-list               | User can view saved offers in one place and return to application status context                               | S-01, S-03    | FR-010                                                   | proposed |
+| S-08 | saved-offer-notes               | User can add notes to a saved offer                                                                            | S-07          | FR-011                                                   | proposed |
 
 ## Streams
 
 Navigation aid — groups items that share a prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme | Chain | Note |
-|---|---|---|---|
-| A | Offer feed | `S-01` -> `S-02` -> `S-03` | Proves that the product has real job supply before investing in CV-heavy work. |
-| B | CV intelligence | `F-01` -> `S-04` -> `S-05` -> `S-06` | Adds private CV parsing, scoring, and generation once real offers exist. |
-| C | Application tracking | `S-07` -> `S-08` | Extends the saved-job loop after real offers make saved state useful. |
+| Stream | Theme                | Chain                                | Note                                                                           |
+| ------ | -------------------- | ------------------------------------ | ------------------------------------------------------------------------------ |
+| A      | Offer feed           | `S-01` -> `S-02` -> `S-03`           | Proves that the product has real job supply before investing in CV-heavy work. |
+| B      | CV intelligence      | `F-01` -> `S-04` -> `S-05` -> `S-06` | Adds private CV parsing, scoring, and generation once real offers exist.       |
+| C      | Application tracking | `S-07` -> `S-08`                     | Extends the saved-job loop after real offers make saved state useful.          |
 
 ## Baseline
 
@@ -182,17 +182,17 @@ Foundations below assume these are present and do not re-scaffold them.
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
-|---|---|---|---|---|
-| S-01 | onboarding-preferences | Complete onboarding preferences vertical slice | no | Archived after implementation and manual verification. |
-| S-02 | first-live-job-source | Add the first live job source to the dashboard | no | Ready immediately after S-01 is merged or intentionally continued as a stacked branch. |
-| S-03 | three-source-job-aggregation | Aggregate JustJoinIT, Remotive, and Adzuna offers | no | Blocked until current source API/access constraints are researched. |
-| F-01 | python-cv-ai-service-foundation | Establish FastAPI service foundation for CV and AI work | yes | Can run in parallel with offer-feed work if the branch strategy is clear. |
-| S-04 | cv-upload-and-extraction | Upload and extract private CV data | no | Needs F-01 and the existing auth/profile loop. |
-| S-05 | cv-based-job-scoring | Score real offers against uploaded CV data | no | Needs real offers and extracted CV data. |
-| S-06 | cover-letter-generation | Generate personalized cover letters from CV and job data | no | Blocked on AI provider privacy and timeout behavior. |
-| S-07 | saved-offers-list | Show saved offers in a dedicated list | no | Wait until saved offers represent real jobs. |
-| S-08 | saved-offer-notes | Add notes to saved offers | no | Nice-to-have after saved offer list. |
+| Roadmap ID | Change ID                       | Suggested issue title                                    | Ready for `/10x-plan` | Notes                                                                                  |
+| ---------- | ------------------------------- | -------------------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------- |
+| S-01       | onboarding-preferences          | Complete onboarding preferences vertical slice           | no                    | Archived after implementation and manual verification.                                 |
+| S-02       | first-live-job-source           | Add the first live job source to the dashboard           | no                    | Ready immediately after S-01 is merged or intentionally continued as a stacked branch. |
+| S-03       | three-source-job-aggregation    | Aggregate JustJoinIT, Remotive, and Adzuna offers        | no                    | Blocked until current source API/access constraints are researched.                    |
+| F-01       | python-cv-ai-service-foundation | Establish FastAPI service foundation for CV and AI work  | yes                   | Can run in parallel with offer-feed work if the branch strategy is clear.              |
+| S-04       | cv-upload-and-extraction        | Upload and extract private CV data                       | no                    | Needs F-01 and the existing auth/profile loop.                                         |
+| S-05       | cv-based-job-scoring            | Score real offers against uploaded CV data               | no                    | Needs real offers and extracted CV data.                                               |
+| S-06       | cover-letter-generation         | Generate personalized cover letters from CV and job data | no                    | Blocked on AI provider privacy and timeout behavior.                                   |
+| S-07       | saved-offers-list               | Show saved offers in a dedicated list                    | no                    | Wait until saved offers represent real jobs.                                           |
+| S-08       | saved-offer-notes               | Add notes to saved offers                                | no                    | Nice-to-have after saved offer list.                                                   |
 
 ## Open Roadmap Questions
 

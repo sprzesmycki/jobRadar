@@ -1,4 +1,5 @@
 <!-- IMPL-REVIEW-REPORT -->
+
 # Implementation Review: CV Upload and Extraction (S-04)
 
 - **Plan**: context/changes/cv-upload-and-extraction/plan.md
@@ -9,14 +10,14 @@
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| Plan Adherence | PASS |
-| Scope Discipline | PASS |
-| Safety & Quality | PASS (after fixes) |
-| Architecture | PASS |
+| Dimension           | Verdict             |
+| ------------------- | ------------------- |
+| Plan Adherence      | PASS                |
+| Scope Discipline    | PASS                |
+| Safety & Quality    | PASS (after fixes)  |
+| Architecture        | PASS                |
 | Pattern Consistency | PASS (after F2 fix) |
-| Success Criteria | PASS |
+| Success Criteria    | PASS                |
 
 ## Findings
 

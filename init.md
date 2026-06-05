@@ -38,6 +38,7 @@ Then: dostaje dostęp do swojego dashboardu
 Given: użytkownik jest zalogowany
 When: uzupełnia profil
 Then: system zapisuje:
+
 - rola docelowa (Software Engineer / QA Engineer)
 - preferowane technologie (multi-select, np. React, Python, Cypress)
 - minimalne widełki (kwota + waluta: PLN / USD / EUR)
@@ -73,7 +74,7 @@ Then: oferta trafia do jego listy z możliwością zmiany statusu (Zapisana / Ap
 ## Business Logic
 
 **Jednozdaniowa reguła biznesowa:**
-*"AI porównuje treść oferty z CV użytkownika, zwraca % dopasowania, wskazuje brakujące skills i generuje cover letter dopasowany do tej konkretnej oferty."*
+_"AI porównuje treść oferty z CV użytkownika, zwraca % dopasowania, wskazuje brakujące skills i generuje cover letter dopasowany do tej konkretnej oferty."_
 
 ---
 

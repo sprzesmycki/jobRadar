@@ -85,6 +85,8 @@ async def score_job(job: JobInput, profile: ProfileInput, settings: Settings) ->
         raw = raw.strip()
     try:
         data = json.loads(raw)
+        if isinstance(data, dict) and "explanation" not in data:
+            data["explanation"] = ""
         return JobScoringResponse.model_validate(data)
     except (json.JSONDecodeError, ValueError) as exc:
         raise HTTPException(
