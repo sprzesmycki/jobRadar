@@ -15,3 +15,17 @@
 - **Problem**: Implementing a vertical slice directly in code without a matching `context/changes/<change-id>/` folder breaks the course flow and makes later review, Supabase work, deployment, and archiving harder to reconstruct.
 - **Rule**: Every slice must have 10x documentation before the next operational step: `change.md`, `plan.md`, `plan-brief.md`, and progress state that reflects what is done vs. still pending. If code was written first, create a retroactive change folder immediately and mark completed/pending progress honestly.
 - **Applies to**: all
+
+## Run linters for frontend and backend before every commit
+
+- **Context**: Any implementation or review phase that touches frontend or backend code.
+- **Problem**: Lint errors slip into commits and are caught only later — as happened in S-04 where a Prettier formatting error in upload.ts required a separate fix commit after the work was considered done.
+- **Rule**: Always run `npm run lint` (frontend) and `uv run ruff check .` (backend) at the end of every implementation phase before committing. Do not skip if only one side was changed — both checks are fast.
+- **Applies to**: implement, impl-review
+
+## Manually deploy to Cloudflare after every merge to main
+
+- **Context**: After every merge to main.
+- **Problem**: Production runs old code unnoticed — users see stale features/fixes because the merge didn't trigger a deploy.
+- **Rule**: After merging to main, manually run `npm run build && npx wrangler deploy` — there is no autodeploy configured on this project.
+- **Applies to**: all
