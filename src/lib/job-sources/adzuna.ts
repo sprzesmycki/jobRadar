@@ -17,6 +17,7 @@ interface AdzunaJob {
   category?: {
     label?: string;
   };
+  description?: string;
 }
 
 interface AdzunaResponse {
@@ -47,6 +48,7 @@ function mapAdzunaJob(job: AdzunaJob): JobListing {
     salaryCurrency: "USD",
     technologies: category ? [category] : [],
     url: job.redirect_url ?? "https://www.adzuna.com/",
+    description: job.description?.slice(0, 2000) ?? null,
   };
 }
 

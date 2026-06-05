@@ -430,25 +430,25 @@ Update the dashboard to: (1) pre-load cached scores in SSR, (2) show score skele
 
 #### Automated
 
-- [x] 2.1 Migration applies without error
-- [x] 2.2 `npm run typecheck` passes with new `src/lib/job-scores.ts`
+- [x] 2.1 Migration applies without error — 4e1f5ef
+- [x] 2.2 `npm run typecheck` passes with new `src/lib/job-scores.ts` — 4e1f5ef
 
 #### Manual
 
-- [x] 2.3 `job_scores` table visible in Supabase with correct columns and RLS
-- [x] 2.4 CV re-upload clears user's job_scores rows
+- [x] 2.3 `job_scores` table visible in Supabase with correct columns and RLS — 4e1f5ef
+- [x] 2.4 CV re-upload clears user's job_scores rows — 4e1f5ef
 
 ### Phase 3: Job Source Description Field
 
 #### Automated
 
-- [ ] 3.1 `npm run typecheck` passes
-- [ ] 3.2 `npm run lint` exits 0
+- [x] 3.1 `npm run typecheck` passes
+- [x] 3.2 `npm run lint` exits 0
 
 #### Manual
 
-- [ ] 3.3 Remotive and Adzuna jobs have non-null descriptions in at least some offers
-- [ ] 3.4 JustJoinIT jobs have `description: null`
+- [x] 3.3 Remotive and Adzuna jobs have non-null descriptions in at least some offers
+- [x] 3.4 JustJoinIT jobs have `description: null`
 
 ### Phase 4: Frontend Scoring API Endpoint
 
