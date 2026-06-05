@@ -474,17 +474,17 @@ Update the dashboard to: (1) pre-load cached scores in SSR, (2) show score skele
 
 #### Automated
 
-- [x] 5.1 `npm run typecheck` passes
-- [x] 5.2 `npm run lint` exits 0
-- [x] 5.3 `npm run build` exits 0
+- [x] 5.1 `npm run typecheck` passes — e982202
+- [x] 5.2 `npm run lint` exits 0 — e982202
+- [x] 5.3 `npm run build` exits 0 — e982202
 
 #### Manual
 
-- [x] 5.4 Job cards visible before scores arrive (no blocking spinner)
-- [x] 5.5 Score badges update from "Scoring…" to real percentages
-- [x] 5.6 "Details" reveals explanation + matched/missing skills
-- [x] 5.7 JustJoinIT (no description) still scores and renders explanation
-- [x] 5.8 No-CV user sees "Upload CV" prompt on all job cards
-- [x] 5.9 CV re-upload → refresh shows fresh recomputed scores
-- [x] 5.10 Raw CV text absent from all network request payloads
-- [x] 5.11 No regression in save-job flow and preferences form
+- [x] 5.4 Job cards visible before scores arrive (no blocking spinner) — e982202
+- [x] 5.5 Score badges update from "Scoring…" to real percentages — e982202
+- [x] 5.6 "Details" reveals explanation + matched/missing skills — e982202
+- [x] 5.7 JustJoinIT (no description) still scores and renders explanation — e982202
+- [x] 5.8 No-CV user sees "Upload CV" prompt on all job cards — e982202
+- [x] 5.9 CV re-upload → refresh shows fresh recomputed scores — e982202
+- [x] 5.10 Raw CV text absent from all network request payloads — e982202
+- [x] 5.11 No regression in save-job flow and preferences form — e982202

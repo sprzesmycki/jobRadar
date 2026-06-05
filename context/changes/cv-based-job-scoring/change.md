@@ -1,9 +1,10 @@
 ---
 id: cv-based-job-scoring
 title: CV-Based Job Scoring
-status: implementing
+status: implemented
 created: 2026-06-05
 updated: 2026-06-05
+
 roadmap_id: S-05
 prd_refs:
   - US-01
