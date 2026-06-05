@@ -367,14 +367,14 @@ Apply migration `20260605160000_create_cover_letters.sql` to Supabase before dep
 
 #### Automated
 
-- [x] 4.1 `npm run lint` exits 0
-- [x] 4.2 `npx tsc --noEmit` exits 0
+- [x] 4.1 `npm run lint` exits 0 — 94639c1
+- [x] 4.2 `npx tsc --noEmit` exits 0 — 94639c1
 
 #### Manual
 
-- [x] 4.3 Button visible on job cards with CV uploaded
-- [x] 4.4 Click shows panel with loading state then generated text
-- [x] 4.5 Copy button works
-- [x] 4.6 Toggle works without refetch on second click
-- [x] 4.7 CV re-upload → fresh letter generated on next click
-- [x] 4.8 No browser console errors
+- [x] 4.3 Button visible on job cards with CV uploaded — 94639c1
+- [x] 4.4 Click shows panel with loading state then generated text — 94639c1
+- [x] 4.5 Copy button works — 94639c1
+- [x] 4.6 Toggle works without refetch on second click — 94639c1
+- [x] 4.7 CV re-upload → fresh letter generated on next click — 94639c1
+- [x] 4.8 No browser console errors — 94639c1
