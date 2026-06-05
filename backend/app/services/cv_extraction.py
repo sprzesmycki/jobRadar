@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from io import BytesIO
 
 from pypdf import PdfReader
+from pypdf.errors import PdfStreamError
 
 from app.schemas.cv import CvExtractionResponse
 
@@ -92,7 +93,10 @@ def extract_profile_from_pdf_bytes(pdf_bytes: bytes) -> CvExtractionResponse:
 
 
 def extract_text(pdf_bytes: bytes) -> ExtractedText:
-    reader = PdfReader(BytesIO(pdf_bytes))
+    try:
+        reader = PdfReader(BytesIO(pdf_bytes))
+    except (PdfStreamError, Exception) as exc:
+        raise CvExtractionError("PDF could not be parsed.") from exc
     page_texts = [(page.extract_text() or "") for page in reader.pages]
     lines = [normalize_spaces(line) for text in page_texts for line in text.splitlines()]
     lines = [line for line in lines if line]

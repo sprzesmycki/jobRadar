@@ -5,9 +5,13 @@ import httpx
 from app.core.config import Settings
 
 
+class StorageNotConfiguredError(RuntimeError):
+    pass
+
+
 async def download_storage_object(settings: Settings, bucket: str, path: str) -> bytes:
     if not settings.supabase_url or not settings.supabase_service_role_key:
-        raise RuntimeError("Supabase storage download is not configured.")
+        raise StorageNotConfiguredError("Supabase storage download is not configured.")
 
     encoded_path = quote(path, safe="/")
     url = f"{settings.supabase_url.rstrip('/')}/storage/v1/object/{bucket}/{encoded_path}"

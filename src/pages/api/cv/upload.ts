@@ -102,19 +102,12 @@ export const POST: APIRoute = async (context) => {
     return redirectError(context, "CV extraction service is not configured");
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [{ data: { user } }, { data: { session } }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.auth.getSession(),
+  ]);
 
-  if (!user) {
-    return context.redirect("/auth/signin");
-  }
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session?.access_token) {
+  if (!user || !session?.access_token) {
     return context.redirect("/auth/signin");
   }
 
@@ -125,6 +118,7 @@ export const POST: APIRoute = async (context) => {
     return redirectError(context, "Choose a PDF CV first.");
   }
 
+  // UX pre-flight only; server enforces via Supabase Storage allowed_mime_types
   if (!isPdf(cvFile)) {
     return redirectError(context, "CV must be a PDF file.");
   }
@@ -134,6 +128,8 @@ export const POST: APIRoute = async (context) => {
   }
 
   const storagePath = `${user.id}/${Date.now()}-${safeFileName(cvFile.name)}`;
+  // known race: if a concurrent upload by the same user completes between this read and
+  // the delete below, the concurrent file becomes an orphan — acceptable at MVP scale
   const { data: currentProfileData, error: currentProfileError } = await supabase
     .from("cv_profiles")
     .select("storage_path")
@@ -179,12 +175,14 @@ export const POST: APIRoute = async (context) => {
       }),
     });
   } catch {
-    await supabase.storage.from(BUCKET).remove([storagePath]);
+    const { error: cleanupErr } = await supabase.storage.from(BUCKET).remove([storagePath]);
+    if (cleanupErr) console.error("cv storage cleanup failed:", cleanupErr.message);
     return redirectError(context, "CV extraction service is unavailable.");
   }
 
   if (!extractionResponse.ok) {
-    await supabase.storage.from(BUCKET).remove([storagePath]);
+    const { error: cleanupErr } = await supabase.storage.from(BUCKET).remove([storagePath]);
+    if (cleanupErr) console.error("cv storage cleanup failed:", cleanupErr.message);
     const backendError: unknown = await extractionResponse.json().catch(() => null);
     const backendErrorCode = readBackendErrorCode(backendError);
     const message = getExtractionErrorMessage(extractionResponse.status, backendErrorCode);
@@ -195,7 +193,8 @@ export const POST: APIRoute = async (context) => {
   try {
     profile = normalizeProfile(await extractionResponse.json());
   } catch {
-    await supabase.storage.from(BUCKET).remove([storagePath]);
+    const { error: cleanupErr } = await supabase.storage.from(BUCKET).remove([storagePath]);
+    if (cleanupErr) console.error("cv storage cleanup failed:", cleanupErr.message);
     return redirectError(context, "CV extraction service returned an invalid response.");
   }
   const { error: profileError } = await supabase.from("cv_profiles").upsert(
@@ -219,12 +218,14 @@ export const POST: APIRoute = async (context) => {
   );
 
   if (profileError) {
-    await supabase.storage.from(BUCKET).remove([storagePath]);
+    const { error: cleanupErr } = await supabase.storage.from(BUCKET).remove([storagePath]);
+    if (cleanupErr) console.error("cv storage cleanup failed:", cleanupErr.message);
     return redirectError(context, profileError.message);
   }
 
   if (currentStoragePath && currentStoragePath !== storagePath) {
-    await supabase.storage.from(BUCKET).remove([currentStoragePath]);
+    const { error: cleanupErr } = await supabase.storage.from(BUCKET).remove([currentStoragePath]);
+    if (cleanupErr) console.error("cv old storage cleanup failed:", cleanupErr.message);
   }
 
   return context.redirect("/dashboard?saved=cv");
