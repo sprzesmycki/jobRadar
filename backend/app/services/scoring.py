@@ -61,6 +61,11 @@ async def score_job(job: JobInput, profile: ProfileInput, settings: Settings) ->
         raise HTTPException(
             status_code=503, detail="AI scoring is not configured (missing API key)."
         )
+    if "." not in settings.ai_provider_api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="AI_PROVIDER_API_KEY must be in '{id}.{secret}' format.",
+        )
 
     token = _zhipu_jwt(settings.ai_provider_api_key)
     client = AsyncOpenAI(base_url="https://api.z.ai/api/coding/paas/v4", api_key=token)

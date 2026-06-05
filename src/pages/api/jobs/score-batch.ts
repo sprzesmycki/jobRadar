@@ -142,7 +142,18 @@ export const POST: APIRoute = async (context) => {
     return new Response(JSON.stringify({ error: "jobs must be an array" }), { status: 400 });
   }
 
-  const jobs = body.jobs as JobPayload[];
+  if (body.jobs.length > 50) {
+    return new Response(JSON.stringify({ error: "Too many jobs in one request (max 50)" }), { status: 400 });
+  }
+
+  const jobs = (body.jobs as unknown[]).filter(
+    (j): j is JobPayload =>
+      j !== null &&
+      typeof j === "object" &&
+      typeof (j as JobPayload).id === "string" &&
+      typeof (j as JobPayload).title === "string" &&
+      Array.isArray((j as JobPayload).technologies),
+  );
 
   // 1. Read cv_profiles for current user
   const { data: cvData } = await supabase

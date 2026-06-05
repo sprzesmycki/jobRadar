@@ -229,7 +229,8 @@ export const POST: APIRoute = async (context) => {
 
   // Invalidate cached scores so next dashboard load recomputes against the new CV.
   // Ignore errors — a stale cache is preferable to blocking CV upload.
-  await supabase.from("job_scores").delete().eq("user_id", user.id);
+  const { error: scoresClearError } = await supabase.from("job_scores").delete().eq("user_id", user.id);
+  if (scoresClearError) console.error("job_scores invalidation failed:", scoresClearError.message);
 
   if (currentStoragePath && currentStoragePath !== storagePath) {
     const { error: cleanupErr } = await supabase.storage.from(BUCKET).remove([currentStoragePath]);

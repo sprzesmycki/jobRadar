@@ -1,7 +1,7 @@
 ---
 id: cv-based-job-scoring
 title: CV-Based Job Scoring
-status: implemented
+status: impl_reviewed
 created: 2026-06-05
 updated: 2026-06-05
 
