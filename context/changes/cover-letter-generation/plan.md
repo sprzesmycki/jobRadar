@@ -354,27 +354,27 @@ Apply migration `20260605160000_create_cover_letters.sql` to Supabase before dep
 
 #### Automated
 
-- [x] 3.1 `npm run lint` exits 0
-- [x] 3.2 `npx tsc --noEmit` exits 0
+- [x] 3.1 `npm run lint` exits 0 — 547da6e
+- [x] 3.2 `npx tsc --noEmit` exits 0 — 547da6e
 
 #### Manual
 
-- [x] 3.3 `POST /api/jobs/cover-letter` returns `{ content }` with real letter
-- [x] 3.4 Second call for same job returns cached content (no backend call)
-- [x] 3.5 Call without CV returns `{ noCV: true }`
+- [x] 3.3 `POST /api/jobs/cover-letter` returns `{ content }` with real letter — 547da6e
+- [x] 3.4 Second call for same job returns cached content (no backend call) — 547da6e
+- [x] 3.5 Call without CV returns `{ noCV: true }` — 547da6e
 
 ### Phase 4: Dashboard UI
 
 #### Automated
 
-- [ ] 4.1 `npm run lint` exits 0
-- [ ] 4.2 `npx tsc --noEmit` exits 0
+- [x] 4.1 `npm run lint` exits 0
+- [x] 4.2 `npx tsc --noEmit` exits 0
 
 #### Manual
 
-- [ ] 4.3 Button visible on job cards with CV uploaded
-- [ ] 4.4 Click shows panel with loading state then generated text
-- [ ] 4.5 Copy button works
-- [ ] 4.6 Toggle works without refetch on second click
-- [ ] 4.7 CV re-upload → fresh letter generated on next click
-- [ ] 4.8 No browser console errors
+- [x] 4.3 Button visible on job cards with CV uploaded
+- [x] 4.4 Click shows panel with loading state then generated text
+- [x] 4.5 Copy button works
+- [x] 4.6 Toggle works without refetch on second click
+- [x] 4.7 CV re-upload → fresh letter generated on next click
+- [x] 4.8 No browser console errors

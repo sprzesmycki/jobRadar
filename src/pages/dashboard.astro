@@ -466,6 +466,31 @@ function formatBytes(bytes: number): string {
                                 </>
                               )}
                             </div>
+                            <div
+                              id={"cover-letter-" + job.id}
+                              hidden
+                              class="mt-3 rounded-md border border-slate-700 bg-slate-900 p-4 text-sm text-slate-300"
+                            >
+                              <div data-cover-letter-loading={job.id} hidden>
+                                <span class="animate-pulse text-slate-400">Generating cover letter…</span>
+                              </div>
+                              <div data-cover-letter-content={job.id} hidden>
+                                <pre
+                                  class="font-sans leading-relaxed whitespace-pre-wrap"
+                                  data-cover-letter-text={job.id}
+                                />
+                                <button
+                                  type="button"
+                                  data-cover-letter-copy={job.id}
+                                  class="mt-3 rounded border border-slate-600 px-3 py-1 text-xs text-slate-400 hover:border-cyan-400 hover:text-cyan-200"
+                                >
+                                  Copy
+                                </button>
+                              </div>
+                              <div data-cover-letter-error={job.id} hidden class="text-rose-400">
+                                Failed to generate. Try again.
+                              </div>
+                            </div>
                           </>
                         )}
                       </div>
@@ -511,6 +536,21 @@ function formatBytes(bytes: number): string {
                                 class="h-10 min-w-0 rounded-md border border-slate-700 px-2 text-xs font-semibold text-slate-200 hover:border-cyan-400 hover:text-cyan-200 sm:text-sm"
                               >
                                 Details
+                              </button>
+                              <button
+                                type="button"
+                                data-cover-letter-toggle={job.id}
+                                data-cover-letter-payload={JSON.stringify({
+                                  id: job.id,
+                                  source: job.source,
+                                  title: job.title,
+                                  company: job.company,
+                                  description: job.description ?? null,
+                                  technologies: job.technologies,
+                                })}
+                                class="h-10 min-w-0 rounded-md border border-slate-700 px-2 text-xs font-semibold text-slate-200 hover:border-cyan-400 hover:text-cyan-200 sm:text-sm"
+                              >
+                                Cover letter
                               </button>
                             </div>
                           </div>
@@ -623,5 +663,64 @@ function formatBytes(bytes: number): string {
     }
 
     if (document.querySelector("[data-score-pending='true']")) void fireBatch(0);
+  </script>
+  <script>
+    document.addEventListener("click", (e) => {
+      const toggleBtn = (e.target as HTMLElement).closest("[data-cover-letter-toggle]") as HTMLElement | null;
+      if (toggleBtn) {
+        const id = toggleBtn.dataset.coverLetterToggle!;
+        const panel = document.getElementById("cover-letter-" + id);
+        if (!panel) return;
+        panel.toggleAttribute("hidden");
+        const contentDiv = document.querySelector<HTMLElement>(`[data-cover-letter-content="${CSS.escape(id)}"]`);
+        if (!panel.hasAttribute("hidden") && contentDiv?.hasAttribute("hidden")) {
+          void fetchCoverLetter(id);
+        }
+        return;
+      }
+
+      const copyBtn = (e.target as HTMLElement).closest("[data-cover-letter-copy]") as HTMLElement | null;
+      if (copyBtn) {
+        const id = copyBtn.dataset.coverLetterCopy!;
+        const pre = document.querySelector<HTMLElement>(`[data-cover-letter-text="${CSS.escape(id)}"]`);
+        if (pre?.textContent) {
+          void navigator.clipboard.writeText(pre.textContent).then(() => {
+            copyBtn.textContent = "Copied!";
+            setTimeout(() => {
+              copyBtn.textContent = "Copy";
+            }, 2000);
+          });
+        }
+      }
+    });
+
+    async function fetchCoverLetter(id: string): Promise<void> {
+      const loadingDiv = document.querySelector<HTMLElement>(`[data-cover-letter-loading="${CSS.escape(id)}"]`);
+      const contentDiv = document.querySelector<HTMLElement>(`[data-cover-letter-content="${CSS.escape(id)}"]`);
+      const errorDiv = document.querySelector<HTMLElement>(`[data-cover-letter-error="${CSS.escape(id)}"]`);
+      const pre = document.querySelector<HTMLElement>(`[data-cover-letter-text="${CSS.escape(id)}"]`);
+      const btn = document.querySelector<HTMLElement>(`[data-cover-letter-toggle="${CSS.escape(id)}"]`);
+      if (!btn) return;
+
+      loadingDiv?.removeAttribute("hidden");
+
+      try {
+        const job = JSON.parse(btn.dataset.coverLetterPayload ?? "{}") as unknown;
+        const res = await fetch("/api/jobs/cover-letter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ job }),
+        });
+        const data = (await res.json()) as { content?: string; error?: string; noCV?: boolean };
+        if (!res.ok || data.error) throw new Error(data.error ?? "Request failed");
+        if (data.noCV) throw new Error("No CV");
+        if (pre) pre.textContent = data.content ?? "";
+        contentDiv?.removeAttribute("hidden");
+      } catch {
+        errorDiv?.removeAttribute("hidden");
+      } finally {
+        loadingDiv?.setAttribute("hidden", "");
+      }
+    }
   </script>
 </Layout>

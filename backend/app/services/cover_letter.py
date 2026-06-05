@@ -76,7 +76,11 @@ async def generate_cover_letter(
         )
 
     token = _zhipu_jwt(settings.ai_provider_api_key)
-    client = AsyncOpenAI(base_url="https://api.z.ai/api/coding/paas/v4", api_key=token)
+    client = AsyncOpenAI(
+        base_url="https://api.z.ai/api/coding/paas/v4",
+        api_key=token,
+        timeout=90.0,
+    )
 
     try:
         response = await client.chat.completions.create(

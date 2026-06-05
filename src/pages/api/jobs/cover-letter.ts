@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { BACKEND_API_URL } from "astro:env/server";
-import { createClient, createAuthedClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase";
 
 export const prerender = false;
 
@@ -39,6 +39,7 @@ export const POST: APIRoute = async (context) => {
     if (!data.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
+    await supabase.auth.setSession({ access_token: bearerToken, refresh_token: "" });
     user = data.user;
     accessToken = bearerToken;
   } else {
@@ -51,13 +52,6 @@ export const POST: APIRoute = async (context) => {
     }
     user = userData.user;
     accessToken = sessionData.session.access_token;
-  }
-
-  // Use a client that sends the user JWT so RLS auth.uid() resolves correctly for DB queries.
-  // setSession({ refresh_token: "" }) does not reliably propagate the JWT to PostgREST.
-  const dbSupabase = createAuthedClient(accessToken);
-  if (!dbSupabase) {
-    return new Response(JSON.stringify({ error: "Supabase not configured" }), { status: 500 });
   }
 
   let body: { job?: unknown };
@@ -81,7 +75,7 @@ export const POST: APIRoute = async (context) => {
   const job = j as JobPayload;
 
   // 1. Fetch cv_profile
-  const { data: cvData } = await dbSupabase
+  const { data: cvData } = await supabase
     .from("cv_profiles")
     .select("skills, role_hints, experience_highlights, full_name")
     .eq("user_id", user.id)
@@ -94,7 +88,7 @@ export const POST: APIRoute = async (context) => {
   const cvProfile = cvData as Record<string, unknown>;
 
   // 2. Check cache — cover_letters lacks generated Supabase types so data is untyped
-  const { data: cachedRow } = await dbSupabase
+  const { data: cachedRow } = await supabase
     .from("cover_letters")
     .select("content")
     .eq("user_id", user.id)
@@ -138,6 +132,7 @@ export const POST: APIRoute = async (context) => {
         "Content-Type": "application/json",
       },
       body: backendBody,
+      signal: AbortSignal.timeout(95_000),
     });
   } catch (e) {
     console.error("[cover-letter] backend fetch failed:", e);
@@ -164,7 +159,7 @@ export const POST: APIRoute = async (context) => {
 
   // 4. Upsert into cache
   const jobHash = await computeJobHash(job);
-  await dbSupabase.from("cover_letters").upsert(
+  await supabase.from("cover_letters").upsert(
     {
       user_id: user.id,
       external_id: job.id,
