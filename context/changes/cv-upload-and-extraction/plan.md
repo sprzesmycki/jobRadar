@@ -219,9 +219,9 @@ Backend deployment gates after merge:
 
 #### Automated
 
-- [x] 1.1 Migration creates private `cvs` bucket with PDF and size restrictions
-- [x] 1.2 Migration creates `cv_profiles` with user-owned RLS
-- [x] 1.3 Migration creates Storage RLS policies scoped to `<auth.uid()>/...`
+- [x] 1.1 Migration creates private `cvs` bucket with PDF and size restrictions — 2417754
+- [x] 1.2 Migration creates `cv_profiles` with user-owned RLS — 2417754
+- [x] 1.3 Migration creates Storage RLS policies scoped to `<auth.uid()>/...` — 2417754
 
 #### Manual
 
@@ -232,12 +232,12 @@ Backend deployment gates after merge:
 
 #### Automated
 
-- [x] 2.1 `/v1/cv/extract` no longer returns placeholder 501
-- [x] 2.2 Endpoint rejects missing auth, wrong bucket/content type, and foreign storage paths
-- [x] 2.3 Endpoint downloads private PDF using backend-only service-role config
-- [x] 2.4 Endpoint extracts structured profile data with `pypdf`
-- [x] 2.5 Backend tests pass
-- [x] 2.6 Ruff check passes
+- [x] 2.1 `/v1/cv/extract` no longer returns placeholder 501 — 2417754
+- [x] 2.2 Endpoint rejects missing auth, wrong bucket/content type, and foreign storage paths — 2417754
+- [x] 2.3 Endpoint downloads private PDF using backend-only service-role config — 2417754
+- [x] 2.4 Endpoint extracts structured profile data with `pypdf` — 2417754
+- [x] 2.5 Backend tests pass — 2417754
+- [x] 2.6 Ruff check passes — 2417754
 
 #### Manual
 
@@ -247,12 +247,12 @@ Backend deployment gates after merge:
 
 #### Automated
 
-- [x] 3.1 `BACKEND_API_URL` server env is configured in Astro
-- [x] 3.2 `/api/cv/upload` validates file/auth, uploads to Supabase Storage, calls backend, and upserts profile
-- [x] 3.3 Dashboard renders upload form and extracted profile summary
-- [x] 3.4 `npm run lint` passes
-- [x] 3.5 `npm run build` passes
-- [x] 3.6 Grep check confirms service-role key stays out of frontend
+- [x] 3.1 `BACKEND_API_URL` server env is configured in Astro — 2417754
+- [x] 3.2 `/api/cv/upload` validates file/auth, uploads to Supabase Storage, calls backend, and upserts profile — 2417754
+- [x] 3.3 Dashboard renders upload form and extracted profile summary — 2417754
+- [x] 3.4 `npm run lint` passes — 2417754
+- [x] 3.5 `npm run build` passes — 2417754
+- [x] 3.6 Grep check confirms service-role key stays out of frontend — 2417754
 
 #### Manual
 
@@ -263,7 +263,7 @@ Backend deployment gates after merge:
 
 #### Automated
 
-- [ ] 4.1 Branch pushed and merged after verification
+- [x] 4.1 Branch pushed and merged after verification — cefa93c
 
 #### Manual
 
