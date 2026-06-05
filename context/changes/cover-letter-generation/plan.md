@@ -342,26 +342,26 @@ Apply migration `20260605160000_create_cover_letters.sql` to Supabase before dep
 
 #### Automated
 
-- [x] 2.1 Migration applies cleanly
-- [x] 2.2 `npm run lint` exits 0
+- [x] 2.1 Migration applies cleanly — e0f2c5f
+- [x] 2.2 `npm run lint` exits 0 — e0f2c5f
 
 #### Manual
 
-- [ ] 2.3 `cover_letters` table exists with correct columns and RLS
-- [ ] 2.4 CV re-upload clears cached letters for that user
+- [x] 2.3 `cover_letters` table exists with correct columns and RLS — e0f2c5f
+- [x] 2.4 CV re-upload clears cached letters for that user — e0f2c5f
 
 ### Phase 3: Astro API Endpoint
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` exits 0
-- [ ] 3.2 `npx tsc --noEmit` exits 0
+- [x] 3.1 `npm run lint` exits 0
+- [x] 3.2 `npx tsc --noEmit` exits 0
 
 #### Manual
 
-- [ ] 3.3 `POST /api/jobs/cover-letter` returns `{ content }` with real letter
-- [ ] 3.4 Second call for same job returns cached content (no backend call)
-- [ ] 3.5 Call without CV returns `{ noCV: true }`
+- [x] 3.3 `POST /api/jobs/cover-letter` returns `{ content }` with real letter
+- [x] 3.4 Second call for same job returns cached content (no backend call)
+- [x] 3.5 Call without CV returns `{ noCV: true }`
 
 ### Phase 4: Dashboard UI
 
