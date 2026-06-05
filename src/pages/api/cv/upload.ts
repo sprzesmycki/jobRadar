@@ -232,6 +232,9 @@ export const POST: APIRoute = async (context) => {
   const { error: scoresClearError } = await supabase.from("job_scores").delete().eq("user_id", user.id);
   if (scoresClearError) console.error("job_scores invalidation failed:", scoresClearError.message);
 
+  const { error: coverLettersClearError } = await supabase.from("cover_letters").delete().eq("user_id", user.id);
+  if (coverLettersClearError) console.error("cover_letters invalidation failed:", coverLettersClearError.message);
+
   if (currentStoragePath && currentStoragePath !== storagePath) {
     const { error: cleanupErr } = await supabase.storage.from(BUCKET).remove([currentStoragePath]);
     if (cleanupErr) console.error("cv old storage cleanup failed:", cleanupErr.message);

@@ -329,9 +329,9 @@ Apply migration `20260605160000_create_cover_letters.sql` to Supabase before dep
 
 #### Automated
 
-- [x] 1.1 `uv run ruff check .` exits 0 in `backend/`
-- [x] 1.2 `uv pip install -e .` installs without conflict
-- [x] 1.3 `POST /v1/cover-letter` returns 200 with `content` field
+- [x] 1.1 `uv run ruff check .` exits 0 in `backend/` — 95c2d84
+- [x] 1.2 `uv pip install -e .` installs without conflict — 95c2d84
+- [x] 1.3 `POST /v1/cover-letter` returns 200 with `content` field — 95c2d84
 
 #### Manual
 
@@ -342,8 +342,8 @@ Apply migration `20260605160000_create_cover_letters.sql` to Supabase before dep
 
 #### Automated
 
-- [ ] 2.1 Migration applies cleanly
-- [ ] 2.2 `npm run lint` exits 0
+- [x] 2.1 Migration applies cleanly
+- [x] 2.2 `npm run lint` exits 0
 
 #### Manual
 
