@@ -294,7 +294,7 @@ def test_job_scoring_returns_structured_result(
 ) -> None:
     from unittest.mock import AsyncMock, MagicMock
 
-    from app.core.config import Settings, get_settings
+    from app.core.config import get_settings
 
     mock_content = (
         '{"score": 75, "explanation": "Good match.",'
@@ -312,9 +312,10 @@ def test_job_scoring_returns_structured_result(
     MockAsyncOpenAI = MagicMock(return_value=mock_client_instance)
     monkeypatch.setattr("app.services.scoring.AsyncOpenAI", MockAsyncOpenAI)
 
-    app.dependency_overrides[get_settings] = lambda: Settings(
-        ai_provider_api_key="test-id.test-secret"
-    )
+    # get_settings uses @lru_cache — set env var and flush cache so the real
+    # get_settings() reads the key without relying on a local .env file
+    monkeypatch.setenv("AI_PROVIDER_API_KEY", "test-id.test-secret")
+    get_settings.cache_clear()
     try:
         response = authed_client.post(
             "/v1/jobs/score",
@@ -330,7 +331,7 @@ def test_job_scoring_returns_structured_result(
             },
         )
     finally:
-        app.dependency_overrides.pop(get_settings, None)
+        get_settings.cache_clear()
 
     assert response.status_code == 200
     payload = response.json()
