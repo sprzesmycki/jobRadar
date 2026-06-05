@@ -102,10 +102,14 @@ export const POST: APIRoute = async (context) => {
     return redirectError(context, "CV extraction service is not configured");
   }
 
-  const [{ data: { user } }, { data: { session } }] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase.auth.getSession(),
-  ]);
+  const [
+    {
+      data: { user },
+    },
+    {
+      data: { session },
+    },
+  ] = await Promise.all([supabase.auth.getUser(), supabase.auth.getSession()]);
 
   if (!user || !session?.access_token) {
     return context.redirect("/auth/signin");
