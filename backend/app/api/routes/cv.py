@@ -1,3 +1,4 @@
+from pathlib import PurePosixPath
 from typing import Annotated
 
 import httpx
@@ -7,7 +8,7 @@ from app.core.config import Settings, get_settings
 from app.core.security import AuthenticatedUser, get_current_user
 from app.schemas.cv import CvExtractionRequest, CvExtractionResponse
 from app.services.cv_extraction import CvExtractionError, extract_profile_from_pdf_bytes
-from app.services.storage import download_storage_object
+from app.services.storage import StorageNotConfiguredError, download_storage_object
 
 router = APIRouter(prefix="/v1/cv", tags=["cv"])
 
@@ -30,8 +31,9 @@ async def extract_cv(
             detail={"code": "unsupported_cv_type", "message": "CV must be a PDF file."},
         )
 
-    expected_prefix = f"{user.user_id}/"
-    if not request.cv.path.startswith(expected_prefix):
+    # validate first path component matches user to prevent .. traversal
+    parts = PurePosixPath(request.cv.path).parts
+    if not parts or parts[0] != user.user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"code": "cv_path_forbidden", "message": "CV path does not belong to user."},
@@ -39,7 +41,7 @@ async def extract_cv(
 
     try:
         pdf_bytes = await download_storage_object(settings, request.cv.bucket, request.cv.path)
-    except RuntimeError as exc:
+    except StorageNotConfiguredError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail={"code": "storage_not_configured", "message": str(exc)},

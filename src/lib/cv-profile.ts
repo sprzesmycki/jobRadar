@@ -34,7 +34,7 @@ export async function getCvProfile(supabase: SupabaseClient, userId: string): Pr
   if (error) {
     return {
       profile: null,
-      errorMessage: "CV profile is not available yet. Apply the Supabase migration and refresh this page.",
+      errorMessage: "Your CV profile could not be loaded.",
     };
   }
 

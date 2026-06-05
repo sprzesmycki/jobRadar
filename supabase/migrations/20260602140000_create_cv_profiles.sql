@@ -50,9 +50,7 @@ create policy "cv_profiles_delete_own"
   for delete
   using (auth.uid() = user_id);
 
-drop trigger if exists cv_profiles_set_updated_at on public.cv_profiles;
-
-create trigger cv_profiles_set_updated_at
+create trigger if not exists cv_profiles_set_updated_at
   before update on public.cv_profiles
   for each row
   execute function public.set_updated_at();
