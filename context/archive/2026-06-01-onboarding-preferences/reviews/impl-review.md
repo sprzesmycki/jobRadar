@@ -14,14 +14,14 @@ The implementation matches the plan's intended vertical slice and passes the aut
 
 ## Dimension Verdicts
 
-| Dimension | Verdict | Evidence |
-|---|---|---|
-| Plan Adherence | PASS | Implementation commit touched the planned dashboard, API routes, helpers, migrations, and README. |
-| Scope Discipline | PASS | Demo matching is explicit; no real scraping, CV parsing, AI scoring, cover-letter, or FastAPI work was added. |
-| Safety & Quality | PASS | API routes call `supabase.auth.getUser()` before writes; RLS policies scope rows by `auth.uid()`. |
-| Architecture | PASS | Shared reads live in `src/lib/`; form writes live in `src/pages/api/`; UI stays in `src/pages/dashboard.astro`. |
-| Pattern Consistency | PASS | Uses existing Supabase SSR client and redirect-based form flow. |
-| Success Criteria | WARNING | Automated checks passed; manual Supabase/UI checks remain pending. |
+| Dimension           | Verdict | Evidence                                                                                                        |
+| ------------------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| Plan Adherence      | PASS    | Implementation commit touched the planned dashboard, API routes, helpers, migrations, and README.               |
+| Scope Discipline    | PASS    | Demo matching is explicit; no real scraping, CV parsing, AI scoring, cover-letter, or FastAPI work was added.   |
+| Safety & Quality    | PASS    | API routes call `supabase.auth.getUser()` before writes; RLS policies scope rows by `auth.uid()`.               |
+| Architecture        | PASS    | Shared reads live in `src/lib/`; form writes live in `src/pages/api/`; UI stays in `src/pages/dashboard.astro`. |
+| Pattern Consistency | PASS    | Uses existing Supabase SSR client and redirect-based form flow.                                                 |
+| Success Criteria    | WARNING | Automated checks passed; manual Supabase/UI checks remain pending.                                              |
 
 ## Evidence
 

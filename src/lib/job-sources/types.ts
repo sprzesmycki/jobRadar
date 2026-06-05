@@ -11,6 +11,7 @@ export interface JobListing {
   salaryCurrency: "EUR" | "USD" | "PLN";
   technologies: string[];
   url: string;
+  description?: string | null;
 }
 
 export interface SourceWarning {

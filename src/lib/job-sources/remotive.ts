@@ -11,6 +11,8 @@ interface RemotiveJob {
   tags?: string[];
   candidate_required_location?: string;
   salary?: string;
+  description?: string;
+  job_description?: string;
 }
 
 interface RemotiveResponse {
@@ -59,6 +61,12 @@ export function mapRemotiveJob(job: RemotiveJob): JobListing {
       .filter(Boolean)
       .slice(0, 10),
     url: job.url,
+    description:
+      (job.description ?? job.job_description ?? null)
+        ?.replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 2000) ?? null,
   };
 }
 

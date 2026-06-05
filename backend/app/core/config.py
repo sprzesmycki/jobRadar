@@ -42,6 +42,8 @@ class Settings(BaseSettings):
         default="http://localhost:4321,http://127.0.0.1:4321",
         validation_alias="ALLOWED_ORIGINS",
     )
+    ai_provider_api_key: str | None = Field(default=None, validation_alias="AI_PROVIDER_API_KEY")
+    ai_model_id: str = Field(default="GLM-5.1", validation_alias="AI_MODEL_ID")
 
     @property
     def allowed_origins(self) -> list[str]:

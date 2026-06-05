@@ -1,21 +1,19 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from starlette.responses import JSONResponse
 
+from app.core.config import Settings, get_settings
 from app.core.security import AuthenticatedUser, get_current_user
-from app.schemas.scoring import JobScoringRequest, NotImplementedPayload
+from app.schemas.scoring import JobScoringRequest, JobScoringResponse
+from app.services.scoring import score_job
 
 router = APIRouter(prefix="/v1/jobs", tags=["scoring"])
 
 
-@router.post("/score", response_model=NotImplementedPayload, status_code=501)
-async def score_job(
-    _request: JobScoringRequest,
+@router.post("/score", response_model=JobScoringResponse, status_code=200)
+async def score_job_route(
+    request: JobScoringRequest,
     _user: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> JSONResponse:
-    payload = NotImplementedPayload(
-        feature="job_scoring",
-        message="CV-to-job scoring is planned for S-05 and is not implemented in F-01.",
-    )
-    return JSONResponse(status_code=501, content=payload.model_dump())
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> JobScoringResponse:
+    return await score_job(request.job, request.profile, settings)

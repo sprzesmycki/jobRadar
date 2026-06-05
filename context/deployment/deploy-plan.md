@@ -202,19 +202,19 @@ Use Cloudflare dashboard for deployment logs if CLI output is insufficient. Use 
 
 Fill this section during execution:
 
-| Field | Value |
-|---|---|
-| Approved by | Sebastian Przesmycki |
-| Deploy date | 2026-06-01T07:16:10.795Z |
-| Deployed branch | main |
-| Git SHA | 336316e |
-| Worker URL | https://job-radar.sebastian-przesmycki.workers.dev |
-| Cloudflare account | 613da7471c8cb968dfaf0b26b6b8a247 |
-| Worker version/deployment ID | 1e4aee1f-26ae-471a-ad99-fbfe8e607678 |
-| Supabase project ref | Configured via `.dev.vars`; value intentionally not recorded |
-| Verification result | PASS: `/` 200, `/auth/signin` 200, `/dashboard` 302 to `/auth/signin` |
-| Rollback version | c7f9a869-7c1d-4635-953f-2222180cb1fb |
-| Notes | First deploy provisioned Cloudflare KV namespace `job-radar-session` for `SESSION`; Worker also has `IMAGES`, `ASSETS`, `SUPABASE_URL`, and `SUPABASE_KEY` bindings. Secrets were provided from local `.dev.vars` and not written to this file. |
+| Field                        | Value                                                                                                                                                                                                                                           |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Approved by                  | Sebastian Przesmycki                                                                                                                                                                                                                            |
+| Deploy date                  | 2026-06-01T07:16:10.795Z                                                                                                                                                                                                                        |
+| Deployed branch              | main                                                                                                                                                                                                                                            |
+| Git SHA                      | 336316e                                                                                                                                                                                                                                         |
+| Worker URL                   | https://job-radar.sebastian-przesmycki.workers.dev                                                                                                                                                                                              |
+| Cloudflare account           | 613da7471c8cb968dfaf0b26b6b8a247                                                                                                                                                                                                                |
+| Worker version/deployment ID | 1e4aee1f-26ae-471a-ad99-fbfe8e607678                                                                                                                                                                                                            |
+| Supabase project ref         | Configured via `.dev.vars`; value intentionally not recorded                                                                                                                                                                                    |
+| Verification result          | PASS: `/` 200, `/auth/signin` 200, `/dashboard` 302 to `/auth/signin`                                                                                                                                                                           |
+| Rollback version             | c7f9a869-7c1d-4635-953f-2222180cb1fb                                                                                                                                                                                                            |
+| Notes                        | First deploy provisioned Cloudflare KV namespace `job-radar-session` for `SESSION`; Worker also has `IMAGES`, `ASSETS`, `SUPABASE_URL`, and `SUPABASE_KEY` bindings. Secrets were provided from local `.dev.vars` and not written to this file. |
 
 ## Deferred Work
 

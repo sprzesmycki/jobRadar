@@ -21,6 +21,7 @@ tech_stack:
 This is the best fit for the current codebase because `astro.config.mjs` uses `output: "server"` with `@astrojs/cloudflare`, and the current `wrangler.jsonc` points at the Astro 6 Cloudflare adapter entrypoint. Cloudflare's current Astro guidance says this setup server-renders pages in a Worker, while `astro dev` and `astro preview` use the `workerd` runtime, so local and production behavior stay close. Supabase covers product primitives without building auth, database, and private CV storage from scratch; the VPS keeps Python PDF/CV parsing and AI orchestration in a conventional Docker environment instead of forcing heavy Python dependencies onto an edge runtime.
 
 Interview assumptions recorded for this decision:
+
 - No user-facing WebSocket requirement in the MVP.
 - Background jobs are needed, but they can run in the Python backend container or cron-like backend process on the VPS.
 - Cost minimization matters; the existing VPS should be used before adding a paid backend PaaS.
@@ -29,14 +30,14 @@ Interview assumptions recorded for this decision:
 
 ## Platform Comparison
 
-| Platform shape | CLI-first | Managed / serverless | Agent-readable docs | Stable deploy API | MCP / integration | Fit |
-|---|---|---|---|---|---|---|
-| Cloudflare Workers + Supabase + VPS FastAPI | Pass | Partial | Pass | Pass | Pass | Recommended |
-| Cloudflare Workers + Supabase + Railway backend | Pass | Pass | Pass | Pass | Partial | Runner-up |
-| Cloudflare Workers + Supabase + Render backend | Partial | Pass | Partial | Pass | Partial | Third |
-| Vercel + Supabase + VPS FastAPI | Pass | Pass | Pass | Pass | Pass, beta | Viable but less aligned |
-| Netlify + Supabase + VPS FastAPI | Pass | Pass | Partial | Pass | Pass | Viable for static/JAMstack, weaker for this Astro Workers starter |
-| Fly.io full backend/frontend | Pass | Partial | Pass | Pass | Partial | Rejected; previous Fly apps were intentionally destroyed |
+| Platform shape                                  | CLI-first | Managed / serverless | Agent-readable docs | Stable deploy API | MCP / integration | Fit                                                               |
+| ----------------------------------------------- | --------- | -------------------- | ------------------- | ----------------- | ----------------- | ----------------------------------------------------------------- |
+| Cloudflare Workers + Supabase + VPS FastAPI     | Pass      | Partial              | Pass                | Pass              | Pass              | Recommended                                                       |
+| Cloudflare Workers + Supabase + Railway backend | Pass      | Pass                 | Pass                | Pass              | Partial           | Runner-up                                                         |
+| Cloudflare Workers + Supabase + Render backend  | Partial   | Pass                 | Partial             | Pass              | Partial           | Third                                                             |
+| Vercel + Supabase + VPS FastAPI                 | Pass      | Pass                 | Pass                | Pass              | Pass, beta        | Viable but less aligned                                           |
+| Netlify + Supabase + VPS FastAPI                | Pass      | Pass                 | Partial             | Pass              | Pass              | Viable for static/JAMstack, weaker for this Astro Workers starter |
+| Fly.io full backend/frontend                    | Pass      | Partial              | Pass                | Pass              | Partial           | Rejected; previous Fly apps were intentionally destroyed          |
 
 Cloudflare wins because the scaffold already targets Workers with Astro 6, Wrangler is first-class, Cloudflare publishes agent-readable docs including `llms.txt`, and Cloudflare has an official MCP server. The tradeoff is that Cloudflare only manages the frontend runtime here; the Python backend still needs VPS discipline.
 
@@ -98,16 +99,16 @@ Six months after launch, the decision failed because the team treated "free VPS"
 
 ## Risk Register
 
-| Risk | Source | Likelihood | Impact | Mitigation |
-|---|---|---|---|---|
-| VPS becomes an undocumented production snowflake | Pre-mortem | M | H | Add `backend/README.md`, `docker-compose.yml`, `.env.example`, log command, deploy command, and rollback command before opening beta. |
-| Service-role key leaks into Worker/frontend code | Devil's advocate | M | H | Keep service-role and AI keys only in VPS env; add code-review rule and grep check for service-role variable names in `src/`. |
-| Astro dependency fails under `workerd` | Unknown unknowns | M | M | Keep `npm run build` and `astro preview` in the verification gate; avoid Node-only packages in frontend/server-rendered Astro code. |
-| Wrong Cloudflare deploy command used | Unknown unknowns | M | M | Document this repo as Workers deploy via `npx wrangler deploy`; do not use `wrangler pages deploy` unless the architecture changes. |
-| Supabase free tier pauses or hits limits | Research finding | M | M | Track DB/storage/auth usage; move to Pro before public beta or when CV storage approaches free-tier limits. |
-| CV files or parsed CV text leak through storage/logs | Devil's advocate | M | H | Private Supabase Storage bucket, short-lived signed URLs, no raw CV logs, and backend log redaction around parsing/AI calls. |
-| CORS/JWT mismatch between Worker and FastAPI | Devil's advocate | M | M | Validate Supabase JWTs in FastAPI; explicitly allow production and preview origins; test auth-to-backend flow before deploy signoff. |
-| Direct manual deploy hides what is live | Pre-mortem | M | M | Record Worker deployment ID, git SHA, Docker image tag, and migration status in `context/deployment/deploy-plan.md` after first deploy. |
+| Risk                                                 | Source           | Likelihood | Impact | Mitigation                                                                                                                              |
+| ---------------------------------------------------- | ---------------- | ---------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| VPS becomes an undocumented production snowflake     | Pre-mortem       | M          | H      | Add `backend/README.md`, `docker-compose.yml`, `.env.example`, log command, deploy command, and rollback command before opening beta.   |
+| Service-role key leaks into Worker/frontend code     | Devil's advocate | M          | H      | Keep service-role and AI keys only in VPS env; add code-review rule and grep check for service-role variable names in `src/`.           |
+| Astro dependency fails under `workerd`               | Unknown unknowns | M          | M      | Keep `npm run build` and `astro preview` in the verification gate; avoid Node-only packages in frontend/server-rendered Astro code.     |
+| Wrong Cloudflare deploy command used                 | Unknown unknowns | M          | M      | Document this repo as Workers deploy via `npx wrangler deploy`; do not use `wrangler pages deploy` unless the architecture changes.     |
+| Supabase free tier pauses or hits limits             | Research finding | M          | M      | Track DB/storage/auth usage; move to Pro before public beta or when CV storage approaches free-tier limits.                             |
+| CV files or parsed CV text leak through storage/logs | Devil's advocate | M          | H      | Private Supabase Storage bucket, short-lived signed URLs, no raw CV logs, and backend log redaction around parsing/AI calls.            |
+| CORS/JWT mismatch between Worker and FastAPI         | Devil's advocate | M          | M      | Validate Supabase JWTs in FastAPI; explicitly allow production and preview origins; test auth-to-backend flow before deploy signoff.    |
+| Direct manual deploy hides what is live              | Pre-mortem       | M          | M      | Record Worker deployment ID, git SHA, Docker image tag, and migration status in `context/deployment/deploy-plan.md` after first deploy. |
 
 ## Getting Started
 
@@ -135,6 +136,7 @@ Six months after launch, the decision failed because the team treated "free VPS"
 ## Out of Scope
 
 The following were not implemented by this research:
+
 - Docker image configuration for the FastAPI backend.
 - CI/CD pipeline setup beyond correcting the `main` branch trigger.
 - Production-scale architecture such as multi-region backend HA, disaster recovery, or formal SLOs.

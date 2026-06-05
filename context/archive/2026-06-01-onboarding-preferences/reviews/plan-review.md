@@ -16,13 +16,13 @@ Grounding: referenced source paths exist; implementation commit `17836c1` touche
 
 ## Dimension Review
 
-| Dimension | Verdict | Notes |
-|---|---|---|
-| Plan Completeness | PASS | `change.md`, `plan.md`, `plan-brief.md`, phases, success criteria, references, and `## Progress` are present. |
-| Vertical Slice Shape | PASS | The slice crosses auth, persistence, matching presentation, and saved status. |
-| Scope Discipline | PASS | Real scraping, CV parsing, AI scoring, cover letters, and backend/VPS work are out of scope. |
-| Data Safety | PASS | Plan requires RLS policies scoped to `auth.uid() = user_id`. |
-| Verification | WARNING | Automated checks passed, but Supabase migration and logged-in UI checks remain pending. |
+| Dimension            | Verdict | Notes                                                                                                         |
+| -------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
+| Plan Completeness    | PASS    | `change.md`, `plan.md`, `plan-brief.md`, phases, success criteria, references, and `## Progress` are present. |
+| Vertical Slice Shape | PASS    | The slice crosses auth, persistence, matching presentation, and saved status.                                 |
+| Scope Discipline     | PASS    | Real scraping, CV parsing, AI scoring, cover letters, and backend/VPS work are out of scope.                  |
+| Data Safety          | PASS    | Plan requires RLS policies scoped to `auth.uid() = user_id`.                                                  |
+| Verification         | WARNING | Automated checks passed, but Supabase migration and logged-in UI checks remain pending.                       |
 
 ## Findings
 

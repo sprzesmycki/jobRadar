@@ -71,6 +71,7 @@ function mapJustJoinItOffer(offer: JustJoinItOffer): JobListing {
     salaryCurrency: salary.salaryCurrency,
     technologies,
     url: `https://justjoin.it/job-offer/${slug}`,
+    description: null,
   };
 }
 

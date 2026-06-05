@@ -8,14 +8,14 @@ Verdict: APPROVED WITH RESIDUAL MANUAL CHECKS
 
 ## Dimension Verdicts
 
-| Dimension | Verdict | Notes |
-|---|---|---|
-| Plan Adherence | PASS | Provider contract, Remotive adapter, Adzuna skip path, JustJoinIT candidate API adapter, dedupe, and dashboard warnings match the plan. |
-| Scope Discipline | PASS | No CV, persistence, or unrelated roadmap work was added. |
-| Safety & Quality | PASS | External calls are server-side, Adzuna credentials are server-only, providers return warnings/failures instead of throwing into the dashboard. |
-| Architecture | PASS | Source fetching moved out of `src/lib/jobs.ts`; matching/scoring remains the public dashboard API. |
-| Pattern Consistency | PASS | Env schema follows existing `SUPABASE_*` pattern in `astro.config.mjs`; dashboard warning UI reuses existing alert styling. |
-| Success Criteria | WARNING | Automated verification passed. Three manual checks remain pending: multi-source success with credentials/source access, saved-job persistence refresh, and responsive visual verification. |
+| Dimension           | Verdict | Notes                                                                                                                                                                                      |
+| ------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Plan Adherence      | PASS    | Provider contract, Remotive adapter, Adzuna skip path, JustJoinIT candidate API adapter, dedupe, and dashboard warnings match the plan.                                                    |
+| Scope Discipline    | PASS    | No CV, persistence, or unrelated roadmap work was added.                                                                                                                                   |
+| Safety & Quality    | PASS    | External calls are server-side, Adzuna credentials are server-only, providers return warnings/failures instead of throwing into the dashboard.                                             |
+| Architecture        | PASS    | Source fetching moved out of `src/lib/jobs.ts`; matching/scoring remains the public dashboard API.                                                                                         |
+| Pattern Consistency | PASS    | Env schema follows existing `SUPABASE_*` pattern in `astro.config.mjs`; dashboard warning UI reuses existing alert styling.                                                                |
+| Success Criteria    | WARNING | Automated verification passed. Three manual checks remain pending: multi-source success with credentials/source access, saved-job persistence refresh, and responsive visual verification. |
 
 ## Findings
 

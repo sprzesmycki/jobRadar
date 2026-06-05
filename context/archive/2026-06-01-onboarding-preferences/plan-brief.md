@@ -16,13 +16,13 @@ An authenticated user lands on a JobRadar dashboard, stores job-search preferenc
 
 ## Key Decisions Made
 
-| Decision | Choice | Why |
-|---|---|---|
-| Slice shape | Vertical product loop | It touches user input, persisted state, matched output, and saved status instead of only laying foundations. |
-| Data layer | Supabase migrations with RLS | Matches the selected stack and keeps user data scoped to `auth.uid()`. |
-| Jobs source | Demo jobs from target sources | Lets the product loop work before scraper/backend work exists. |
-| Matching | Deterministic preference-based score | Gives visible behavior without claiming CV/AI scoring is complete. |
-| Tests | Existing lint/build plus manual Supabase smoke | No test runner exists yet; current repo gate is lint/build per `AGENTS.md`. |
+| Decision    | Choice                                         | Why                                                                                                          |
+| ----------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Slice shape | Vertical product loop                          | It touches user input, persisted state, matched output, and saved status instead of only laying foundations. |
+| Data layer  | Supabase migrations with RLS                   | Matches the selected stack and keeps user data scoped to `auth.uid()`.                                       |
+| Jobs source | Demo jobs from target sources                  | Lets the product loop work before scraper/backend work exists.                                               |
+| Matching    | Deterministic preference-based score           | Gives visible behavior without claiming CV/AI scoring is complete.                                           |
+| Tests       | Existing lint/build plus manual Supabase smoke | No test runner exists yet; current repo gate is lint/build per `AGENTS.md`.                                  |
 
 ## Scope
 
@@ -49,10 +49,10 @@ Astro server routes receive form posts, reuse the Supabase SSR client, and rely 
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
-| 1. Data contracts and handlers | Supabase tables, RLS, and form endpoints | Hosted Supabase migrations must be applied before production use. |
-| 2. Dashboard vertical loop | User-visible preference, match, and saved-status UI | Manual logged-in smoke test is still required after migrations. |
+| Phase                          | What it delivers                                    | Key risk                                                          |
+| ------------------------------ | --------------------------------------------------- | ----------------------------------------------------------------- |
+| 1. Data contracts and handlers | Supabase tables, RLS, and form endpoints            | Hosted Supabase migrations must be applied before production use. |
+| 2. Dashboard vertical loop     | User-visible preference, match, and saved-status UI | Manual logged-in smoke test is still required after migrations.   |
 
 **Prerequisites:** Supabase project configured in `.dev.vars`; authenticated user available for manual testing.
 **Estimated effort:** One small implementation pass plus one Supabase/manual verification pass.

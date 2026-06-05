@@ -45,10 +45,10 @@ JobRadar should be a product UI, not a Django-template app: the MVP needs a poli
 
 ## Pre-scaffold verification
 
-| Signal | Value | Severity | Notes |
-| --- | --- | --- | --- |
-| npm package | not run | n/a | Starter is cloned from GitHub, not created through an npm create package |
-| GitHub repo | not run | n/a | GitHub CLI is intentionally disabled for this environment per user instruction |
+| Signal      | Value   | Severity | Notes                                                                          |
+| ----------- | ------- | -------- | ------------------------------------------------------------------------------ |
+| npm package | not run | n/a      | Starter is cloned from GitHub, not created through an npm create package       |
+| GitHub repo | not run | n/a      | GitHub CLI is intentionally disabled for this environment per user instruction |
 
 ## Scaffold log
 
@@ -86,25 +86,26 @@ None.
 
 ## Hints recorded but not acted on
 
-| Hint | Value |
-| --- | --- |
-| bootstrapper_confidence | first-class |
-| quality_override | false |
-| path_taken | custom |
-| self_check_answers | typed=true, from_official_starter=true, conventions=true, docs_current=true, can_judge_agent=true |
-| team_size | solo |
-| deployment_target | cloudflare-pages |
-| ci_provider | github-actions |
-| ci_default_flow | auto-deploy-on-merge |
-| has_auth | true |
-| has_payments | false |
-| has_realtime | false |
-| has_ai | true |
-| has_background_jobs | true |
+| Hint                    | Value                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------- |
+| bootstrapper_confidence | first-class                                                                                       |
+| quality_override        | false                                                                                             |
+| path_taken              | custom                                                                                            |
+| self_check_answers      | typed=true, from_official_starter=true, conventions=true, docs_current=true, can_judge_agent=true |
+| team_size               | solo                                                                                              |
+| deployment_target       | cloudflare-pages                                                                                  |
+| ci_provider             | github-actions                                                                                    |
+| ci_default_flow         | auto-deploy-on-merge                                                                              |
+| has_auth                | true                                                                                              |
+| has_payments            | false                                                                                             |
+| has_realtime            | false                                                                                             |
+| has_ai                  | true                                                                                              |
+| has_background_jobs     | true                                                                                              |
 
 ## Next steps
 
 Next: configure the app for the concrete Supabase project and the VPS-hosted FastAPI backend. Useful manual steps in the meantime:
+
 - Review `CLAUDE.md.scaffold` against the existing project instructions and decide whether any starter-specific guidance should be merged.
 - Configure Supabase Auth, Postgres, and private Storage buckets before building user flows.
 - Add the FastAPI backend scaffold and Docker Compose setup for the VPS in a follow-up branch.
