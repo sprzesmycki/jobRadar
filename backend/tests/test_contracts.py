@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from unittest.mock import AsyncMock, MagicMock
 
 import httpx
 import pytest
@@ -6,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from app.api.routes import cv as cv_route
 from app.core import security
-from app.core.config import Settings
+from app.core.config import Settings, get_settings
 from app.core.security import AuthenticatedUser, get_current_user
 from app.main import app
 from app.schemas.cv import CvExtractionResponse
@@ -289,24 +290,52 @@ def test_cv_extract_returns_structured_profile(
     assert payload["text_character_count"] == 128
 
 
-def test_job_scoring_placeholder_returns_501(authed_client: TestClient) -> None:
-    response = authed_client.post(
-        "/v1/jobs/score",
-        json={
-            "job": {
-                "external_id": "job-1",
-                "source": "Remotive",
-                "title": "Python Developer",
-                "company": "Example",
-                "technologies": ["Python", "FastAPI"],
-            },
-            "profile": {"skills": ["Python"]},
-        },
+def test_job_scoring_returns_structured_result(
+    authed_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    mock_content = (
+        '{"score": 75, "explanation": "Good match.",'
+        ' "matched_skills": ["Python"], "missing_skills": ["Go"]}'
     )
+    mock_message = MagicMock()
+    mock_message.content = mock_content
+    mock_choice = MagicMock()
+    mock_choice.message = mock_message
+    mock_completion = MagicMock()
+    mock_completion.choices = [mock_choice]
 
-    assert response.status_code == 501
-    assert response.json()["code"] == "not_implemented"
-    assert response.json()["feature"] == "job_scoring"
+    mock_client_instance = MagicMock()
+    mock_client_instance.chat.completions.create = AsyncMock(return_value=mock_completion)
+    MockAsyncOpenAI = MagicMock(return_value=mock_client_instance)
+    monkeypatch.setattr("app.services.scoring.AsyncOpenAI", MockAsyncOpenAI)
+
+    # get_settings uses @lru_cache — set env var and flush cache so the real
+    # get_settings() reads the key without relying on a local .env file
+    monkeypatch.setenv("AI_PROVIDER_API_KEY", "test-id.test-secret")
+    get_settings.cache_clear()
+    try:
+        response = authed_client.post(
+            "/v1/jobs/score",
+            json={
+                "job": {
+                    "external_id": "job-1",
+                    "source": "Remotive",
+                    "title": "Python Developer",
+                    "company": "Example",
+                    "technologies": ["Python", "FastAPI"],
+                },
+                "profile": {"skills": ["Python"]},
+            },
+        )
+    finally:
+        get_settings.cache_clear()
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["score"] == 75
+    assert payload["explanation"] == "Good match."
+    assert payload["matched_skills"] == ["Python"]
+    assert payload["missing_skills"] == ["Go"]
 
 
 def test_cover_letter_placeholder_returns_501(authed_client: TestClient) -> None:
