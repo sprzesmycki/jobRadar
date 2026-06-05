@@ -417,26 +417,26 @@ Update the dashboard to: (1) pre-load cached scores in SSR, (2) show score skele
 
 #### Automated
 
-- [x] 1.1 `uv run ruff check .` exits 0 in `backend/`
-- [x] 1.2 `uv pip install -e .` installs without conflict
-- [x] 1.3 `POST /v1/jobs/score` returns 200 with score fields (curl smoke test)
+- [x] 1.1 `uv run ruff check .` exits 0 in `backend/` — 375e9b3
+- [x] 1.2 `uv pip install -e .` installs without conflict — 375e9b3
+- [x] 1.3 `POST /v1/jobs/score` returns 200 with score fields (curl smoke test) — 375e9b3
 
 #### Manual
 
-- [x] 1.4 Realistic job + profile call returns score 0–100 with non-empty explanation
-- [x] 1.5 Missing `AI_PROVIDER_API_KEY` returns 503
+- [x] 1.4 Realistic job + profile call returns score 0–100 with non-empty explanation — 375e9b3
+- [x] 1.5 Missing `AI_PROVIDER_API_KEY` returns 503 — 375e9b3
 
 ### Phase 2: Database — job_scores Cache Table
 
 #### Automated
 
-- [ ] 2.1 Migration applies without error
-- [ ] 2.2 `npm run typecheck` passes with new `src/lib/job-scores.ts`
+- [x] 2.1 Migration applies without error
+- [x] 2.2 `npm run typecheck` passes with new `src/lib/job-scores.ts`
 
 #### Manual
 
-- [ ] 2.3 `job_scores` table visible in Supabase with correct columns and RLS
-- [ ] 2.4 CV re-upload clears user's job_scores rows
+- [x] 2.3 `job_scores` table visible in Supabase with correct columns and RLS
+- [x] 2.4 CV re-upload clears user's job_scores rows
 
 ### Phase 3: Job Source Description Field
 

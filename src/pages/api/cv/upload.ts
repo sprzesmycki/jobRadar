@@ -227,6 +227,10 @@ export const POST: APIRoute = async (context) => {
     return redirectError(context, profileError.message);
   }
 
+  // Invalidate cached scores so next dashboard load recomputes against the new CV.
+  // Ignore errors — a stale cache is preferable to blocking CV upload.
+  await supabase.from("job_scores").delete().eq("user_id", user.id);
+
   if (currentStoragePath && currentStoragePath !== storagePath) {
     const { error: cleanupErr } = await supabase.storage.from(BUCKET).remove([currentStoragePath]);
     if (cleanupErr) console.error("cv old storage cleanup failed:", cleanupErr.message);
