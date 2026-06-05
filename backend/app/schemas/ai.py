@@ -10,4 +10,8 @@ class CoverLetterRequest(BaseModel):
     language: str = Field(default="en", max_length=16)
 
 
-__all__ = ["CoverLetterRequest", "NotImplementedPayload"]
+class CoverLetterResponse(BaseModel):
+    content: str
+
+
+__all__ = ["CoverLetterRequest", "CoverLetterResponse", "NotImplementedPayload"]
