@@ -442,21 +442,21 @@ Update the dashboard to: (1) pre-load cached scores in SSR, (2) show score skele
 
 #### Automated
 
-- [x] 3.1 `npm run typecheck` passes
-- [x] 3.2 `npm run lint` exits 0
+- [x] 3.1 `npm run typecheck` passes — e62599d
+- [x] 3.2 `npm run lint` exits 0 — e62599d
 
 #### Manual
 
-- [x] 3.3 Remotive and Adzuna jobs have non-null descriptions in at least some offers
-- [x] 3.4 JustJoinIT jobs have `description: null`
+- [x] 3.3 Remotive and Adzuna jobs have non-null descriptions in at least some offers — e62599d
+- [x] 3.4 JustJoinIT jobs have `description: null` — e62599d
 
 ### Phase 4: Frontend Scoring API Endpoint
 
 #### Automated
 
-- [ ] 4.1 `npm run typecheck` passes
-- [ ] 4.2 `npm run lint` exits 0
-- [ ] 4.3 POST `/api/jobs/score-batch` returns 200 with scores object
+- [x] 4.1 `npm run typecheck` passes
+- [x] 4.2 `npm run lint` exits 0
+- [x] 4.3 POST `/api/jobs/score-batch` returns 200 with scores object
 
 #### Manual
 
