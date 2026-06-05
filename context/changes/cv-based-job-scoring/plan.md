@@ -466,9 +466,9 @@ Update the dashboard to: (1) pre-load cached scores in SSR, (2) show score skele
 
 #### Manual
 
-- [x] 4.4 First call scores and caches (new rows in job_scores)
-- [x] 4.5 Second identical call returns from cache (no new rows)
-- [x] 4.6 Call with no CV returns `{ scores: {}, noCV: true }`
+- [x] 4.4 First call scores and caches (new rows in job_scores) — 003de9d
+- [x] 4.5 Second identical call returns from cache (no new rows) — 003de9d
+- [x] 4.6 Call with no CV returns `{ scores: {}, noCV: true }` — 003de9d
 
 ### Phase 5: Dashboard UI — Async Score Badges + Detail Panel
 
