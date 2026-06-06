@@ -2,9 +2,12 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.api.routes import cover_letter, cv, health, me, scoring
 from app.core.config import get_settings
+from app.core.rate_limit import limiter
 
 
 def create_app() -> FastAPI:
@@ -14,6 +17,9 @@ def create_app() -> FastAPI:
         version=settings.jobradar_version,
         summary="FastAPI service for CV parsing, scoring, and AI orchestration.",
     )
+
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(

@@ -299,17 +299,17 @@ None. No database changes, no schema migrations, no breaking API contract change
 
 #### Automated
 
-- [x] 2.1 `uv run pytest -k cv_extract` passes (new + existing CV tests)
-- [x] 2.2 `uv run pytest backend/tests/` passes
+- [x] 2.1 `uv run pytest -k cv_extract` passes (new + existing CV tests) — c6e24d7
+- [x] 2.2 `uv run pytest backend/tests/` passes — c6e24d7
 
 ### Phase 3: R7 — Add and test cover letter rate limiting
 
 #### Automated
 
-- [ ] 3.1 `uv run pytest -k rate_limit` passes
-- [ ] 3.2 `uv run pytest backend/tests/` passes (no regressions)
-- [ ] 3.3 `uv run ruff check .` passes
+- [x] 3.1 `uv run pytest -k rate_limit` passes
+- [x] 3.2 `uv run pytest backend/tests/` passes (no regressions)
+- [x] 3.3 `uv run ruff check .` passes
 
 #### Manual
 
-- [ ] 3.4 Local server: 3 requests succeed, 4th returns 429 within the same minute
+- [x] 3.4 Local server: 3 requests succeed, 4th returns 429 within the same minute

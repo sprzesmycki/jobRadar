@@ -24,7 +24,10 @@ def client() -> Iterator[TestClient]:
 
 @pytest.fixture
 def authed_client() -> Iterator[TestClient]:
-    async def fake_user() -> AuthenticatedUser:
+    from fastapi import Request as FastAPIRequest
+
+    async def fake_user(request: FastAPIRequest) -> AuthenticatedUser:
+        request.state.user_id = "user-123"
         return AuthenticatedUser(
             user_id="user-123",
             email="test@example.com",
@@ -401,6 +404,60 @@ def test_cover_letter_422_does_not_echo_input(authed_client: TestClient) -> None
     assert "cv text that must not appear in response" not in response.text
 
 
+def test_cover_letter_rate_limit_returns_429(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from fastapi import Request as FastAPIRequest
+
+    async def fake_rate_limit_user(request: FastAPIRequest) -> AuthenticatedUser:
+        request.state.user_id = "ratelimit-test-user"
+        return AuthenticatedUser(
+            user_id="ratelimit-test-user",
+            email="ratelimit@test.com",
+            role="authenticated",
+            claims={},
+        )
+
+    mock_message = MagicMock()
+    mock_message.content = "Cover letter content."
+    mock_choice = MagicMock()
+    mock_choice.message = mock_message
+    mock_completion = MagicMock()
+    mock_completion.choices = [mock_choice]
+
+    mock_client_instance = MagicMock()
+    mock_client_instance.chat.completions.create = AsyncMock(return_value=mock_completion)
+    MockAsyncOpenAI = MagicMock(return_value=mock_client_instance)
+    monkeypatch.setattr("app.services.cover_letter.AsyncOpenAI", MockAsyncOpenAI)
+
+    monkeypatch.setenv("AI_PROVIDER_API_KEY", "test-id.test-secret")
+    get_settings.cache_clear()
+
+    valid_body = {
+        "job": {
+            "external_id": "job-1",
+            "source": "test",
+            "title": "Dev",
+            "company": "Acme",
+        },
+        "profile": {"skills": ["Python"]},
+    }
+
+    try:
+        app.dependency_overrides[get_current_user] = fake_rate_limit_user
+        app.dependency_overrides[get_settings] = get_settings
+
+        for _ in range(3):
+            r = client.post("/v1/cover-letter", json=valid_body)
+            assert r.status_code == 200
+
+        r = client.post("/v1/cover-letter", json=valid_body)
+        assert r.status_code == 429
+    finally:
+        app.dependency_overrides.clear()
+        get_settings.cache_clear()
+
+
 def test_cover_letter_returns_503_when_api_key_missing(authed_client: TestClient) -> None:
     no_key_settings = Settings.model_construct(ai_provider_api_key=None, ai_model_id="GLM-4.5-Air")
     app.dependency_overrides[get_settings] = lambda: no_key_settings
@@ -423,13 +480,16 @@ def test_cover_letter_returns_503_when_api_key_missing(authed_client: TestClient
 
 def test_cv_extract_rejects_cross_user_path(client: TestClient) -> None:
     async def fake_user_a() -> AuthenticatedUser:
-        return AuthenticatedUser(user_id="user-a", email="a@test.com", role="authenticated", claims={})
+        return AuthenticatedUser(
+            user_id="user-a", email="a@test.com", role="authenticated", claims={}
+        )
 
     try:
         app.dependency_overrides[get_current_user] = fake_user_a
         response = client.post(
             "/v1/cv/extract",
-            json={"cv": {"bucket": "cvs", "path": "user-b/cv.pdf", "content_type": "application/pdf"}},
+            json={"cv": {"bucket": "cvs", "path": "user-b/cv.pdf",
+                         "content_type": "application/pdf"}},
         )
     finally:
         app.dependency_overrides.clear()
@@ -442,7 +502,9 @@ def test_cv_extract_accepts_own_path(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     async def fake_user_a() -> AuthenticatedUser:
-        return AuthenticatedUser(user_id="user-a", email="a@test.com", role="authenticated", claims={})
+        return AuthenticatedUser(
+            user_id="user-a", email="a@test.com", role="authenticated", claims={}
+        )
 
     async def fake_download_fails(*_args: object, **_kwargs: object) -> bytes:
         raise StorageNotConfiguredError("test")
@@ -453,7 +515,8 @@ def test_cv_extract_accepts_own_path(
         app.dependency_overrides[get_current_user] = fake_user_a
         response = client.post(
             "/v1/cv/extract",
-            json={"cv": {"bucket": "cvs", "path": "user-a/cv.pdf", "content_type": "application/pdf"}},
+            json={"cv": {"bucket": "cvs", "path": "user-a/cv.pdf",
+                         "content_type": "application/pdf"}},
         )
     finally:
         app.dependency_overrides.clear()
