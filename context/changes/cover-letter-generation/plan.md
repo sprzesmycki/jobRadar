@@ -344,8 +344,8 @@ Apply migration `20260605160000_create_cover_letters.sql` to Supabase before dep
 
 #### Manual
 
-- [ ] 1.4 Returned content is a multi-paragraph cover letter referencing job title and a candidate skill
-- [ ] 1.5 Missing `AI_PROVIDER_API_KEY` returns 503
+- [x] 1.4 Returned content is a multi-paragraph cover letter referencing job title and a candidate skill — 95c2d84
+- [x] 1.5 Missing `AI_PROVIDER_API_KEY` returns 503 — 95c2d84
 
 ### Phase 2: Database Cache Table
 
