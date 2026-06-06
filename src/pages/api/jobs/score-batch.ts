@@ -142,8 +142,8 @@ export const POST: APIRoute = async (context) => {
     return new Response(JSON.stringify({ error: "jobs must be an array" }), { status: 400 });
   }
 
-  if (body.jobs.length > 50) {
-    return new Response(JSON.stringify({ error: "Too many jobs in one request (max 50)" }), { status: 400 });
+  if (body.jobs.length > 100) {
+    return new Response(JSON.stringify({ error: "Too many jobs in one request (max 100)" }), { status: 400 });
   }
 
   const jobs = (body.jobs as unknown[]).filter(

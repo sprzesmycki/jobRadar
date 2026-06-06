@@ -20,3 +20,4 @@ class ProfileInput(BaseModel):
     summary: str | None = None
     skills: list[str] = Field(default_factory=list)
     experience: list[str] = Field(default_factory=list)
+    role_hints: list[str] | None = None

@@ -3,7 +3,7 @@ project: JobRadar
 version: 1
 status: draft
 created: 2026-06-01
-updated: 2026-06-05
+updated: 2026-06-06
 prd_version: 1
 main_goal: market-feedback
 top_blocker: external
@@ -33,7 +33,7 @@ JobRadar helps an employed mid/senior developer avoid manually scanning many job
 | S-03 | three-source-job-aggregation    | User can see aggregated offers from JustJoinIT, Remotive, and Adzuna with source labels and deduplication      | S-02          | US-01, FR-005                                            | done     |
 | S-04 | cv-upload-and-extraction        | User can upload a PDF CV and see extracted profile data saved privately                                        | S-01, F-01    | FR-003, NFR-privacy                                      | done     |
 | S-05 | cv-based-job-scoring            | User can see CV-to-job match percentages, explanations, and missing skills on real offers                      | S-03, S-04    | US-01, FR-006, FR-007                                    | done     |
-| S-06 | cover-letter-generation         | User can generate a personalized cover letter for a real offer using CV data and job requirements              | S-05          | US-02, FR-008, NFR-latency, NFR-privacy                  | blocked  |
+| S-06 | cover-letter-generation         | User can generate a personalized cover letter for a real offer using CV data and job requirements              | S-05          | US-02, FR-008, NFR-latency, NFR-privacy                  | done     |
 | S-07 | saved-offers-list               | User can view saved offers in one place and return to application status context                               | S-01, S-03    | FR-010                                                   | proposed |
 | S-08 | saved-offer-notes               | User can add notes to a saved offer                                                                            | S-07          | FR-011                                                   | proposed |
 
@@ -154,7 +154,7 @@ Foundations below assume these are present and do not re-scaffold them.
   - Which AI provider configuration prevents raw CV content from being retained in external logs? — Owner: user/team. Block: yes.
   - How will progress feedback be shown for operations longer than 2 seconds? — Owner: team. Block: no.
 - **Risk:** Generation is sequenced after scoring because a cover letter without grounded CV/job matching risks becoming a generic AI template.
-- **Status:** blocked
+- **Status:** done
 
 ### S-07: Saved Offers List
 
@@ -215,3 +215,4 @@ Foundations below assume these are present and do not re-scaffold them.
 - **F-01: (foundation) a minimal FastAPI service contract and deployment path exists for Python-heavy CV parsing, scoring, and AI orchestration.** — Archived 2026-06-02 → `context/archive/2026-06-02-python-cv-ai-service-foundation/`. Lesson: —.
 - **S-04: User can upload a PDF CV and see extracted profile data saved privately.** — Archived 2026-06-05 → `context/archive/2026-06-02-cv-upload-and-extraction/`. Lesson: —.
 - **S-05: User can see CV-to-job match percentages, concise explanations, and missing skills on real offers.** — Archived 2026-06-05 → `context/archive/2026-06-05-cv-based-job-scoring/`. Lesson: —.
+- **S-06: User can generate a personalized cover letter for a real offer using both CV data and job requirements.** — Archived 2026-06-06 → `context/archive/2026-06-05-cover-letter-generation/`. Lesson: —.

@@ -1,21 +1,19 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from starlette.responses import JSONResponse
 
+from app.core.config import Settings, get_settings
 from app.core.security import AuthenticatedUser, get_current_user
-from app.schemas.ai import CoverLetterRequest, NotImplementedPayload
+from app.schemas.ai import CoverLetterRequest, CoverLetterResponse
+from app.services.cover_letter import generate_cover_letter
 
 router = APIRouter(prefix="/v1/cover-letter", tags=["cover-letter"])
 
 
-@router.post("", response_model=NotImplementedPayload, status_code=501)
-async def generate_cover_letter(
-    _request: CoverLetterRequest,
+@router.post("", response_model=CoverLetterResponse, status_code=200)
+async def cover_letter(
+    request: CoverLetterRequest,
     _user: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> JSONResponse:
-    payload = NotImplementedPayload(
-        feature="cover_letter_generation",
-        message="Cover-letter generation is planned for S-06 and is not implemented in F-01.",
-    )
-    return JSONResponse(status_code=501, content=payload.model_dump())
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> CoverLetterResponse:
+    return await generate_cover_letter(request.job, request.profile, settings)

@@ -338,7 +338,57 @@ def test_job_scoring_returns_structured_result(
     assert payload["missing_skills"] == ["Go"]
 
 
-def test_cover_letter_placeholder_returns_501(authed_client: TestClient) -> None:
+def test_cover_letter_returns_content_on_success(
+    authed_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    mock_message = MagicMock()
+    mock_message.content = (
+        "Dear Hiring Manager,\n\n"
+        "I am excited to apply for the Python Developer role at Example Corp. "
+        "My experience with Python and FastAPI aligns well with your requirements.\n\n"
+        "Thank you for your consideration."
+    )
+    mock_choice = MagicMock()
+    mock_choice.message = mock_message
+    mock_completion = MagicMock()
+    mock_completion.choices = [mock_choice]
+
+    mock_client_instance = MagicMock()
+    mock_client_instance.chat.completions.create = AsyncMock(return_value=mock_completion)
+    MockAsyncOpenAI = MagicMock(return_value=mock_client_instance)
+    monkeypatch.setattr("app.services.cover_letter.AsyncOpenAI", MockAsyncOpenAI)
+
+    monkeypatch.setenv("AI_PROVIDER_API_KEY", "test-id.test-secret")
+    get_settings.cache_clear()
+    try:
+        response = authed_client.post(
+            "/v1/cover-letter",
+            json={
+                "job": {
+                    "external_id": "job-1",
+                    "source": "Remotive",
+                    "title": "Python Developer",
+                    "company": "Example Corp",
+                    "technologies": ["Python", "FastAPI"],
+                },
+                "profile": {
+                    "skills": ["Python", "FastAPI"],
+                    "role_hints": ["Backend Developer"],
+                },
+            },
+        )
+    finally:
+        get_settings.cache_clear()
+
+    assert response.status_code == 200
+    assert "content" in response.json()
+    assert len(response.json()["content"]) > 0
+
+
+def test_cover_letter_returns_503_when_api_key_missing(authed_client: TestClient) -> None:
+    no_key_settings = Settings.model_construct(ai_provider_api_key=None, ai_model_id="GLM-4.5-Air")
+    app.dependency_overrides[get_settings] = lambda: no_key_settings
+
     response = authed_client.post(
         "/v1/cover-letter",
         json={
@@ -349,10 +399,40 @@ def test_cover_letter_placeholder_returns_501(authed_client: TestClient) -> None
                 "company": "Example",
             },
             "profile": {"skills": ["Python"]},
-            "tone": "professional",
         },
     )
 
-    assert response.status_code == 501
-    assert response.json()["code"] == "not_implemented"
-    assert response.json()["feature"] == "cover_letter_generation"
+    assert response.status_code == 503
+
+
+def test_cover_letter_returns_502_on_api_error(
+    authed_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from openai import OpenAIError
+
+    mock_client_instance = MagicMock()
+    mock_client_instance.chat.completions.create = AsyncMock(
+        side_effect=OpenAIError("connection failed")
+    )
+    MockAsyncOpenAI = MagicMock(return_value=mock_client_instance)
+    monkeypatch.setattr("app.services.cover_letter.AsyncOpenAI", MockAsyncOpenAI)
+
+    monkeypatch.setenv("AI_PROVIDER_API_KEY", "test-id.test-secret")
+    get_settings.cache_clear()
+    try:
+        response = authed_client.post(
+            "/v1/cover-letter",
+            json={
+                "job": {
+                    "external_id": "job-1",
+                    "source": "Remotive",
+                    "title": "Python Developer",
+                    "company": "Example",
+                },
+                "profile": {"skills": ["Python"]},
+            },
+        )
+    finally:
+        get_settings.cache_clear()
+
+    assert response.status_code == 502
