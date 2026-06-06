@@ -291,16 +291,16 @@ None. No database changes, no schema migrations, no breaking API contract change
 
 #### Automated
 
-- [x] 1.1 `uv run pytest -k test_cover_letter_422_does_not_echo_input` passes
-- [x] 1.2 `uv run pytest backend/tests/` passes (no regressions)
-- [x] 1.3 `uv run ruff check .` passes
+- [x] 1.1 `uv run pytest -k test_cover_letter_422_does_not_echo_input` passes — ed155d4
+- [x] 1.2 `uv run pytest backend/tests/` passes (no regressions) — ed155d4
+- [x] 1.3 `uv run ruff check .` passes — ed155d4
 
 ### Phase 2: R5 — Lock in the CV path ownership guard
 
 #### Automated
 
-- [ ] 2.1 `uv run pytest -k cv_extract` passes (new + existing CV tests)
-- [ ] 2.2 `uv run pytest backend/tests/` passes
+- [x] 2.1 `uv run pytest -k cv_extract` passes (new + existing CV tests)
+- [x] 2.2 `uv run pytest backend/tests/` passes
 
 ### Phase 3: R7 — Add and test cover letter rate limiting
 

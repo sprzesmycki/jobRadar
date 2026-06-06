@@ -11,6 +11,7 @@ from app.core.config import Settings, get_settings
 from app.core.security import AuthenticatedUser, get_current_user
 from app.main import app
 from app.schemas.cv import CvExtractionResponse
+from app.services.storage import StorageNotConfiguredError
 
 
 @pytest.fixture
@@ -416,6 +417,46 @@ def test_cover_letter_returns_503_when_api_key_missing(authed_client: TestClient
             "profile": {"skills": ["Python"]},
         },
     )
+
+    assert response.status_code == 503
+
+
+def test_cv_extract_rejects_cross_user_path(client: TestClient) -> None:
+    async def fake_user_a() -> AuthenticatedUser:
+        return AuthenticatedUser(user_id="user-a", email="a@test.com", role="authenticated", claims={})
+
+    try:
+        app.dependency_overrides[get_current_user] = fake_user_a
+        response = client.post(
+            "/v1/cv/extract",
+            json={"cv": {"bucket": "cvs", "path": "user-b/cv.pdf", "content_type": "application/pdf"}},
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "cv_path_forbidden"
+
+
+def test_cv_extract_accepts_own_path(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    async def fake_user_a() -> AuthenticatedUser:
+        return AuthenticatedUser(user_id="user-a", email="a@test.com", role="authenticated", claims={})
+
+    async def fake_download_fails(*_args: object, **_kwargs: object) -> bytes:
+        raise StorageNotConfiguredError("test")
+
+    monkeypatch.setattr(cv_route, "download_storage_object", fake_download_fails)
+
+    try:
+        app.dependency_overrides[get_current_user] = fake_user_a
+        response = client.post(
+            "/v1/cv/extract",
+            json={"cv": {"bucket": "cvs", "path": "user-a/cv.pdf", "content_type": "application/pdf"}},
+        )
+    finally:
+        app.dependency_overrides.clear()
 
     assert response.status_code == 503
 
