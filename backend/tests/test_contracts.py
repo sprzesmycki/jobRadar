@@ -385,6 +385,21 @@ def test_cover_letter_returns_content_on_success(
     assert len(response.json()["content"]) > 0
 
 
+def test_cover_letter_422_does_not_echo_input(authed_client: TestClient) -> None:
+    response = authed_client.post(
+        "/v1/cover-letter",
+        json={
+            "job": {"external_id": "j1", "source": "test", "title": "Dev", "company": "Acme"},
+            "profile": {"experience": "cv text that must not appear in response"},
+        },
+    )
+
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert all("input" not in entry for entry in detail)
+    assert "cv text that must not appear in response" not in response.text
+
+
 def test_cover_letter_returns_503_when_api_key_missing(authed_client: TestClient) -> None:
     no_key_settings = Settings.model_construct(ai_provider_api_key=None, ai_model_id="GLM-4.5-Air")
     app.dependency_overrides[get_settings] = lambda: no_key_settings
