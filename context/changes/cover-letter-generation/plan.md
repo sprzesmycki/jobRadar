@@ -312,6 +312,15 @@ Separately, delegate `data-cover-letter-copy` clicks to call `navigator.clipboar
 
 Apply migration `20260605160000_create_cover_letters.sql` to Supabase before deploying Phase 3. Migration is non-destructive (new table only).
 
+## Addendum — Unplanned changes applied during implementation
+
+- **`src/pages/api/jobs/score-batch.ts`**: Cookie-only auth was upgraded to dual-mode (cookie or Bearer token) to match the pattern introduced in `cover-letter.ts`. Not in the original plan; benign consistency work.
+- **`backend/tests/test_contracts.py`**: Three contract tests added for the cover-letter route (200, 503, 502 cases). Desirable addition; not in the original plan.
+- **`src/lib/supabase.ts`**: Dead export `createAuthedClient` was added then removed during impl-review triage (F3). No net change.
+- **`src/pages/dashboard.astro`**: Job payload stored as `data-cover-letter-payload` on the toggle button rather than in a separate `<template>` element — functionally equivalent and simpler.
+
+---
+
 ## References
 
 - Related scoring implementation: `context/archive/2026-06-05-cv-based-job-scoring/plan.md`

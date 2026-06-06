@@ -702,6 +702,7 @@ function formatBytes(bytes: number): string {
       const btn = document.querySelector<HTMLElement>(`[data-cover-letter-toggle="${CSS.escape(id)}"]`);
       if (!btn) return;
 
+      errorDiv?.setAttribute("hidden", "");
       loadingDiv?.removeAttribute("hidden");
 
       try {

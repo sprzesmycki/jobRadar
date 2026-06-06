@@ -49,6 +49,7 @@ def _build_user_message(job: JobInput, profile: ProfileInput) -> str:
         if profile.role_hints
         else ""
     )
+    # profile.summary carries full_name as mapped by the TS client (cover-letter.ts)
     candidate_name = f"\nCandidate name: {profile.summary}" if profile.summary else ""
     return (
         f"Job title: {job.title}\n"
@@ -103,10 +104,6 @@ async def generate_cover_letter(
         )
 
     if text.startswith("```"):
-        lines = text.split("\n")
-        text = "\n".join(lines[1:])
-        if text.endswith("```"):
-            text = text[: text.rfind("```")]
-        text = text.strip()
+        text = text.split("```")[1].strip()
 
     return CoverLetterResponse(content=text)
