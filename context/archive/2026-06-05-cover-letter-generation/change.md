@@ -1,11 +1,11 @@
 ---
 change_id: cover-letter-generation
 title: Generate personalized cover letters from CV and job data
-status: impl_reviewed
+status: archived
 created: 2026-06-05
 updated: 2026-06-06
 impl_reviewed_at: 2026-06-06
-archived_at: null
+archived_at: 2026-06-06T19:51:02Z
 ---
 
 ## Notes
