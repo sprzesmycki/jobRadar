@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Annotated, Any
 
 import httpx
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.config import Settings, get_settings
@@ -19,6 +19,7 @@ class AuthenticatedUser:
 
 
 async def get_current_user(
+    request: Request,
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AuthenticatedUser:
@@ -53,6 +54,7 @@ async def get_current_user(
             detail={"code": "invalid_bearer_token", "message": "Bearer token is invalid."},
         )
 
+    request.state.user_id = user.user_id
     return user
 
 
