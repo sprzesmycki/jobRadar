@@ -1,7 +1,7 @@
 ---
 change_id: testing-backend-api-hardening
 title: Phase 1 backend API hardening — error leakage, IDOR, and rate-limit tests
-status: implemented
+status: impl_reviewed
 created: 2026-06-06
 updated: 2026-06-06
 archived_at: null

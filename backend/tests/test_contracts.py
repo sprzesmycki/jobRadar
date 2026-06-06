@@ -407,12 +407,16 @@ def test_cover_letter_422_does_not_echo_input(authed_client: TestClient) -> None
 def test_cover_letter_rate_limit_returns_429(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    import uuid
+
     from fastapi import Request as FastAPIRequest
 
+    unique_user_id = f"ratelimit-test-{uuid.uuid4()}"
+
     async def fake_rate_limit_user(request: FastAPIRequest) -> AuthenticatedUser:
-        request.state.user_id = "ratelimit-test-user"
+        request.state.user_id = unique_user_id
         return AuthenticatedUser(
-            user_id="ratelimit-test-user",
+            user_id=unique_user_id,
             email="ratelimit@test.com",
             role="authenticated",
             claims={},
@@ -445,7 +449,6 @@ def test_cover_letter_rate_limit_returns_429(
 
     try:
         app.dependency_overrides[get_current_user] = fake_rate_limit_user
-        app.dependency_overrides[get_settings] = get_settings
 
         for _ in range(3):
             r = client.post("/v1/cover-letter", json=valid_body)
