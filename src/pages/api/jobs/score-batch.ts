@@ -2,6 +2,8 @@ import type { APIRoute } from "astro";
 import { BACKEND_API_URL } from "astro:env/server";
 import { createClient } from "@/lib/supabase";
 
+export const prerender = false;
+
 interface JobPayload {
   id: string;
   source: string;
@@ -230,7 +232,10 @@ export const POST: APIRoute = async (context) => {
     }));
 
   if (toUpsert.length > 0) {
-    await supabase.from("job_scores").upsert(toUpsert, { onConflict: "user_id,external_id" });
+    const { error: upsertError } = await supabase
+      .from("job_scores")
+      .upsert(toUpsert, { onConflict: "user_id,external_id" });
+    if (upsertError) console.error("[score-batch] upsert failed:", upsertError);
   }
 
   // 5. Merge — only include jobs that were cached or actively scored this call.

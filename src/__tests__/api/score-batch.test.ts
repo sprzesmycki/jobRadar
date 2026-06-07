@@ -25,6 +25,7 @@ const oneJob = {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.resetModules();
 });
 
 describe("score-batch R2: response-shape validation", () => {

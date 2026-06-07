@@ -641,7 +641,15 @@ function formatBytes(bytes: number): string {
 
     async function fireBatch(attempt: number): Promise<void> {
       const pending = [...document.querySelectorAll<HTMLElement>("[data-score-pending='true']")];
-      if (pending.length === 0 || attempt > 6) return;
+      if (pending.length === 0) return;
+      if (attempt > 6) {
+        document.getElementById("scoring-error-banner")?.removeAttribute("hidden");
+        pending.forEach((el) => {
+          el.textContent = "—";
+          el.classList.remove("animate-pulse");
+        });
+        return;
+      }
       const jobs = pending
         .map((el) => {
           try {
