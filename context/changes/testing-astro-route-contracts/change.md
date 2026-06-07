@@ -1,7 +1,7 @@
 ---
 change_id: testing-astro-route-contracts
 title: Astro API route contract tests
-status: implementing
+status: implemented
 created: 2026-06-07
 updated: 2026-06-07
 

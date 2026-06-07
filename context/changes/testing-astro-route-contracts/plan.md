@@ -318,13 +318,13 @@ The R1 change (HTTP 200 → 502 on total failure) is a breaking change to the `/
 
 #### Automated
 
-- [x] 2.1 `npm test` exits 0 with 6 passing tests (3 from Phase 1 + 3 new R1 tests)
-- [x] 2.2 `npm run typecheck` passes
-- [x] 2.3 `npm run lint` passes
-- [x] 2.4 `uv run ruff check .` passes
+- [x] 2.1 `npm test` exits 0 with 6 passing tests (3 from Phase 1 + 3 new R1 tests) — cfff32b
+- [x] 2.2 `npm run typecheck` passes — cfff32b
+- [x] 2.3 `npm run lint` passes — cfff32b
+- [x] 2.4 `uv run ruff check .` passes — cfff32b
 
 #### Manual
 
-- [x] 2.5 `BACKEND_API_URL` pointed at unreachable host → rose error banner appears above job list after retries exhaust
-- [x] 2.6 Page reload → banner hidden on load, reappears after failed retries
-- [x] 2.7 `BACKEND_API_URL` restored to real backend → scoring works normally, no banner
+- [x] 2.5 `BACKEND_API_URL` pointed at unreachable host → rose error banner appears above job list after retries exhaust — cfff32b
+- [x] 2.6 Page reload → banner hidden on load, reappears after failed retries — cfff32b
+- [x] 2.7 `BACKEND_API_URL` restored to real backend → scoring works normally, no banner — cfff32b
