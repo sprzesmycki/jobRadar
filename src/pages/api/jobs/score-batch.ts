@@ -65,6 +65,7 @@ async function scoreOneJob(
         "Content-Type": "application/json",
       },
       body,
+      signal: AbortSignal.timeout(30_000),
     });
 
   let res: Response;
@@ -205,6 +206,13 @@ export const POST: APIRoute = async (context) => {
       computeJobHash(job),
     ]);
     missResults.push({ job, result, hash });
+  }
+
+  if (misses.length > 0 && missResults.every((r) => r.result === null)) {
+    return new Response(JSON.stringify({ error: "Scoring unavailable — all calls failed" }), {
+      status: 502,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   // 4. Upsert successful new scores

@@ -7,9 +7,6 @@ interface ScoreResult {
   missing_skills: string[];
 }
 
-interface ScoreBatchResponse {
-  scores: Record<string, ScoreResult | null>;
-}
 import { createMockContext } from "../helpers/mock-context";
 import { createMockSupabase } from "../helpers/mock-supabase";
 
@@ -52,12 +49,12 @@ describe("score-batch R2: response-shape validation", () => {
     const response = await POST(ctx as never);
 
     expect(response.status).toBe(200);
-    const json = (await response.json()) as ScoreBatchResponse;
+    const json = (await response.json()) as { scores: Record<string, ScoreResult> };
     expect(json.scores["job-1"].score).toBe(85);
     expect(json.scores["job-1"].explanation).toBe("Good match");
   });
 
-  it("returns null for a job when explanation is null in FastAPI response", async () => {
+  it("returns 502 when only job has explanation: null (shape validation + all-fail guard)", async () => {
     const supabase = createMockSupabase();
     mockCreateClient.mockReturnValue(supabase);
 
@@ -75,12 +72,10 @@ describe("score-batch R2: response-shape validation", () => {
     const ctx = createMockContext({ authHeader: "Bearer fake-token", body: { jobs: [oneJob] } });
     const response = await POST(ctx as never);
 
-    expect(response.status).toBe(200);
-    const json = (await response.json()) as ScoreBatchResponse;
-    expect(json.scores["job-1"]).toBeNull();
+    expect(response.status).toBe(502);
   });
 
-  it("returns null for a job when matched_skills is null in FastAPI response", async () => {
+  it("returns 502 when only job has matched_skills: null (shape validation + all-fail guard)", async () => {
     const supabase = createMockSupabase();
     mockCreateClient.mockReturnValue(supabase);
 
@@ -98,8 +93,75 @@ describe("score-batch R2: response-shape validation", () => {
     const ctx = createMockContext({ authHeader: "Bearer fake-token", body: { jobs: [oneJob] } });
     const response = await POST(ctx as never);
 
-    expect(response.status).toBe(200);
-    const json = (await response.json()) as ScoreBatchResponse;
-    expect(json.scores["job-1"]).toBeNull();
+    expect(response.status).toBe(502);
   });
+});
+
+describe("score-batch R1: 502 on all-fail", () => {
+  it("returns 502 when all FastAPI calls return an error status", async () => {
+    const supabase = createMockSupabase();
+    mockCreateClient.mockReturnValue(supabase);
+
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("error", { status: 502 })));
+
+    const { POST } = await import("@/pages/api/jobs/score-batch");
+    const ctx = createMockContext({ authHeader: "Bearer fake-token", body: { jobs: [oneJob] } });
+    const response = await POST(ctx as never);
+
+    expect(response.status).toBe(502);
+    const json = (await response.json()) as { error: string };
+    expect(json.error).toBeTruthy();
+  });
+
+  it("returns 502 when FastAPI times out", async () => {
+    const supabase = createMockSupabase();
+    mockCreateClient.mockReturnValue(supabase);
+
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new DOMException("The operation was aborted", "AbortError")));
+
+    const { POST } = await import("@/pages/api/jobs/score-batch");
+    const ctx = createMockContext({ authHeader: "Bearer fake-token", body: { jobs: [oneJob] } });
+    const response = await POST(ctx as never);
+
+    expect(response.status).toBe(502);
+  });
+
+  it("returns 200 with partial scores when some jobs score and some fail", async () => {
+    const supabase = createMockSupabase();
+    mockCreateClient.mockReturnValue(supabase);
+
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({ score: 90, explanation: "Great", matched_skills: ["TS"], missing_skills: [] }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+        )
+        .mockResolvedValueOnce(new Response("error", { status: 502 })),
+    );
+
+    const twoJobs = [
+      oneJob,
+      {
+        id: "job-2",
+        source: "adzuna",
+        title: "Backend Engineer",
+        company: "Beta",
+        description: null,
+        technologies: [],
+      },
+    ];
+
+    const { POST } = await import("@/pages/api/jobs/score-batch");
+    const ctx = createMockContext({ authHeader: "Bearer fake-token", body: { jobs: twoJobs } });
+    const response = await POST(ctx as never);
+
+    expect(response.status).toBe(200);
+    const json = (await response.json()) as { scores: Record<string, ScoreResult | null> };
+    expect(json.scores["job-1"]?.score).toBe(90);
+    expect(json.scores["job-2"]).toBeNull();
+  }, 10_000);
 });

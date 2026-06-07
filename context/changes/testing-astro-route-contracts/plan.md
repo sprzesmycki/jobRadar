@@ -305,26 +305,26 @@ The R1 change (HTTP 200 → 502 on total failure) is a breaking change to the `/
 
 #### Automated
 
-- [x] 1.1 `npm test` exits 0 with 3 passing tests
-- [x] 1.2 `npm run typecheck` passes with no new errors
-- [x] 1.3 `npm run lint` passes
+- [x] 1.1 `npm test` exits 0 with 3 passing tests — c49d49f
+- [x] 1.2 `npm run typecheck` passes with no new errors — c49d49f
+- [x] 1.3 `npm run lint` passes — c49d49f
 
 #### Manual
 
-- [ ] 1.4 Run `npm test -- --reporter=verbose`; confirm the three R2 test names are visible in output
-- [ ] 1.5 CI `frontend-tests` job appears green on the next push
+- [x] 1.4 Run `npm test -- --reporter=verbose`; confirm the three R2 test names are visible in output
+- [x] 1.5 CI `frontend-tests` job appears green on the next push
 
 ### Phase 2: R1 + R3 error flow fix and tests
 
 #### Automated
 
-- [ ] 2.1 `npm test` exits 0 with 6 passing tests (3 from Phase 1 + 3 new R1 tests)
-- [ ] 2.2 `npm run typecheck` passes
-- [ ] 2.3 `npm run lint` passes
-- [ ] 2.4 `uv run ruff check .` passes
+- [x] 2.1 `npm test` exits 0 with 6 passing tests (3 from Phase 1 + 3 new R1 tests)
+- [x] 2.2 `npm run typecheck` passes
+- [x] 2.3 `npm run lint` passes
+- [x] 2.4 `uv run ruff check .` passes
 
 #### Manual
 
-- [ ] 2.5 `BACKEND_API_URL` pointed at unreachable host → rose error banner appears above job list after retries exhaust
-- [ ] 2.6 Page reload → banner hidden on load, reappears after failed retries
-- [ ] 2.7 `BACKEND_API_URL` restored to real backend → scoring works normally, no banner
+- [x] 2.5 `BACKEND_API_URL` pointed at unreachable host → rose error banner appears above job list after retries exhaust
+- [x] 2.6 Page reload → banner hidden on load, reappears after failed retries
+- [x] 2.7 `BACKEND_API_URL` restored to real backend → scoring works normally, no banner
