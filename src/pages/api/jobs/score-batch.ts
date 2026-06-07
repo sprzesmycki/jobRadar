@@ -86,7 +86,12 @@ async function scoreOneJob(
 
   try {
     const data = (await res.json()) as ScoreResult;
-    if (typeof data.score !== "number") {
+    if (
+      typeof data.score !== "number" ||
+      typeof data.explanation !== "string" ||
+      !Array.isArray(data.matched_skills) ||
+      !Array.isArray(data.missing_skills)
+    ) {
       console.error(`[score-batch] bad shape for job ${job.id}:`, data);
       return null;
     }
