@@ -311,8 +311,8 @@ The R1 change (HTTP 200 → 502 on total failure) is a breaking change to the `/
 
 #### Manual
 
-- [x] 1.4 Run `npm test -- --reporter=verbose`; confirm the three R2 test names are visible in output
-- [x] 1.5 CI `frontend-tests` job appears green on the next push
+- [x] 1.4 Run `npm test -- --reporter=verbose`; confirm the three R2 test names are visible in output — c49d49f
+- [x] 1.5 CI `frontend-tests` job appears green on the next push — c49d49f
 
 ### Phase 2: R1 + R3 error flow fix and tests
 
