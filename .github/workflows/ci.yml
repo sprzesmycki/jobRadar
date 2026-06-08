@@ -9,15 +9,13 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_SKIP_INSTALL_BINARY: true
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npx astro sync
       - run: npm run lint
       - run: npm run build
@@ -27,15 +25,13 @@ jobs:
 
   frontend-tests:
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_SKIP_INSTALL_BINARY: true
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm test
 
   backend-tests:
