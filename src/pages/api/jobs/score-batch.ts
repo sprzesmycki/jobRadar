@@ -2,6 +2,8 @@ import type { APIRoute } from "astro";
 import { BACKEND_API_URL } from "astro:env/server";
 import { createClient } from "@/lib/supabase";
 
+export const prerender = false;
+
 interface JobPayload {
   id: string;
   source: string;
@@ -65,6 +67,7 @@ async function scoreOneJob(
         "Content-Type": "application/json",
       },
       body,
+      signal: AbortSignal.timeout(30_000),
     });
 
   let res: Response;
@@ -86,7 +89,12 @@ async function scoreOneJob(
 
   try {
     const data = (await res.json()) as ScoreResult;
-    if (typeof data.score !== "number") {
+    if (
+      typeof data.score !== "number" ||
+      typeof data.explanation !== "string" ||
+      !Array.isArray(data.matched_skills) ||
+      !Array.isArray(data.missing_skills)
+    ) {
       console.error(`[score-batch] bad shape for job ${job.id}:`, data);
       return null;
     }
@@ -202,6 +210,13 @@ export const POST: APIRoute = async (context) => {
     missResults.push({ job, result, hash });
   }
 
+  if (misses.length > 0 && missResults.every((r) => r.result === null)) {
+    return new Response(JSON.stringify({ error: "Scoring unavailable — all calls failed" }), {
+      status: 502,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   // 4. Upsert successful new scores
   const toUpsert = missResults
     .filter((r): r is { job: JobPayload; result: ScoreResult; hash: string } => r.result !== null)
@@ -217,7 +232,10 @@ export const POST: APIRoute = async (context) => {
     }));
 
   if (toUpsert.length > 0) {
-    await supabase.from("job_scores").upsert(toUpsert, { onConflict: "user_id,external_id" });
+    const { error: upsertError } = await supabase
+      .from("job_scores")
+      .upsert(toUpsert, { onConflict: "user_id,external_id" });
+    if (upsertError) console.error("[score-batch] upsert failed:", upsertError);
   }
 
   // 5. Merge — only include jobs that were cached or actively scored this call.
