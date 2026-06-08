@@ -9,6 +9,8 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_SKIP_INSTALL_BINARY: true
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -25,6 +27,8 @@ jobs:
 
   frontend-tests:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_SKIP_INSTALL_BINARY: true
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
