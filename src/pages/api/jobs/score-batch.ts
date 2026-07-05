@@ -166,7 +166,7 @@ export const POST: APIRoute = async (context) => {
   // 1. Read cv_profiles for current user
   const { data: cvData } = await supabase
     .from("cv_profiles")
-    .select("skills, role_hints, experience_highlights")
+    .select("skills, experience_highlights")
     .eq("user_id", user.id)
     .maybeSingle();
 
