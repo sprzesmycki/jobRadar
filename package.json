@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "db:types": "echo '// GENERATED FILE — do not edit by hand. Regenerate with: npm run db:types (requires a running local Supabase stack: supabase start)' > src/lib/database.types.ts && supabase gen types typescript --local >> src/lib/database.types.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
