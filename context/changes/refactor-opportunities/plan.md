@@ -224,12 +224,12 @@ Brak migracji DB. `database.types.ts` jest generowany ze *stanu obecnego* schema
 ### Phase 1: C3b — usuń martwą kolumnę `role_hints` (szybki zysk)
 
 #### Automated
-- [x] 1.1 Typecheck/build przechodzi: `npm run build`
-- [x] 1.2 Testy frontendu zielone: `npm test`
-- [x] 1.3 `role_hints` nieobecny w `score-batch.ts`
+- [x] 1.1 Typecheck/build przechodzi: `npm run build` — 3e8f25c
+- [x] 1.2 Testy frontendu zielone: `npm test` — 3e8f25c
+- [x] 1.3 `role_hints` nieobecny w `score-batch.ts` — 3e8f25c
 
 #### Manual
-- [ ] 1.4 Scoring ofert działa jak przed zmianą
+- [x] 1.4 Scoring ofert działa jak przed zmianą — 3e8f25c
 
 ### Phase 2: Testy charakteryzujące szwu read/normalize (test przed dotknięciem)
 
