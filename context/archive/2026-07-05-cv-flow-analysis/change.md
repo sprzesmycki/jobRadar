@@ -1,10 +1,10 @@
 ---
 change_id: cv-flow-analysis
 title: Analiza przepływu danych w korytarzu CV (upload + ekstrakcja)
-status: preparing
+status: archived
 created: 2026-07-05
 updated: 2026-07-05
-archived_at: null
+archived_at: 2026-07-05T16:07:23Z
 ---
 
 ## Notes
