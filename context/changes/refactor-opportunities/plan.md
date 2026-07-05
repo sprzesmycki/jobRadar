@@ -234,21 +234,21 @@ Brak migracji DB. `database.types.ts` jest generowany ze *stanu obecnego* schema
 ### Phase 2: Testy charakteryzujące szwu read/normalize (test przed dotknięciem)
 
 #### Automated
-- [x] 2.1 Nowe testy przechodzą: `npm test`
-- [x] 2.2 Build/typecheck zielony: `npm run build`
+- [x] 2.1 Nowe testy przechodzą: `npm test` — 21afaff
+- [x] 2.2 Build/typecheck zielony: `npm run build` — 21afaff
 
 #### Manual
-- [x] 2.3 Testy pinują obecne zachowanie (świadome utrwalenie kształtu)
+- [x] 2.3 Testy pinują obecne zachowanie (świadome utrwalenie kształtu) — 21afaff
 
 ### Phase 3: Generacja `Database` types (mechanizm — ląduje na zielono)
 
 #### Automated
-- [ ] 3.1 Skrypt generuje plik: `npm run db:types`
-- [ ] 3.2 Plik zawiera `cv_profiles` z 7 kolumnami semantycznymi (kompletny schemat)
-- [ ] 3.3 Build/typecheck/testy zielone (klient nietypowany)
+- [x] 3.1 Skrypt generuje plik: `npm run db:types`
+- [x] 3.2 Plik zawiera `cv_profiles` z 7 kolumnami semantycznymi (kompletny schemat)
+- [x] 3.3 Build/typecheck/testy zielone (klient nietypowany)
 
 #### Manual
-- [ ] 3.4 Kształt `cv_profiles` zgodny z migracją
+- [x] 3.4 Kształt `cv_profiles` zgodny z migracją
 
 ### Phase 4: Typowany helper zapytań `cv_profiles` (egzekwowanie — pilot)
 
