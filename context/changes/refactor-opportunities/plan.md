@@ -243,20 +243,20 @@ Brak migracji DB. `database.types.ts` jest generowany ze *stanu obecnego* schema
 ### Phase 3: Generacja `Database` types (mechanizm — ląduje na zielono)
 
 #### Automated
-- [x] 3.1 Skrypt generuje plik: `npm run db:types`
-- [x] 3.2 Plik zawiera `cv_profiles` z 7 kolumnami semantycznymi (kompletny schemat)
-- [x] 3.3 Build/typecheck/testy zielone (klient nietypowany)
+- [x] 3.1 Skrypt generuje plik: `npm run db:types` — ccef121
+- [x] 3.2 Plik zawiera `cv_profiles` z 7 kolumnami semantycznymi (kompletny schemat) — ccef121
+- [x] 3.3 Build/typecheck/testy zielone (klient nietypowany) — ccef121
 
 #### Manual
-- [x] 3.4 Kształt `cv_profiles` zgodny z migracją
+- [x] 3.4 Kształt `cv_profiles` zgodny z migracją — ccef121
 
 ### Phase 4: Typowany helper zapytań `cv_profiles` (egzekwowanie — pilot)
 
 #### Automated
-- [ ] 4.1 Build/typecheck zielony: `npm run build`
-- [ ] 4.2 Testy charakteryzujące dalej przechodzą
-- [ ] 4.3 Guard działa: celowe zepsucie kolumny łamie build, potem cofnięte
+- [x] 4.1 Build/typecheck zielony: `npm run build`
+- [x] 4.2 Testy charakteryzujące dalej przechodzą
+- [x] 4.3 Guard działa: celowe zepsucie kolumny łamie build, potem cofnięte
 
 #### Manual
-- [ ] 4.4 Karta profilu CV renderuje się jak przed zmianą
-- [ ] 4.5 Zakres pilota udokumentowany (pozostałe select-y jako follow-up)
+- [x] 4.4 Karta profilu CV renderuje się jak przed zmianą
+- [x] 4.5 Zakres pilota udokumentowany (pozostałe select-y jako follow-up)
