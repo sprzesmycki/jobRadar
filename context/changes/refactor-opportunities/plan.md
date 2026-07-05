@@ -234,11 +234,11 @@ Brak migracji DB. `database.types.ts` jest generowany ze *stanu obecnego* schema
 ### Phase 2: Testy charakteryzujące szwu read/normalize (test przed dotknięciem)
 
 #### Automated
-- [ ] 2.1 Nowe testy przechodzą: `npm test`
-- [ ] 2.2 Build/typecheck zielony: `npm run build`
+- [x] 2.1 Nowe testy przechodzą: `npm test`
+- [x] 2.2 Build/typecheck zielony: `npm run build`
 
 #### Manual
-- [ ] 2.3 Testy pinują obecne zachowanie (świadome utrwalenie kształtu)
+- [x] 2.3 Testy pinują obecne zachowanie (świadome utrwalenie kształtu)
 
 ### Phase 3: Generacja `Database` types (mechanizm — ląduje na zielono)
 

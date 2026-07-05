@@ -1,7 +1,7 @@
 ---
 change_id: refactor-opportunities
 title: Refactor opportunities dla korytarza CV — eksploracja, ranking, decyzja, plan
-status: impl_reviewed
+status: implementing
 created: 2026-07-05
 updated: 2026-07-05
 archived_at: null

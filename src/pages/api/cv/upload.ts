@@ -40,7 +40,7 @@ function readStringOrNull(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
 }
 
-function normalizeProfile(value: unknown): ExtractedProfile {
+export function normalizeProfile(value: unknown): ExtractedProfile {
   const profile = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
   return {
     full_name: readStringOrNull(profile.full_name),
