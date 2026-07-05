@@ -253,10 +253,10 @@ Brak migracji DB. `database.types.ts` jest generowany ze *stanu obecnego* schema
 ### Phase 4: Typowany helper zapytań `cv_profiles` (egzekwowanie — pilot)
 
 #### Automated
-- [x] 4.1 Build/typecheck zielony: `npm run build`
-- [x] 4.2 Testy charakteryzujące dalej przechodzą
-- [x] 4.3 Guard działa: celowe zepsucie kolumny łamie build, potem cofnięte
+- [x] 4.1 Build/typecheck zielony: `npm run build` — 841f6fa
+- [x] 4.2 Testy charakteryzujące dalej przechodzą — 841f6fa
+- [x] 4.3 Guard działa: celowe zepsucie kolumny łamie build, potem cofnięte — 841f6fa
 
 #### Manual
-- [x] 4.4 Karta profilu CV renderuje się jak przed zmianą
-- [x] 4.5 Zakres pilota udokumentowany (pozostałe select-y jako follow-up)
+- [x] 4.4 Karta profilu CV renderuje się jak przed zmianą — 841f6fa
+- [x] 4.5 Zakres pilota udokumentowany (pozostałe select-y jako follow-up) — 841f6fa
