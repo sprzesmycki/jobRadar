@@ -177,9 +177,9 @@ Włączenie guardu: odczyt `cv_profiles` (co najmniej `getCvProfile`) idzie prze
 
 #### Automated Verification:
 
-- Build/typecheck zielony: `npm run build`
+- Typecheck zielony: `npm run typecheck` (astro check). Uwaga: `npm run build` = `astro build` NIE typuje — guard łapie tylko `astro check`.
 - Testy charakteryzujące dalej przechodzą (zachowanie niezmienione): `npm test`
-- **Guard działa (celowe zepsucie):** tymczasowy rename kolumny w `database.types.ts` (np. `skills`→`skillz`) powoduje błąd kompilacji w `cv-profile.ts` — potwierdzić, że `npm run build` failuje, potem cofnąć.
+- **Guard działa (celowe zepsucie):** tymczasowy rename kolumny w `database.types.ts` (np. `skills`→`skillz`) powoduje błąd kompilacji w `cv-profile.ts` — potwierdzić, że `npm run typecheck` failuje (`npm run build` przechodzi mimo złego typu — nie typuje), potem cofnąć. Bramka CI: `npm run typecheck` (`ci.yml`, commit `8a62cdf`).
 
 #### Manual Verification:
 
@@ -253,9 +253,9 @@ Brak migracji DB. `database.types.ts` jest generowany ze *stanu obecnego* schema
 ### Phase 4: Typowany helper zapytań `cv_profiles` (egzekwowanie — pilot)
 
 #### Automated
-- [x] 4.1 Build/typecheck zielony: `npm run build` — 841f6fa
+- [x] 4.1 Typecheck zielony: `npm run typecheck` (astro check; `npm run build` nie typuje) — 841f6fa
 - [x] 4.2 Testy charakteryzujące dalej przechodzą — 841f6fa
-- [x] 4.3 Guard działa: celowe zepsucie kolumny łamie build, potem cofnięte — 841f6fa
+- [x] 4.3 Guard działa: celowe zepsucie kolumny łamie `npm run typecheck` (astro check), potem cofnięte — zweryfikowane w impl-review 2026-07-05; bramka CI `8a62cdf` — 841f6fa
 
 #### Manual
 - [x] 4.4 Karta profilu CV renderuje się jak przed zmianą — 841f6fa
