@@ -66,11 +66,22 @@ function main() {
     return;
   }
 
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  } catch {
+    console.error(`Malformed manifest at ${manifestPath}; aborting to avoid a partial removal.`);
+    process.exit(1);
+  }
 
   // 1. Delete exactly the recorded skill files, then prune emptied dirs.
   for (const rel of manifest.files || []) {
-    const full = path.join(targetDir, ...rel.split("/"));
+    const full = path.resolve(targetDir, ...rel.split("/"));
+    // Path safety: never delete outside the target, even if the manifest is tampered.
+    if (full !== targetDir && !full.startsWith(targetDir + path.sep)) {
+      console.warn(`Skipping manifest entry outside target: ${rel}`);
+      continue;
+    }
     if (fs.existsSync(full)) fs.rmSync(full);
     pruneEmptyDirs(path.dirname(full), claudeDir);
   }

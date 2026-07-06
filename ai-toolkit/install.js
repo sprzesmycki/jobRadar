@@ -59,8 +59,19 @@ function main() {
 
   const targetDir = path.resolve(targetArg);
   const skillsSrc = path.join(PKG_DIR, "skills");
+  const rulesSrc = path.join(PKG_DIR, "rules", "CLAUDE.md");
   const claudeDir = path.join(targetDir, ".claude");
   const skillsDest = path.join(claudeDir, "skills");
+
+  // Fail fast with actionable messages rather than raw ENOENT.
+  if (!fs.existsSync(targetDir) || !fs.statSync(targetDir).isDirectory()) {
+    console.error(`Target directory does not exist: ${targetDir}`);
+    process.exit(1);
+  }
+  if (!fs.existsSync(skillsSrc) || !fs.existsSync(rulesSrc)) {
+    console.error("Package appears incomplete: missing skills/ or rules/CLAUDE.md.");
+    process.exit(1);
+  }
 
   // 1. Copy skills into the target's .claude/skills, creating dirs as needed.
   const installed = [];
@@ -74,7 +85,7 @@ function main() {
   }
 
   // 2. Splice team rules into the target CLAUDE.md between sentinel markers.
-  const teamRules = fs.readFileSync(path.join(PKG_DIR, "rules", "CLAUDE.md"), "utf8");
+  const teamRules = fs.readFileSync(rulesSrc, "utf8");
   const claudeMd = path.join(targetDir, "CLAUDE.md");
   const existing = fs.existsSync(claudeMd) ? fs.readFileSync(claudeMd, "utf8") : "";
   fs.writeFileSync(claudeMd, applyRules(existing, teamRules));
