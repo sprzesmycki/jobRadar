@@ -320,10 +320,10 @@ Phase 1 refactors production `scoring.py`/`cover_letter.py`. It is behavior-pres
 
 #### Automated
 
-- [x] 4.1 Run completed `success` (`gh run list --workflow "AI Code Review"`)
-- [x] 4.2 PR comment contains "AI Code Review"
+- [x] 4.1 Run completed `success` (`gh run list --workflow "AI Code Review"`) — 314b7e5
+- [x] 4.2 PR comment contains "AI Code Review" — 314b7e5
 
 #### Manual
 
-- [x] 4.3 PR shows the comment + `ai-cr:*` label
+- [x] 4.3 PR shows the comment + `ai-cr:*` label — 314b7e5
 - [ ] 4.4 Three evidence screenshots saved under `context/team/champion-evidence/`
