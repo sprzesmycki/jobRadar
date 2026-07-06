@@ -263,10 +263,10 @@ Not applicable — greenfield scaffold, no existing data.
 
 #### Automated
 
-- [x] 3.1 Round-trip clean: install then uninstall removes skill, markers, manifest
-- [x] 3.2 User content preserved after uninstall
-- [x] 3.3 Safe no-op: uninstall with no manifest exits 0
+- [x] 3.1 Round-trip clean: install then uninstall removes skill, markers, manifest — 0d5ccc1
+- [x] 3.2 User content preserved after uninstall — 0d5ccc1
+- [x] 3.3 Safe no-op: uninstall with no manifest exits 0 — 0d5ccc1
 
 #### Manual
 
-- [x] 3.4 After round-trip, CLAUDE.md is visually clean (no orphaned markers/blank blocks)
+- [x] 3.4 After round-trip, CLAUDE.md is visually clean (no orphaned markers/blank blocks) — 0d5ccc1
