@@ -1,10 +1,10 @@
 ---
 change_id: minimal-ai-toolkit-package
 title: Minimal GitHub Packages AI toolkit skeleton (M5L4 learning exercise)
-status: impl_reviewed
+status: archived
 created: 2026-07-06
 updated: 2026-07-06
-archived_at: null
+archived_at: 2026-07-06T07:41:11Z
 ---
 
 ## Notes
