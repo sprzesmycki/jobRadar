@@ -1,0 +1,32 @@
+# Illustrative CI workflow — publishes the toolkit to GitHub Packages on merge to main.
+# Never executed in this learning exercise; documentation-as-code (M5L4 Model 1).
+name: Publish AI Toolkit
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai-toolkit
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://npm.pkg.github.com"
+
+      - name: Publish package
+        run: npm publish
+        env:
+          # Ephemeral write token injected by GitHub Actions for a single run.
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
