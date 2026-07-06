@@ -285,13 +285,13 @@ Phase 1 refactors production `scoring.py`/`cover_letter.py`. It is behavior-pres
 
 #### Automated
 
-- [ ] 1.1 New factory test passes (`uv run pytest tests/test_zai.py`)
-- [ ] 1.2 Full backend suite green, 27 passed (`uv run pytest -q`)
-- [ ] 1.3 Lint/format clean (`uv run ruff check .`)
+- [x] 1.1 New factory test passes (`uv run pytest tests/test_zai.py`)
+- [x] 1.2 Full backend suite green, 27 passed (`uv run pytest -q`)
+- [x] 1.3 Lint/format clean (`uv run ruff check .`)
 
 #### Manual
 
-- [ ] 1.4 `grep _zhipu_jwt backend/app` shows only the `zai.py` definition
+- [x] 1.4 `grep _zhipu_jwt backend/app` shows only the `zai.py` definition
 
 ### Phase 2: Reviewer (z.ai agent)
 
