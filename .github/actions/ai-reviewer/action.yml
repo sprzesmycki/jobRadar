@@ -1,0 +1,48 @@
+name: AI Reviewer
+description: Run the z.ai/GLM code reviewer on a diff and emit a verdict.
+
+inputs:
+  api-key:
+    description: z.ai API key in '{id}.{secret}' format.
+    required: true
+  diff-path:
+    description: Workspace-relative path to the unified diff to review.
+    required: true
+  pr-title:
+    description: Pull request title.
+    required: false
+    default: ""
+  pr-body:
+    description: Pull request body.
+    required: false
+    default: ""
+
+outputs:
+  verdict:
+    description: overall_verdict from the review (APPROVED / COMMENTED / REJECTED).
+    value: ${{ steps.review.outputs.verdict }}
+
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@v6
+      with:
+        version: "latest"
+    - id: review
+      shell: bash
+      working-directory: backend
+      env:
+        AI_PROVIDER_API_KEY: ${{ inputs.api-key }}
+        PR_TITLE: ${{ inputs.pr-title }}
+        PR_BODY: ${{ inputs.pr-body }}
+      run: |
+        uv sync
+        uv run python scripts/pr_review.py \
+          --diff-file "${{ github.workspace }}/${{ inputs.diff-path }}" \
+          --title "$PR_TITLE" \
+          --body "$PR_BODY" \
+          --criteria-file "${{ github.workspace }}/context/foundation/review-criteria.md" \
+          --out-json "${{ github.workspace }}/review.json" \
+          --out-md "${{ github.workspace }}/review.md"
+        verdict=$(uv run python -c "import json; print(json.load(open('${{ github.workspace }}/review.json'))['overall_verdict'])")
+        echo "verdict=$verdict" >> "$GITHUB_OUTPUT"

@@ -297,19 +297,19 @@ Phase 1 refactors production `scoring.py`/`cover_letter.py`. It is behavior-pres
 
 #### Automated
 
-- [x] 2.1 Reviewer tests pass (`uv run pytest tests/test_pr_review.py`)
-- [x] 2.2 Full suite green (`uv run pytest -q`)
-- [x] 2.3 Lint clean (`uv run ruff check scripts tests`)
+- [x] 2.1 Reviewer tests pass (`uv run pytest tests/test_pr_review.py`) — 963c258
+- [x] 2.2 Full suite green (`uv run pytest -q`) — 963c258
+- [x] 2.3 Lint clean (`uv run ruff check scripts tests`) — 963c258
 
 #### Manual
 
-- [x] 2.4 Local dry-run on the fixture yields a low/`REJECTED` verdict
+- [x] 2.4 Local dry-run on the fixture yields a low/`REJECTED` verdict — 963c258
 
 ### Phase 3: CI wiring (composite action + workflow)
 
 #### Automated
 
-- [ ] 3.1 Both YAML files parse
+- [x] 3.1 Both YAML files parse
 - [ ] 3.2 Branch pushed and PR created (`gh pr view --json url`)
 
 #### Manual
