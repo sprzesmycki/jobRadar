@@ -233,31 +233,31 @@ Not applicable — greenfield scaffold, no existing data.
 
 #### Automated
 
-- [x] 1.1 Directory structure exists (package.json, SKILL.md, rules/CLAUDE.md, workflow)
-- [x] 1.2 package.json is valid JSON
-- [x] 1.3 npm pack --dry-run exits 0 and lists whitelisted files
-- [x] 1.4 Rules file does not contain sentinel markers
+- [x] 1.1 Directory structure exists (package.json, SKILL.md, rules/CLAUDE.md, workflow) — 9fbed3e
+- [x] 1.2 package.json is valid JSON — 9fbed3e
+- [x] 1.3 npm pack --dry-run exits 0 and lists whitelisted files — 9fbed3e
+- [x] 1.4 Rules file does not contain sentinel markers — 9fbed3e
 
 #### Manual
 
-- [x] 1.5 SKILL.md and rules/CLAUDE.md read as plausible placeholder artifacts
-- [x] 1.6 publishConfig.registry and workflow token usage match M5L4 Model 1
+- [x] 1.5 SKILL.md and rules/CLAUDE.md read as plausible placeholder artifacts — 9fbed3e
+- [x] 1.6 publishConfig.registry and workflow token usage match M5L4 Model 1 — 9fbed3e
 
 ### Phase 2: Installer (copy mode)
 
 #### Automated
 
-- [ ] 2.1 Fresh install into sandbox creates the skill file
-- [ ] 2.2 Manifest exists and is valid JSON recording the skill file
-- [ ] 2.3 Rules injected exactly once (marker count = 1)
-- [ ] 2.4 Second install is idempotent (marker count still 1, skill present)
-- [ ] 2.5 Corrupted-block guard: install with only BEGIN marker exits non-zero
-- [ ] 2.6 Pre-existing user content outside the block is preserved
+- [x] 2.1 Fresh install into sandbox creates the skill file
+- [x] 2.2 Manifest exists and is valid JSON recording the skill file
+- [x] 2.3 Rules injected exactly once (marker count = 1)
+- [x] 2.4 Second install is idempotent (marker count still 1, skill present)
+- [x] 2.5 Corrupted-block guard: install with only BEGIN marker exits non-zero
+- [x] 2.6 Pre-existing user content outside the block is preserved
 
 #### Manual
 
-- [ ] 2.7 Injected block reads correctly inside a realistic CLAUDE.md
-- [ ] 2.8 Copied SKILL.md is byte-identical to source
+- [x] 2.7 Injected block reads correctly inside a realistic CLAUDE.md
+- [x] 2.8 Copied SKILL.md is byte-identical to source
 
 ### Phase 3: Uninstaller
 
