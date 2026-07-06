@@ -11,7 +11,8 @@ import json
 import os
 import sys
 
-from pydantic import BaseModel, Field
+from openai import OpenAIError
+from pydantic import BaseModel, Field, ValidationError
 
 from app.services.zai import zai_client
 
@@ -154,8 +155,16 @@ def main(argv: list[str] | None = None) -> int:
         with open(args.criteria_file, encoding="utf-8") as f:
             criteria = f.read()
         messages = build_messages(args.title, args.body, diff, criteria)
-        raw = asyncio.run(run_review(api_key, model, messages))
-        result = parse_review_json(raw)
+        try:
+            raw = asyncio.run(run_review(api_key, model, messages))
+        except OpenAIError as exc:
+            print(f"z.ai review request failed: {exc}", file=sys.stderr)
+            return 1
+        try:
+            result = parse_review_json(raw)
+        except (json.JSONDecodeError, ValidationError) as exc:
+            print(f"z.ai returned an unparseable review: {exc}", file=sys.stderr)
+            return 1
 
     with open(args.out_json, "w", encoding="utf-8") as f:
         f.write(result.model_dump_json())
@@ -163,6 +172,7 @@ def main(argv: list[str] | None = None) -> int:
         f.write(render_markdown(result))
 
     print(f"verdict={result.overall_verdict}")
+    print(f"label={verdict_to_label(result.overall_verdict)}")
     return 0
 
 

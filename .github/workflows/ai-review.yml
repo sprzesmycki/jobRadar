@@ -52,8 +52,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           num="${{ github.event.pull_request.number }}"
-          if [ "${{ steps.ai.outputs.verdict }}" = "APPROVED" ]; then
-            gh pr edit "$num" --add-label "ai-cr:passed" --remove-label "ai-cr:failed"
-          else
-            gh pr edit "$num" --add-label "ai-cr:failed" --remove-label "ai-cr:passed"
-          fi
+          label="${{ steps.ai.outputs.label }}"
+          opposite="ai-cr:failed"
+          [ "$label" = "ai-cr:failed" ] && opposite="ai-cr:passed"
+          gh pr edit "$num" --add-label "$label" --remove-label "$opposite"

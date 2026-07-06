@@ -21,6 +21,9 @@ outputs:
   verdict:
     description: overall_verdict from the review (APPROVED / COMMENTED / REJECTED).
     value: ${{ steps.review.outputs.verdict }}
+  label:
+    description: The ai-cr:* label the verdict maps to (single-sourced in pr_review.py).
+    value: ${{ steps.review.outputs.label }}
 
 runs:
   using: composite
@@ -38,12 +41,12 @@ runs:
         PYTHONPATH: ${{ github.workspace }}/backend
       run: |
         uv sync
-        uv run python scripts/pr_review.py \
+        out=$(uv run python scripts/pr_review.py \
           --diff-file "${{ github.workspace }}/${{ inputs.diff-path }}" \
           --title "$PR_TITLE" \
           --body "$PR_BODY" \
           --criteria-file "${{ github.workspace }}/context/foundation/review-criteria.md" \
           --out-json "${{ github.workspace }}/review.json" \
-          --out-md "${{ github.workspace }}/review.md"
-        verdict=$(uv run python -c "import json; print(json.load(open('${{ github.workspace }}/review.json'))['overall_verdict'])")
-        echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+          --out-md "${{ github.workspace }}/review.md")
+        echo "$out"
+        echo "$out" | grep -E '^(verdict|label)=' >> "$GITHUB_OUTPUT"

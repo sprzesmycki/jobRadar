@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from openai import OpenAIError
 from pydantic import ValidationError
 
 from scripts import pr_review
@@ -133,4 +134,61 @@ def test_main_returns_1_when_key_missing(tmp_path, monkeypatch):
             str(tmp_path / "review.md"),
         ]
     )
+    assert rc == 1
+
+
+def _cli_argv(tmp_path):
+    return [
+        "--diff-file",
+        str(tmp_path / "pr.diff"),
+        "--criteria-file",
+        str(tmp_path / "criteria.md"),
+        "--out-json",
+        str(tmp_path / "review.json"),
+        "--out-md",
+        str(tmp_path / "review.md"),
+    ]
+
+
+def test_main_empty_diff_approves_without_calling_model(tmp_path, monkeypatch):
+    (tmp_path / "pr.diff").write_text("   \n", encoding="utf-8")  # whitespace only
+    (tmp_path / "criteria.md").write_text("c", encoding="utf-8")
+
+    async def boom(*args, **kwargs):
+        raise AssertionError("run_review must not be called for an empty diff")
+
+    monkeypatch.setattr(pr_review, "run_review", boom)
+    monkeypatch.setenv("AI_PROVIDER_API_KEY", "id.secret")
+
+    rc = pr_review.main(_cli_argv(tmp_path))
+    assert rc == 0
+    assert json.loads((tmp_path / "review.json").read_text())["overall_verdict"] == "APPROVED"
+
+
+def test_main_returns_1_on_api_error(tmp_path, monkeypatch):
+    (tmp_path / "pr.diff").write_text("diff --git a/x b/x\n+bad", encoding="utf-8")
+    (tmp_path / "criteria.md").write_text("c", encoding="utf-8")
+
+    async def fake_run_review(*args, **kwargs):
+        raise OpenAIError("upstream 503")
+
+    monkeypatch.setattr(pr_review, "run_review", fake_run_review)
+    monkeypatch.setenv("AI_PROVIDER_API_KEY", "id.secret")
+
+    rc = pr_review.main(_cli_argv(tmp_path))
+    assert rc == 1
+    assert not (tmp_path / "review.json").exists()
+
+
+def test_main_returns_1_on_malformed_model_json(tmp_path, monkeypatch):
+    (tmp_path / "pr.diff").write_text("diff --git a/x b/x\n+bad", encoding="utf-8")
+    (tmp_path / "criteria.md").write_text("c", encoding="utf-8")
+
+    async def fake_run_review(*args, **kwargs):
+        return "sorry, I cannot produce JSON"
+
+    monkeypatch.setattr(pr_review, "run_review", fake_run_review)
+    monkeypatch.setenv("AI_PROVIDER_API_KEY", "id.secret")
+
+    rc = pr_review.main(_cli_argv(tmp_path))
     assert rc == 1

@@ -85,6 +85,12 @@ Extract the duplicated JWT + client construction into one factory and point both
 
 **Contract**: Test that `_zhipu_jwt("id.secret")` returns 3 dot-separated segments, the decoded header equals `{"alg":"HS256","sign_type":"SIGN"}`, and payload `api_key == "id"` with `exp > timestamp`; test that `zai_client("id.secret")` is an `AsyncOpenAI` whose `base_url` equals `ZAI_BASE_URL`.
 
+#### 5. Repoint test monkeypatch targets
+
+**File**: `backend/tests/test_contracts.py`
+
+**Intent**: The dedup moves `AsyncOpenAI` instantiation into `zai.py`, so tests patching `app.services.scoring.AsyncOpenAI` / `app.services.cover_letter.AsyncOpenAI` must repoint to `app.services.zai.AsyncOpenAI`. (Recorded retroactively per impl-review F5 — a required consequence of the refactor, not new scope.)
+
 ### Success Criteria:
 
 #### Automated Verification:
