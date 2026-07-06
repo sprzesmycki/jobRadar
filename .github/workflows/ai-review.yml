@@ -1,0 +1,58 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.action == 'opened' ||
+      github.event.action == 'synchronize' ||
+      (github.event.action == 'labeled' && github.event.label.name == 'ai-cr:review')
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Compute PR diff
+        run: |
+          base="${{ github.event.pull_request.base.ref }}"
+          base="${base:-main}"
+          git fetch origin "$base"
+          git diff "origin/$base...HEAD" > pr.diff
+          echo "diff lines: $(wc -l < pr.diff)"
+      - name: Ensure labels exist
+        run: |
+          gh label create "ai-cr:review" --color FBCA04 --description "Request an AI code review" --force
+          gh label create "ai-cr:passed" --color 0E8A16 --description "AI code review passed" --force
+          gh label create "ai-cr:failed" --color D93F0B --description "AI code review failed" --force
+      - id: ai
+        uses: ./.github/actions/ai-reviewer
+        with:
+          api-key: ${{ secrets.AI_PROVIDER_API_KEY }}
+          diff-path: pr.diff
+          pr-title: ${{ github.event.pull_request.title }}
+          pr-body: ${{ github.event.pull_request.body }}
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        run: gh pr comment "${{ github.event.pull_request.number }}" --body-file review.md
+      - name: Apply verdict label
+        if: github.event_name == 'pull_request'
+        run: |
+          num="${{ github.event.pull_request.number }}"
+          label="${{ steps.ai.outputs.label }}"
+          opposite="ai-cr:failed"
+          [ "$label" = "ai-cr:failed" ] && opposite="ai-cr:passed"
+          gh pr edit "$num" --add-label "$label" --remove-label "$opposite"

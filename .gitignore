@@ -41,6 +41,9 @@ Thumbs.db
 # Fly.io
 .fly/
 
+# Local course/lesson notes (keep docs/test-fixtures and docs/reference tracked)
+/docs/*.md
+
 # Local brainstorming artifacts
 .superpowers/
 

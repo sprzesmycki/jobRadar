@@ -311,7 +311,7 @@ def test_job_scoring_returns_structured_result(
     mock_client_instance = MagicMock()
     mock_client_instance.chat.completions.create = AsyncMock(return_value=mock_completion)
     MockAsyncOpenAI = MagicMock(return_value=mock_client_instance)
-    monkeypatch.setattr("app.services.scoring.AsyncOpenAI", MockAsyncOpenAI)
+    monkeypatch.setattr("app.services.zai.AsyncOpenAI", MockAsyncOpenAI)
 
     # get_settings uses @lru_cache — set env var and flush cache so the real
     # get_settings() reads the key without relying on a local .env file
@@ -360,7 +360,7 @@ def test_cover_letter_returns_content_on_success(
     mock_client_instance = MagicMock()
     mock_client_instance.chat.completions.create = AsyncMock(return_value=mock_completion)
     MockAsyncOpenAI = MagicMock(return_value=mock_client_instance)
-    monkeypatch.setattr("app.services.cover_letter.AsyncOpenAI", MockAsyncOpenAI)
+    monkeypatch.setattr("app.services.zai.AsyncOpenAI", MockAsyncOpenAI)
 
     monkeypatch.setenv("AI_PROVIDER_API_KEY", "test-id.test-secret")
     get_settings.cache_clear()
@@ -432,7 +432,7 @@ def test_cover_letter_rate_limit_returns_429(
     mock_client_instance = MagicMock()
     mock_client_instance.chat.completions.create = AsyncMock(return_value=mock_completion)
     MockAsyncOpenAI = MagicMock(return_value=mock_client_instance)
-    monkeypatch.setattr("app.services.cover_letter.AsyncOpenAI", MockAsyncOpenAI)
+    monkeypatch.setattr("app.services.zai.AsyncOpenAI", MockAsyncOpenAI)
 
     monkeypatch.setenv("AI_PROVIDER_API_KEY", "test-id.test-secret")
     get_settings.cache_clear()
@@ -537,7 +537,7 @@ def test_cover_letter_returns_502_on_api_error(
         side_effect=OpenAIError("connection failed")
     )
     MockAsyncOpenAI = MagicMock(return_value=mock_client_instance)
-    monkeypatch.setattr("app.services.cover_letter.AsyncOpenAI", MockAsyncOpenAI)
+    monkeypatch.setattr("app.services.zai.AsyncOpenAI", MockAsyncOpenAI)
 
     monkeypatch.setenv("AI_PROVIDER_API_KEY", "test-id.test-secret")
     get_settings.cache_clear()
