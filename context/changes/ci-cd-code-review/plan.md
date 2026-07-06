@@ -285,25 +285,25 @@ Phase 1 refactors production `scoring.py`/`cover_letter.py`. It is behavior-pres
 
 #### Automated
 
-- [x] 1.1 New factory test passes (`uv run pytest tests/test_zai.py`)
-- [x] 1.2 Full backend suite green, 27 passed (`uv run pytest -q`)
-- [x] 1.3 Lint/format clean (`uv run ruff check .`)
+- [x] 1.1 New factory test passes (`uv run pytest tests/test_zai.py`) — e5fbd80
+- [x] 1.2 Full backend suite green, 27 passed (`uv run pytest -q`) — e5fbd80
+- [x] 1.3 Lint/format clean (`uv run ruff check .`) — e5fbd80
 
 #### Manual
 
-- [x] 1.4 `grep _zhipu_jwt backend/app` shows only the `zai.py` definition
+- [x] 1.4 `grep _zhipu_jwt backend/app` shows only the `zai.py` definition — e5fbd80
 
 ### Phase 2: Reviewer (z.ai agent)
 
 #### Automated
 
-- [ ] 2.1 Reviewer tests pass (`uv run pytest tests/test_pr_review.py`)
-- [ ] 2.2 Full suite green (`uv run pytest -q`)
-- [ ] 2.3 Lint clean (`uv run ruff check scripts tests`)
+- [x] 2.1 Reviewer tests pass (`uv run pytest tests/test_pr_review.py`)
+- [x] 2.2 Full suite green (`uv run pytest -q`)
+- [x] 2.3 Lint clean (`uv run ruff check scripts tests`)
 
 #### Manual
 
-- [ ] 2.4 Local dry-run on the fixture yields a low/`REJECTED` verdict
+- [x] 2.4 Local dry-run on the fixture yields a low/`REJECTED` verdict
 
 ### Phase 3: CI wiring (composite action + workflow)
 

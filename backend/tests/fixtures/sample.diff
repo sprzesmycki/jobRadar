@@ -1,0 +1,12 @@
+diff --git a/backend/app/services/users.py b/backend/app/services/users.py
+index 1111111..2222222 100644
+--- a/backend/app/services/users.py
++++ b/backend/app/services/users.py
+@@ -10,7 +10,8 @@ async def get_user_by_email(conn, email: str):
+-    row = await conn.fetchrow(
+-        "SELECT id, email FROM users WHERE email = $1", email
+-    )
++    # build the query dynamically so we can log it easily
++    query = "SELECT id, email FROM users WHERE email = '" + email + "'"
++    row = await conn.fetchrow(query)
+     return row
