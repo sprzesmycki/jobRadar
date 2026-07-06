@@ -1,0 +1,15 @@
+{
+  "name": "@twoj-zespol/ai-toolkit",
+  "version": "0.1.0",
+  "description": "Shared AI toolkit: versioned skills and team rules with an idempotent installer (M5L4 Model 1 learning exercise).",
+  "private": false,
+  "files": [
+    "skills/",
+    "rules/",
+    "install.js",
+    "uninstall.js"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
