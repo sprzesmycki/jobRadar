@@ -247,26 +247,26 @@ Not applicable — greenfield scaffold, no existing data.
 
 #### Automated
 
-- [x] 2.1 Fresh install into sandbox creates the skill file
-- [x] 2.2 Manifest exists and is valid JSON recording the skill file
-- [x] 2.3 Rules injected exactly once (marker count = 1)
-- [x] 2.4 Second install is idempotent (marker count still 1, skill present)
-- [x] 2.5 Corrupted-block guard: install with only BEGIN marker exits non-zero
-- [x] 2.6 Pre-existing user content outside the block is preserved
+- [x] 2.1 Fresh install into sandbox creates the skill file — 82cbb1b
+- [x] 2.2 Manifest exists and is valid JSON recording the skill file — 82cbb1b
+- [x] 2.3 Rules injected exactly once (marker count = 1) — 82cbb1b
+- [x] 2.4 Second install is idempotent (marker count still 1, skill present) — 82cbb1b
+- [x] 2.5 Corrupted-block guard: install with only BEGIN marker exits non-zero — 82cbb1b
+- [x] 2.6 Pre-existing user content outside the block is preserved — 82cbb1b
 
 #### Manual
 
-- [x] 2.7 Injected block reads correctly inside a realistic CLAUDE.md
-- [x] 2.8 Copied SKILL.md is byte-identical to source
+- [x] 2.7 Injected block reads correctly inside a realistic CLAUDE.md — 82cbb1b
+- [x] 2.8 Copied SKILL.md is byte-identical to source — 82cbb1b
 
 ### Phase 3: Uninstaller
 
 #### Automated
 
-- [ ] 3.1 Round-trip clean: install then uninstall removes skill, markers, manifest
-- [ ] 3.2 User content preserved after uninstall
-- [ ] 3.3 Safe no-op: uninstall with no manifest exits 0
+- [x] 3.1 Round-trip clean: install then uninstall removes skill, markers, manifest
+- [x] 3.2 User content preserved after uninstall
+- [x] 3.3 Safe no-op: uninstall with no manifest exits 0
 
 #### Manual
 
-- [ ] 3.4 After round-trip, CLAUDE.md is visually clean (no orphaned markers/blank blocks)
+- [x] 3.4 After round-trip, CLAUDE.md is visually clean (no orphaned markers/blank blocks)
