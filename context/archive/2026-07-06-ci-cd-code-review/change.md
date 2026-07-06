@@ -1,10 +1,10 @@
 ---
 change_id: ci-cd-code-review
 title: AI code review pipeline on z.ai/GLM for pull requests
-status: impl_reviewed
+status: archived
 created: 2026-07-06
 updated: 2026-07-06
-archived_at: null
+archived_at: 2026-07-06T10:38:00Z
 ---
 
 ## Notes
