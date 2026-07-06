@@ -35,6 +35,7 @@ runs:
         AI_PROVIDER_API_KEY: ${{ inputs.api-key }}
         PR_TITLE: ${{ inputs.pr-title }}
         PR_BODY: ${{ inputs.pr-body }}
+        PYTHONPATH: ${{ github.workspace }}/backend
       run: |
         uv sync
         uv run python scripts/pr_review.py \

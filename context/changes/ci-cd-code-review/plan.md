@@ -309,12 +309,12 @@ Phase 1 refactors production `scoring.py`/`cover_letter.py`. It is behavior-pres
 
 #### Automated
 
-- [x] 3.1 Both YAML files parse
-- [ ] 3.2 Branch pushed and PR created (`gh pr view --json url`)
+- [x] 3.1 Both YAML files parse — a3967b7
+- [x] 3.2 Branch pushed and PR created (`gh pr view --json url`)
 
 #### Manual
 
-- [ ] 3.3 `AI Code Review` workflow appears in the PR's Actions tab
+- [x] 3.3 `AI Code Review` workflow appears in the PR's Actions tab
 
 ### Phase 4: Real run + 10xChampion evidence (manual gate)
 
