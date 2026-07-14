@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-JobRadar is an Astro 6 + React 19 + TypeScript app targeting Cloudflare, with Supabase for Auth/Postgres/Storage and a planned FastAPI service on the owner's VPS for Python-heavy CV and AI work. Treat `context/foundation/*.md` as the product and stack contract before changing architecture.
+JobRadar is an Astro 6 + React 19 + TypeScript app targeting Cloudflare, with Supabase for Auth/Postgres/Storage and a FastAPI service (`backend/`) on the owner's VPS for Python-heavy CV and AI work. Treat `context/foundation/*.md` as the product and stack contract before changing architecture.
 
 ## Hard Rules
 
@@ -15,15 +15,17 @@ JobRadar is an Astro 6 + React 19 + TypeScript app targeting Cloudflare, with Su
 - `npm install` installs the scaffolded Astro/Supabase dependencies.
 - `cp .env.example .dev.vars` sets local Cloudflare dev placeholders; replace with real Supabase values for auth flows.
 - `npm run dev` starts Astro locally.
-- `npm run lint` and `npm run build` are the required verification commands before commits.
+- `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` are the required verification commands before commits. In `backend/`, run `uv run pytest`.
 - `npm audit --json` records dependency advisories; current bootstrap log is at `context/changes/bootstrap-verification/verification.md`.
 
 ## Project Structure
 
 - `src/pages/` contains Astro routes and server endpoints; auth API routes live in `src/pages/api/auth/`.
 - `src/components/` holds Astro and React UI components; shared primitives live in `src/components/ui/`.
-- `src/lib/` contains shared utilities and Supabase client setup.
+- `src/lib/` contains shared utilities and Supabase client setup; `src/lib/job-sources/` holds the per-portal adapters and the aggregator.
 - `src/middleware.ts` protects authenticated routes; update its protected-route list when adding private pages.
+- `src/__tests__/` holds the Vitest suite for BFF routes and helpers.
+- `backend/` is the FastAPI service (CV extraction, scoring, cover letters); its tests live in `backend/tests/`.
 - `supabase/` contains local Supabase config. Product and infrastructure decisions live under `context/foundation/`.
 
 ## Style And Conventions
@@ -32,7 +34,12 @@ Use TypeScript, ESM, Astro components for server-rendered pages/layout, and Reac
 
 ## Testing And CI
 
-There is no dedicated test runner yet. Until one is added, `npm run lint` plus `npm run build` is the baseline gate. GitHub Actions runs on the canonical `main` branch. CI needs `SUPABASE_URL` and `SUPABASE_KEY` secrets for builds.
+Frontend tests run on Vitest (`npm test`); backend tests run on pytest (`cd backend && uv run pytest`). The baseline gate before a commit is `npm run lint && npm run typecheck && npm test && npm run build`, plus `uv run pytest` when `backend/` changed.
+
+GitHub Actions runs on the canonical `main` branch:
+
+- `.github/workflows/ci.yml` — three jobs: `ci` (lint, typecheck, build), `frontend-tests` (`npm test`), `backend-tests` (`uv sync --group dev` + `uv run pytest`). The `ci` job needs the `SUPABASE_URL` and `SUPABASE_KEY` repository secrets.
+- `.github/workflows/ai-review.yml` — AI code review on every PR to `main` (and on the `ai-cr:review` label). It posts a verdict comment and applies an `ai-cr:passed` / `ai-cr:failed` / `ai-cr:review` label. Advisory only; it does not block the merge.
 
 ## Commits And PRs
 
