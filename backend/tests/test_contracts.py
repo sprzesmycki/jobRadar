@@ -41,8 +41,9 @@ def authed_client() -> Iterator[TestClient]:
     app.dependency_overrides.clear()
 
 
-def test_healthz(client: TestClient) -> None:
-    response = client.get("/healthz")
+@pytest.mark.parametrize("path", ["/healthz", "/health"])
+def test_healthz(client: TestClient, path: str) -> None:
+    response = client.get(path)
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"

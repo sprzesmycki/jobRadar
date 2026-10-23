@@ -11,6 +11,7 @@ router = APIRouter(tags=["health"])
 
 
 @router.get("/healthz", response_model=HealthResponse)
+@router.get("/health", response_model=HealthResponse)  # same path as the other apps on the host
 async def healthz() -> HealthResponse:
     settings = get_settings()
     return HealthResponse(
